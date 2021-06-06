@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorBackground">
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ListView
+        android:id="@+id/noteReminderListView"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="20.0sp"
+        android:textColor="?attr/colorText" />
+
+    <TextView
+        android:id="@+id/noteView"
+        android:layout_width="251dp"
+        android:layout_height="42dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="65dp"
+        android:layout_marginEnd="15dp"
+        android:singleLine="true"
+        android:text="Reminders"
+        android:textAlignment="textStart"
+        android:textColor="?attr/colorTint"
+        android:textSize="22sp" />
+
+</RelativeLayout>

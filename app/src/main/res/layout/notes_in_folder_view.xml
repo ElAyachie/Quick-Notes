@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorBackground">
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ListView
+        android:id="@+id/notesFolderListView"
+        android:layout_width="wrap_content"
+        android:layout_height="280dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="20.0sp"
+        android:textColor="?attr/colorText" />
+
+    <TextView
+        android:id="@+id/folderNameView"
+        android:layout_width="251dp"
+        android:layout_height="42dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="65dp"
+        android:layout_marginEnd="15dp"
+        android:singleLine="true"
+        android:text="Folder"
+        android:textColor="?attr/colorTint"
+        android:textAlignment="textStart"
+        android:textSize="22sp" />
+
+    <Button
+        android:id="@+id/newNoteBtn"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="65dp"
+        android:layout_marginEnd="15dp"
+        android:background="?attr/colorPrimary"
+        android:text="New Note"
+        android:textAllCaps="false"
+        android:textColor="@android:color/background_light" />
+
+</RelativeLayout>

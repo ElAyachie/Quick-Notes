@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <drawable name="note_add_new_note">@drawable/note_add_white_18dp</drawable>
+</resources>

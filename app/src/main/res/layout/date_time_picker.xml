@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:padding="8dp"
+    android:layout_height="match_parent"
+    android:background="?attr/colorOtherTint"
+    app:layout_constraintHeight_percent="3">
+
+
+    <Button
+        android:id="@+id/date_time_set"
+        android:layout_width="140dp"
+        android:layout_height="90dp"
+        android:layout_below="@+id/time_picker"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="5dp"
+        android:background="?attr/colorPrimary"
+        android:text="Set"
+        android:textColor="#fcfcfc" />
+
+    <Button
+        android:id="@+id/cancelButton"
+        android:layout_width="140dp"
+        android:layout_height="90dp"
+        android:layout_below="@+id/time_picker"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="1dp"
+        android:background="?attr/colorPrimary"
+        android:text="Cancel"
+        android:textColor="#fcfcfc" />
+
+    <DatePicker
+        android:id="@+id/date_picker"
+        android:layout_width="396dp"
+        android:layout_height="383dp"
+        android:background="?attr/colorOtherTint"
+        android:calendarTextColor="?attr/colorText"
+        android:calendarViewShown="true"
+        android:headerBackground="?attr/colorPrimary"
+        android:numbersTextColor="?attr/colorText"
+        android:spinnersShown="false"
+        android:yearListSelectorColor="?attr/colorText"
+        tools:targetApi="lollipop" />
+
+    <TimePicker
+        android:id="@+id/time_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/date_picker"
+        android:layout_marginTop="-7dp"
+        android:headerBackground="?attr/colorPrimary"
+        android:background="?attr/colorOtherTint"
+        android:numbersInnerTextColor="?attr/colorText"
+        android:timePickerMode="spinner"
+        tools:targetApi="m" />
+
+</RelativeLayout>
+

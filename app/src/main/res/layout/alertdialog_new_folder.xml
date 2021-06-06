@@ -1,0 +1,57 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorBackground">
+
+    <TextView
+        android:id="@+id/folderNameView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorText"
+        android:text="New Folder"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:layout_marginTop="15dp"/>
+
+    <EditText
+        android:id="@+id/folderName"
+        android:inputType="textEmailAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorText"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="22dp"
+        android:hint="Name"
+        android:textColorHint="?attr/colorTint"
+        android:textColorHighlight="?attr/colorControlHighlight"/>
+
+ <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+     <Button
+         style="?android:buttonBarButtonStyle"
+         android:id="@+id/cancelButton"
+         android:layout_width="wrap_content"
+         android:layout_height="match_parent"
+         android:layout_marginStart="210dp"
+         android:background="?attr/colorBackground"
+         android:text="CANCEL"
+         android:textColor="?attr/colorAccent" />
+
+     <Button
+         style="?android:buttonBarButtonStyle"
+         android:id="@+id/positiveButton"
+         android:layout_width="0dp"
+         android:layout_height="match_parent"
+         android:layout_weight="1"
+         android:background="?attr/colorBackground"
+         android:text="OK"
+         android:textColor="?attr/colorAccent" />
+
+ </LinearLayout>
+
+</LinearLayout>

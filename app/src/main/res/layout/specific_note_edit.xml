@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/relativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:background="?attr/colorBackground">
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <EditText
+        android:id="@+id/noteNameText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/include"
+        android:layout_alignTop="@+id/include"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="65dp"
+        android:layout_marginEnd="15dp"
+        android:hint="Name"
+        android:inputType="textNoSuggestions"
+        android:nextFocusForward="@+id/textInputLayout"
+        android:textColor="?attr/colorText"
+        android:textColorHighlight="?attr/colorControlHighlight"
+        android:textColorHint="?attr/colorTint"
+        android:textSize="20sp" />
+
+    <Spinner
+        android:id="@+id/folderSpin"
+        android:layout_width="match_parent"
+        android:layout_height="53dp"
+        android:layout_below="@+id/noteNameText"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="30dp"
+        android:layout_toStartOf="@+id/addNoteButton"
+        android:textSize="20sp" />
+
+    <ImageButton
+        android:id="@+id/addNoteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noteNameText"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="25dp"
+        android:background="@color/colorPrimary"
+        android:contentDescription="TODO"
+        app:srcCompat="@drawable/note_add_new_note" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        android:layout_width="379dp"
+        android:layout_height="528dp"
+        android:layout_below="@+id/folderSpin"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp"
+        android:hint="Note"
+        android:textColorHint="?attr/colorTint">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/reminderNameText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:textColor="?attr/colorText"
+            android:textColorHighlight="?attr/colorControlHighlight"
+            android:textColorHint="?attr/colorTint"
+            android:textColorLink="?attr/colorText" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</RelativeLayout>

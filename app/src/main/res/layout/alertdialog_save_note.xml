@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorBackground">
+
+    <TextView
+        android:id="@+id/deleteFolderView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorText"
+        android:text="Would you like to save this note?"
+        android:textSize="20sp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:layout_marginTop="15dp"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorBackground">
+
+        <Button
+            style="?android:buttonBarButtonStyle"
+            android:id="@+id/cancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="210dp"
+            android:background="?attr/colorBackground"
+            android:text="CANCEL"
+            android:textColor="?attr/colorAccent" />
+
+        <Button
+            style="?android:buttonBarButtonStyle"
+            android:id="@+id/positiveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/colorBackground"
+            android:text="YES"
+            android:textColor="?attr/colorAccent" />
+
+    </LinearLayout>
+
+</LinearLayout>
