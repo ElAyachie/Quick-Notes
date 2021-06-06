@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="Settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_reminder_page"
+        android:orderInCategory="100"
+        android:title="Reminders"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_set_reminder"
+        android:orderInCategory="100"
+        android:title="Schedule Reminder"
+        app:showAsAction="never" />
+</menu>
