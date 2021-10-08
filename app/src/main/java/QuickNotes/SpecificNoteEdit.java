@@ -24,10 +24,12 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,8 +40,10 @@ public class SpecificNoteEdit extends AppCompatActivity {
     String currentFolder;
     String currentNoteName;
     String currentNoteContent;
+    String currentNoteDate;
     EditText noteNameText;
     TextInputEditText noteContentText;
+    TextView noteDateText;
     ImageButton confirmChangesBtn;
     Date dateEdited;
     Context context;
@@ -71,13 +75,16 @@ public class SpecificNoteEdit extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         confirmChangesBtn = findViewById(R.id.addNoteButton);
         noteNameText = findViewById(R.id.noteNameText);
+        noteDateText = findViewById(R.id.noteDateText);
         folderSpin = findViewById(R.id.folderSpin);
         noteContentText = findViewById(R.id.reminderNameText);
         currentFolder = getIntent().getStringExtra("Folder name");
         currentNoteName = getIntent().getStringExtra("Note name");
         currentNoteContent = getIntent().getStringExtra("Note content");
+        currentNoteDate = getIntent().getStringExtra("Note date");
         noteNameText.setText(currentNoteName);
         noteContentText.setText(currentNoteContent);
+        noteDateText.setText(currentNoteDate);
         //setting up the spinner with folder names
         folderNamesList = Note.loadFolderNames(context);
         folderNamesListAdapter = new ArrayAdapter<>(context, R.layout.custom_spinner, folderNamesList);
@@ -98,7 +105,9 @@ public class SpecificNoteEdit extends AppCompatActivity {
                 }
                 dateEdited = Calendar.getInstance().getTime();
                 Note.deleteNote(context, currentNoteName, currentFolder);
-                Note.saveNote(context, currentFolder, currentNoteName, currentNoteContent);
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                String dateString = formatter.format(dateEdited);
+                Note.saveNote(context, currentFolder, currentNoteName, currentNoteContent, dateString);
                 new NotesInFolderPage().refreshListView(context, currentFolder);
                 Toast.makeText(context, "Note saved.", Toast.LENGTH_LONG).show();
             }
@@ -122,7 +131,6 @@ public class SpecificNoteEdit extends AppCompatActivity {
         }
         else if (!currentNoteContent.equals(noteContentString) || !currentFolder.equals(folderNameString)
                 || !currentNoteName.equals(noteNameString)) {
-            System.out.println("THIS RAN I PROMISE THIS RAN");
             View alertView = View.inflate(this, R.layout.alertdialog_save_note, null);
             final Button positiveButton = alertView.findViewById(R.id.positiveButton);
             final Button cancelButton = alertView.findViewById(R.id.cancelButton);
@@ -132,7 +140,10 @@ public class SpecificNoteEdit extends AppCompatActivity {
                 public void onClick(View view) {
                     dateEdited = Calendar.getInstance().getTime();
                     Note.deleteNote(context, currentNoteName, currentFolder);
-                    Note.saveNote(context, folderNameString, noteNameString, noteContentString);
+                    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                    String dateString = formatter.format(dateEdited);
+                    Note.deleteNote(context, currentNoteName, currentFolder);
+                    Note.saveNote(context, folderNameString, noteNameString, noteContentString, dateString);
                     new NotesInFolderPage().refreshListView(context, currentFolder);
                     Toast.makeText(context, "Note saved.", Toast.LENGTH_LONG).show();
                     SpecificNoteEdit.super.onBackPressed();

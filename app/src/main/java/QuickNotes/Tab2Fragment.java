@@ -18,6 +18,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import java.util.ArrayList;
@@ -81,7 +82,10 @@ public class Tab2Fragment extends Fragment {
                         positiveButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Note.saveNote(context, folderSpin.getSelectedItem().toString(), noteNameString, noteString);
+                                dateCreated = Calendar.getInstance().getTime();
+                                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                                String dateString = formatter.format(dateCreated);
+                                Note.saveNote(context, folderSpin.getSelectedItem().toString(), noteNameString, noteString, dateString);
                                 updateTextFields();
                                 Toast.makeText(getContext(), "Note overwritten.", Toast.LENGTH_LONG).show();
                                 optionDialog.dismiss();
@@ -94,7 +98,10 @@ public class Tab2Fragment extends Fragment {
                             }
                         });
                     } else {
-                        Note.saveNote(context, folderSpin.getSelectedItem().toString(), noteNameString, noteString);
+                        dateCreated = Calendar.getInstance().getTime();
+                        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                        String dateString = formatter.format(dateCreated);
+                        Note.saveNote(context, folderSpin.getSelectedItem().toString(), noteNameString, noteString, dateString);
                         updateTextFields();
                         Toast.makeText(getContext(), "Note saved.", Toast.LENGTH_LONG).show();
                     }

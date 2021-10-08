@@ -18,13 +18,29 @@
         android:id="@+id/noteContentText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_below="@+id/noteNameText"
+        android:layout_alignParentStart="true"
         android:fontFamily="sans-serif"
-        android:paddingBottom="3dip"
+        android:maxLines="2"
         android:paddingTop="2dip"
+        android:paddingBottom="3dip"
         android:textColor="?attr/colorText"
         android:textSize="16sp"
-        android:textStyle="normal"
-        android:maxLines="2"/>
+        android:textStyle="normal" />
+
+    <TextView
+        android:id="@+id/noteDateText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noteContentText"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="-1dp"
+        android:layout_marginTop="-1dp"
+        android:fontFamily="sans-serif"
+        android:maxLines="2"
+        android:paddingTop="2dip"
+        android:paddingBottom="3dip"
+        android:textColor="?attr/colorText"
+        android:textSize="12dp"
+        android:textStyle="normal|bold" />
 </RelativeLayout>
