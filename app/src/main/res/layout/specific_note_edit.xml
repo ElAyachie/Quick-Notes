@@ -65,7 +65,7 @@
         android:layout_marginStart="15dp"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="45dp"
         android:hint="Note"
         android:textColorHint="?attr/colorTint">
 
@@ -80,5 +80,17 @@
             android:textColorLink="?attr/colorText" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/noteDateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="337dp"
+        android:layout_marginBottom="19dp"
+        android:text="TextView"
+        android:textSize="12dp"
+        android:textStyle="bold" />
 
 </RelativeLayout>

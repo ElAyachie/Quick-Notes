@@ -13,7 +13,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,15 +24,17 @@ import java.util.Scanner;
 
 class Note {
     @SuppressLint("NewApi")
-    static void saveNote(Context context, String folderName, String noteName, String content) {
+    static void saveNote(Context context, String folderName, String noteName, String content, String dateString) {
         String filePath = context.getFilesDir().getAbsolutePath() + "/" + "notes_folders";
         try {
             String fileName = noteName + ".txt";
             // files get saved inside of the folder the user chooses
             filePath = filePath + "/" + folderName;
             File file = new File(filePath, fileName);
-            //stream can be used to write into the file
+            // The first line will have the date the file was created and the rest of the lines will have the content
             FileOutputStream stream = new FileOutputStream(file);
+            stream.write(dateString.getBytes());
+            stream.write("\n".getBytes());
             stream.write(content.getBytes());
             stream.write("\n".getBytes());
             stream.close();
@@ -77,6 +82,7 @@ class Note {
         } else {
             Log.d("Problem:","File is not a folder.");
         }
+        Collections.reverse(noteNames);
         return noteNames;
     }
 
@@ -96,6 +102,23 @@ class Note {
         return noteContent;
     }
 
+    static ArrayList<String> loadAllNoteDateInFolder(Context context, String folderName) {
+        String filePath = context.getFilesDir().getAbsolutePath() + "/" + "notes_folders";
+        ArrayList<String> noteDate = new ArrayList<>();
+        filePath = filePath + "/" + folderName;
+        File dir = new File(filePath);
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                noteDate.add(loadDate(context, child.getName(), folderName));
+            }
+        } else {
+            Log.d("Problem:","File is not a folder.");
+        }
+        Collections.reverse(noteDate);
+        return noteDate;
+    }
+
     public static String loadNote(Context context, String noteName, String folderName) {
         String filePath = context.getFilesDir() + "/" + "notes_folders" + "/" + folderName + "/" + noteName;
         StringBuilder noteContent = new StringBuilder();
@@ -106,10 +129,13 @@ class Note {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String receiveString;
             while ((receiveString = bufferedReader.readLine()) != null) {
-                if (counter > 0) {
+                // First line contains the date the note was created
+                if (counter > 2) {
                     noteContent.append('\n');
                 }
-                noteContent.append(receiveString);
+                if (counter >= 1) {
+                    noteContent.append(receiveString);
+                }
                 counter++;
             }
             inputStream.close();
@@ -119,6 +145,26 @@ class Note {
             Log.e("Note", "Can not read file: " + e.toString());
         }
         return noteContent.toString();
+    }
+
+    public static String loadDate(Context context, String noteName, String folderName) {
+        String filePath = context.getFilesDir() + "/" + "notes_folders" + "/" + folderName + "/" + noteName;
+        StringBuilder noteDate = new StringBuilder();
+        int counter = 0;
+        try {
+            FileInputStream inputStream = new FileInputStream(new File(filePath));
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String receiveString;
+            receiveString = bufferedReader.readLine();
+            noteDate.append(receiveString);
+            inputStream.close();
+        } catch (FileNotFoundException e) {
+            Log.e("Note", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("Note", "Can not read file: " + e.toString());
+        }
+        return noteDate.toString();
     }
 
     static ArrayList<String> loadFolderNames(Context context) {
