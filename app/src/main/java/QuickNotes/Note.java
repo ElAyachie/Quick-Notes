@@ -130,7 +130,7 @@ class Note {
             String receiveString;
             while ((receiveString = bufferedReader.readLine()) != null) {
                 // First line contains the date the note was created
-                if (counter > 2) {
+                if (counter > 1) {
                     noteContent.append('\n');
                 }
                 if (counter >= 1) {
