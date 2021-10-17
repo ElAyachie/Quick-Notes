@@ -32,12 +32,12 @@ class Note {
             filePath = filePath + "/" + folderName;
             File file = new File(filePath, fileName);
             // The first line will have the date the file was created and the rest of the lines will have the content
-            FileOutputStream stream = new FileOutputStream(file);
-            stream.write(dateString.getBytes());
-            stream.write("\n".getBytes());
-            stream.write(content.getBytes());
-            stream.write("\n".getBytes());
-            stream.close();
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(dateString.getBytes());
+            fos.write("\n".getBytes());
+            fos.write(content.getBytes());
+            fos.write("\n".getBytes());
+            fos.close();
         } catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
         }
@@ -99,6 +99,7 @@ class Note {
         } else {
             Log.d("Problem:","File is not a folder.");
         }
+        Collections.reverse(noteContent);
         return noteContent;
     }
 
@@ -133,7 +134,7 @@ class Note {
                 if (counter > 1) {
                     noteContent.append('\n');
                 }
-                if (counter >= 1) {
+                if (counter > 0) {
                     noteContent.append(receiveString);
                 }
                 counter++;
@@ -150,7 +151,6 @@ class Note {
     public static String loadDate(Context context, String noteName, String folderName) {
         String filePath = context.getFilesDir() + "/" + "notes_folders" + "/" + folderName + "/" + noteName;
         StringBuilder noteDate = new StringBuilder();
-        int counter = 0;
         try {
             FileInputStream inputStream = new FileInputStream(new File(filePath));
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);

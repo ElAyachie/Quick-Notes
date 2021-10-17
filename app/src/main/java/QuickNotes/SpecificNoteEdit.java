@@ -38,6 +38,7 @@ import java.util.GregorianCalendar;
 
 public class SpecificNoteEdit extends AppCompatActivity {
     String currentFolder;
+    String previousFolder;
     String currentNoteName;
     String currentNoteContent;
     String currentNoteDate;
@@ -96,6 +97,7 @@ public class SpecificNoteEdit extends AppCompatActivity {
         confirmChangesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                previousFolder = currentFolder;
                 currentFolder = folderSpin.getSelectedItem().toString();
                 currentNoteName = noteNameText.getText().toString();
                 assert noteContentText.getText() != null;
@@ -104,7 +106,7 @@ public class SpecificNoteEdit extends AppCompatActivity {
                     noteNameText.setError("Please enter a name.");
                 }
                 dateEdited = Calendar.getInstance().getTime();
-                Note.deleteNote(context, currentNoteName, currentFolder);
+                Note.deleteNote(context, currentNoteName, previousFolder);
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
                 String dateString = formatter.format(dateEdited);
                 Note.saveNote(context, currentFolder, currentNoteName, currentNoteContent, dateString);
@@ -142,7 +144,6 @@ public class SpecificNoteEdit extends AppCompatActivity {
                     Note.deleteNote(context, currentNoteName, currentFolder);
                     SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
                     String dateString = formatter.format(dateEdited);
-                    Note.deleteNote(context, currentNoteName, currentFolder);
                     Note.saveNote(context, folderNameString, noteNameString, noteContentString, dateString);
                     new NotesInFolderPage().refreshListView(context, currentFolder);
                     Toast.makeText(context, "Note saved.", Toast.LENGTH_LONG).show();
