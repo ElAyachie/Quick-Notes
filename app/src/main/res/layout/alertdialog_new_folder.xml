@@ -1,15 +1,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="?attr/colorBackground">
 
     <TextView
-        android:id="@+id/folderNameView"
+        android:id="@+id/noteNameView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="?attr/colorText"
-        android:text="New Folder"
+        android:text="@string/new_folder"
         android:textSize="20sp"
         android:gravity="center"
         android:layout_marginTop="15dp"/>
@@ -23,9 +24,10 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="22dp"
-        android:hint="Name"
+        android:hint="@string/name"
         android:textColorHint="?attr/colorTint"
-        android:textColorHighlight="?attr/colorControlHighlight"/>
+        android:textColorHighlight="?attr/colorControlHighlight"
+        android:autofillHints="" />
 
  <LinearLayout
     android:orientation="horizontal"
@@ -33,14 +35,15 @@
     android:layout_height="wrap_content">
 
      <Button
-         style="?android:buttonBarButtonStyle"
          android:id="@+id/cancelButton"
+         style="?android:buttonBarButtonStyle"
          android:layout_width="wrap_content"
          android:layout_height="match_parent"
          android:layout_marginStart="210dp"
          android:background="?attr/colorBackground"
-         android:text="CANCEL"
-         android:textColor="?attr/colorAccent" />
+         android:text="@string/cancel"
+         android:textColor="?attr/colorAccent"
+         tools:ignore="DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck" />
 
      <Button
          style="?android:buttonBarButtonStyle"
@@ -49,7 +52,7 @@
          android:layout_height="match_parent"
          android:layout_weight="1"
          android:background="?attr/colorBackground"
-         android:text="OK"
+         android:text="@string/ok"
          android:textColor="?attr/colorAccent" />
 
  </LinearLayout>

@@ -1,39 +1,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="?attr/colorBackground">
 
     <TextView
-        android:id="@+id/folderNameView"
+        android:id="@+id/noteNameView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="?attr/colorText"
-        android:text="New Note"
-        android:textSize="20sp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="15dp"
         android:gravity="center"
-        android:layout_marginTop="15dp"/>
+        android:text="@string/new_note"
+        android:textColor="?attr/colorText"
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/noteNameText"
-        android:inputType="textEmailAddress"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="?attr/colorText"
+        android:layout_height="match_parent"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
-        android:hint="Name"
-        android:textColorHint="?attr/colorTint" />
+        android:autofillHints=""
+        android:hint="@string/name"
+        android:lineSpacingExtra="4sp"
+        android:textColor="?attr/colorText"
+        android:textColorHint="?attr/colorTint"
+        android:inputType="text" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/reminderNameText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHighlight="?attr/colorControlHighlight"
+        android:hint="@string/note"
+        android:lineSpacingExtra="4sp"
+        android:minHeight="48dp"
         android:textColor="?attr/colorText"
+        android:textColorHighlight="?attr/colorControlHighlight"
         android:textColorHint="?attr/colorTint"
-        android:textColorLink="?attr/colorText"
-        android:hint="Note" />
+        android:textColorLink="?attr/colorText" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -42,14 +47,15 @@
         android:background="?attr/colorBackground">
 
         <Button
-            style="?android:buttonBarButtonStyle"
             android:id="@+id/cancelButton"
+            style="?android:buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="210dp"
             android:background="?attr/colorBackground"
-            android:text="CANCEL"
-            android:textColor="?attr/colorAccent" />
+            android:text="@string/cancel"
+            android:textColor="?attr/colorAccent"
+            tools:ignore="DuplicateSpeakableTextCheck" />
 
         <Button
             style="?android:buttonBarButtonStyle"
@@ -58,7 +64,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?attr/colorBackground"
-            android:text="OK"
+            android:text="@string/ok"
             android:textColor="?attr/colorAccent" />
 
     </LinearLayout>

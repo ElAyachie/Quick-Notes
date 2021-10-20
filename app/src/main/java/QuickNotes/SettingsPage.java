@@ -1,14 +1,15 @@
 package QuickNotes;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Switch;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 
 public class SettingsPage extends AppCompatActivity {
     Switch toggleThemeSwitch;
@@ -31,6 +32,7 @@ public class SettingsPage extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
@@ -39,19 +41,10 @@ public class SettingsPage extends AppCompatActivity {
         if (pref.getBoolean("NIGHT MODE", false)){
             toggleThemeSwitch.setChecked(true);
         }
-        toggleThemeSwitch.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged (CompoundButton buttonView, boolean isChecked){
-                if (isChecked) {
-                    editor.putBoolean("NIGHT MODE", true);
-                    editor.apply();
-                    recreate();
-                } else {
-                    editor.putBoolean("NIGHT MODE", false);
-                    editor.apply();
-                    recreate();
-                }
-            }
+        toggleThemeSwitch.setOnCheckedChangeListener ((buttonView, isChecked) -> {
+            editor.putBoolean("NIGHT MODE", isChecked);
+            editor.apply();
+            recreate();
         });
         }
 

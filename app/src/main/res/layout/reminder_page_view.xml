@@ -36,7 +36,7 @@
         android:layout_marginTop="65dp"
         android:layout_marginEnd="15dp"
         android:singleLine="true"
-        android:text="Reminders"
+        android:text="@string/reminders"
         android:textAlignment="textStart"
         android:textColor="?attr/colorTint"
         android:textSize="22sp" />

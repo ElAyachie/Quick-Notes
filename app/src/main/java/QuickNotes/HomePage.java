@@ -16,15 +16,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-
-
 public class HomePage extends AppCompatActivity {
     SectionsPageAdapter mSectionsPageAdapter;
     ViewPager viewPager;
     TabLayout tabLayout;
     SharedPreferences pref;
     Boolean nightTheme;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,11 +1,7 @@
 package QuickNotes;
 
 import android.content.Context;
-import com.google.android.material.textfield.TextInputEditText;
-import androidx.fragment.app.Fragment;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,16 +13,20 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 
 public class Tab2Fragment extends Fragment {
-    static ArrayAdapter folderNamesListAdapter;
+    static ArrayAdapter<String> folderNamesListAdapter;
     ImageButton addNoteButton;
     TextInputEditText noteContentText;
     EditText noteNameText;
@@ -56,55 +56,44 @@ public class Tab2Fragment extends Fragment {
 
         // Button used for creating notes.
         addNoteButton = mainView.findViewById(R.id.addNoteButton);
-        addNoteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                noteNameString = noteNameText.getText().toString();
-                if(noteContentText.getText() != null){
-                    noteString = noteContentText.getText().toString();
-                }
-                else {
-                    noteString = "";
-                }
-                // Inform the user that they need a name for the note to be made.
-                if (noteNameString.equals("")) {
-                    noteNameText.setError("Please enter a name.");
-                } else {
-                    dateCreated = Calendar.getInstance().getTime();
-                    ArrayList<String> allNotesNames = Note.loadAllNoteNamesInFolder(context, folderSpin.getSelectedItem().toString());
-                    if (allNotesNames.contains(noteNameString)) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        View alertView = getLayoutInflater().inflate(R.layout.alertdialog_overwrite_note, container);
-                        final Button positiveButton = alertView.findViewById(R.id.positiveButton);
-                        final Button cancelButton = alertView.findViewById(R.id.cancelButton);
-                        builder.setView(alertView);
-                        final AlertDialog optionDialog = builder.show();
-                        positiveButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                dateCreated = Calendar.getInstance().getTime();
-                                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-                                String dateString = formatter.format(dateCreated);
-                                Note.saveNote(context, folderSpin.getSelectedItem().toString(), noteNameString, noteString, dateString);
-                                updateTextFields();
-                                Toast.makeText(getContext(), "Note overwritten.", Toast.LENGTH_LONG).show();
-                                optionDialog.dismiss();
-                            }
-                        });
-                        cancelButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                optionDialog.dismiss();
-                            }
-                        });
-                    } else {
+        addNoteButton.setOnClickListener(view -> {
+            noteNameString = noteNameText.getText().toString();
+            if(noteContentText.getText() != null){
+                noteString = noteContentText.getText().toString();
+            }
+            else {
+                noteString = "";
+            }
+            // Inform the user that they need a name for the note to be made.
+            if (noteNameString.equals("")) {
+                noteNameText.setError("Please enter a name.");
+            } else {
+                dateCreated = Calendar.getInstance().getTime();
+                ArrayList<String> allNotesNames = Note.loadAllNoteNamesInFolder(context, folderSpin.getSelectedItem().toString());
+                if (allNotesNames.contains(noteNameString)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    View alertView = getLayoutInflater().inflate(R.layout.alertdialog_overwrite_note, container);
+                    final Button positiveButton = alertView.findViewById(R.id.positiveButton);
+                    final Button cancelButton = alertView.findViewById(R.id.cancelButton);
+                    builder.setView(alertView);
+                    final AlertDialog optionDialog = builder.show();
+                    positiveButton.setOnClickListener(view1 -> {
                         dateCreated = Calendar.getInstance().getTime();
-                        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                         String dateString = formatter.format(dateCreated);
                         Note.saveNote(context, folderSpin.getSelectedItem().toString(), noteNameString, noteString, dateString);
                         updateTextFields();
-                        Toast.makeText(getContext(), "Note saved.", Toast.LENGTH_LONG).show();
-                    }
+                        Toast.makeText(getContext(), "Note overwritten.", Toast.LENGTH_LONG).show();
+                        optionDialog.dismiss();
+                    });
+                    cancelButton.setOnClickListener(view12 -> optionDialog.dismiss());
+                } else {
+                    dateCreated = Calendar.getInstance().getTime();
+                    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                    String dateString = formatter.format(dateCreated);
+                    Note.saveNote(context, folderSpin.getSelectedItem().toString(), noteNameString, noteString, dateString);
+                    updateTextFields();
+                    Toast.makeText(getContext(), "Note saved.", Toast.LENGTH_LONG).show();
                 }
             }
         });
