@@ -1,6 +1,5 @@
 package QuickNotes;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -16,16 +15,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.Objects;
 
 class Reminder {
-    @SuppressLint("NewApi")
-
-    private static boolean fileExists(Context context, String fileName) {
-        String filePath = context.getFilesDir().getAbsolutePath();
-        File file = new File(filePath, fileName);
-        return file.exists();
-    }
-
     private static boolean folderExists(Context context) {
         File file = new File(context.getFilesDir().getAbsolutePath() + "/" + "notes_folders" + "/" + "reminders_folder");
         return file.isDirectory();
@@ -36,7 +29,8 @@ class Reminder {
         if (!folderExists(context)) {
             File folder = new File(filePath, "reminders_folder");
             filePath = filePath + "/reminders_folder";
-            folder.mkdir();
+            Boolean result = folder.mkdir();
+            Log.d("Create result: ", result + "");
         }
         else{
             filePath = filePath + "/reminders_folder";
@@ -56,23 +50,25 @@ class Reminder {
         }
     }
     static void deleteReminder(Context context, String fileName){
-        String folderName = context.getFilesDir().getAbsolutePath() + "/reminders_folder";
         String filePath = context.getFilesDir().getAbsolutePath() + "/reminders_folder" + "/" + fileName;
         File fileOrDirectory = new File(filePath);
-        fileOrDirectory.delete();
+        Boolean result = fileOrDirectory.delete();
+        Log.d("Create result: ", result + "");
     }
 
     static void deleteReminder(Context context, String noteName, String reminderDate) {
         String folderName = context.getFilesDir().getAbsolutePath() + "/reminders_folder";
         File[] listFiles = new File(folderName).listFiles();
-        for (int i = 0; i < listFiles.length; i++) {
-            if (listFiles[i].isFile()) {
-                String fileName = listFiles[i].getName();
+        assert listFiles != null;
+        for (File listFile : listFiles) {
+            if (listFile.isFile()) {
+                String fileName = listFile.getName();
                 if (fileName.startsWith(noteName + reminderDate)
                         && fileName.endsWith(".txt")) {
                     String filePath = context.getFilesDir().getAbsolutePath() + "/reminders_folder" + "/" + fileName;
                     File fileOrDirectory = new File(filePath);
-                    fileOrDirectory.delete();
+                    Boolean result = fileOrDirectory.delete();
+                    Log.d("Delete result: ", result + "");
                     break;
                 }
             }
@@ -119,7 +115,7 @@ class Reminder {
         StringBuilder noteContent = new StringBuilder();
         int counter = 0;
         try {
-            FileInputStream inputStream = new FileInputStream(new File(filePath));
+            FileInputStream inputStream = new FileInputStream(filePath);
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String receiveString;
@@ -159,9 +155,9 @@ class Reminder {
         currentDate = currentDate.substring(24,28) + "/" + (monthValues.indexOf(currentDate.substring(4,7)) + 1) + "/" + currentDate.substring(8,10) + " " + currentDate.substring(11,16);
         reminderDate = reminderDate.substring(24,28) + "/" + (monthValues.indexOf(reminderDate.substring(4,7)) + 1) + "/" + reminderDate.substring(8,10) + " " + reminderDate.substring(11,16);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd h:m");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd h:m", Locale.US);
         try {
-            return sdf.parse(reminderDate).before(sdf.parse(currentDate));
+            return Objects.requireNonNull(sdf.parse(reminderDate)).before(sdf.parse(currentDate));
         } catch (ParseException e) {
             e.printStackTrace();
         }

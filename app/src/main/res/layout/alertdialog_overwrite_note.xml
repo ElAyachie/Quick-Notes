@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -9,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="?attr/colorText"
-        android:text="Overwrite existing note?"
+        android:text="@string/overwrite_existing_note"
         android:textSize="20sp"
         android:layout_marginBottom="10dp"
         android:gravity="center"
@@ -22,14 +23,15 @@
         android:background="?attr/colorBackground">
 
         <Button
-            style="?android:buttonBarButtonStyle"
             android:id="@+id/cancelButton"
+            style="?android:buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="210dp"
             android:background="?attr/colorBackground"
-            android:text="CANCEL"
-            android:textColor="?attr/colorAccent" />
+            android:text="@string/cancel"
+            android:textColor="?attr/colorAccent"
+            tools:ignore="DuplicateSpeakableTextCheck" />
 
         <Button
             style="?android:buttonBarButtonStyle"
@@ -38,7 +40,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?attr/colorBackground"
-            android:text="YES"
+            android:text="@string/yes"
             android:textColor="?attr/colorAccent" />
 
     </LinearLayout>

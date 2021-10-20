@@ -15,12 +15,14 @@
         android:label="Quick Notes"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        android:fullBackupContent="true">
+
         <activity
             android:name="QuickNotes.HomePage"
             android:label="Quick Notes"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="stateVisible|adjustPan|stateHidden"
+            android:windowSoftInputMode="stateAlwaysHidden"
             tools:ignore="ExtraText">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,12 +38,12 @@
         <activity
             android:name="QuickNotes.SpecificNoteEdit"
             android:label="Quick Notes"
-            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden"
+            android:windowSoftInputMode="stateAlwaysHidden"
             />
         <activity
             android:name="QuickNotes.RemindersPage"
             android:label="Quick Notes"
-            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden"
+            android:windowSoftInputMode="stateAlwaysHidden"
             />
         <activity android:name="QuickNotes.SettingsPage" />
 

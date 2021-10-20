@@ -2,12 +2,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.myapp.QuickNotes1"
         minSdkVersion 17
-        targetSdkVersion 29
-        versionCode 47
+        targetSdkVersion 30
+        versionCode 50
         versionName "2"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
@@ -17,7 +17,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    buildToolsVersion = '28.0.3'
 }
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
