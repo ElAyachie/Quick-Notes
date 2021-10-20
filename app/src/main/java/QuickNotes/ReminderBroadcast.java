@@ -41,7 +41,6 @@ public class ReminderBroadcast extends BroadcastReceiver {
         noteContent = pref.getString("Note content", "Default");
         PendingIntent pendingIntent = null;
         NotificationCompat.Builder builder;
-        Boolean yes;
         if (notificationManager == null) {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         }
