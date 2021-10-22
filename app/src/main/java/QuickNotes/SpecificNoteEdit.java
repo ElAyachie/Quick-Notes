@@ -2,6 +2,7 @@ package QuickNotes;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,11 +10,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -22,13 +23,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 
@@ -36,8 +34,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
+
+import QuickNotes.Dialogs.DateTimePickerDialog;
+import QuickNotes.Dialogs.SaveNoteDialog;
+import QuickNotes.Services.ReminderBroadcast;
 
 
 public class SpecificNoteEdit extends AppCompatActivity {
@@ -57,8 +58,6 @@ public class SpecificNoteEdit extends AppCompatActivity {
     SharedPreferences pref;
     private Boolean nightTheme;
     NotificationManager notificationManager;
-    SharedPreferences.Editor editor;
-    int notificationID;
 
     protected void onCreate(Bundle savedInstanceState) {
         pref = getSharedPreferences("MyPref", 0);
@@ -123,34 +122,17 @@ public class SpecificNoteEdit extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        final String noteNameString = noteNameText.getText().toString();
+        String noteNameString = noteNameText.getText().toString();
         assert noteContentText.getText() != null;
-        final String noteContentString = noteContentText.getText().toString();
-        final String folderNameString = folderSpin.getSelectedItem().toString();
+        String noteContentString = noteContentText.getText().toString();
+        String folderNameString = folderSpin.getSelectedItem().toString();
         if (noteNameString.equals("")) {
             noteNameText.setError("Please enter a name.");
-        }
-        else if (!currentNoteContent.equals(noteContentString) || !currentFolder.equals(folderNameString)
+        } else if (!currentNoteContent.equals(noteContentString) || !currentFolder.equals(folderNameString)
                 || !currentNoteName.equals(noteNameString)) {
-            View alertView = View.inflate(this, R.layout.alertdialog_save_note, null);
-            final Button positiveButton = alertView.findViewById(R.id.positiveButton);
-            final Button cancelButton = alertView.findViewById(R.id.cancelButton);
-            final AlertDialog optionDialog = new AlertDialog.Builder(this).create();
-            positiveButton.setOnClickListener(view -> {
-                dateEdited = Calendar.getInstance().getTime();
-                Note.deleteNote(context, currentNoteName, currentFolder);
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                String dateString = formatter.format(dateEdited);
-                Note.saveNote(context, folderNameString, noteNameString, noteContentString, dateString);
-                Toast.makeText(context, "Note saved.", Toast.LENGTH_LONG).show();
-                SpecificNoteEdit.super.onBackPressed();
-            });
-            cancelButton.setOnClickListener(view -> {
-                optionDialog.dismiss();
-                SpecificNoteEdit.super.onBackPressed();
-            });
-            optionDialog.setView(alertView);
-            optionDialog.show();
+            SaveNoteDialog saveNoteDialog = new SaveNoteDialog(this, folderNameString, currentNoteName, currentFolder, noteNameString, noteContentString);
+            AlertDialog optionDialog = saveNoteDialog.show();
+            optionDialog.setOnDismissListener(dialogInterface -> SpecificNoteEdit.super.onBackPressed());
         } else {
             super.onBackPressed();
         }
@@ -181,50 +163,12 @@ public class SpecificNoteEdit extends AppCompatActivity {
         if (id == R.id.action_settings) {
             intent = new Intent(this, SettingsPage.class);
             startActivity(intent);
-        }
-        else if (id == R.id.action_reminder_page) {
+        } else if (id == R.id.action_reminder_page) {
             intent = new Intent(this, SettingsPage.class);
             startActivity(intent);
-        }
-        else if (id == R.id.action_set_reminder) {
-            final View dialogView = View.inflate(this, R.layout.date_time_picker, null);
-            final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-            final DatePicker datePicker = dialogView.findViewById(R.id.date_picker);
-            final TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
-            datePicker.setMinDate(System.currentTimeMillis() - 1000);
-
-            dialogView.findViewById(R.id.date_time_set).setOnClickListener(view -> {
-                Calendar calendar = new GregorianCalendar(datePicker.getYear(),
-                        datePicker.getMonth(),
-                        datePicker.getDayOfMonth(),
-                        timePicker.getCurrentHour(),
-                        timePicker.getCurrentMinute());
-                final String dateTime = calendar.getTime().toString();
-                String formattedReminderDateTime = (dateTime.substring(0, 16) + dateTime.substring(19, 28)).replaceAll(" ", "");
-
-                editor = pref.edit();
-                notificationID = pref.getInt("notificationID", 0);
-                editor.putInt("notificationID", notificationID + 1);
-                editor.putString("Note folder", currentFolder);
-                editor.putString("Note name", currentNoteName);
-                editor.putString("Note content", currentNoteContent);
-                editor.putString("Note date", formattedReminderDateTime);
-                notificationID = pref.getInt("notificationID", 0);
-                editor.apply();
-                Reminder.saveReminder(context, currentNoteName, currentNoteContent, formattedReminderDateTime, String.valueOf(notificationID));
-                Intent intent1 = new Intent(context, ReminderBroadcast.class);
-                PendingIntent pendingIntent = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    pendingIntent = PendingIntent.getBroadcast(context, notificationID, intent1, PendingIntent.FLAG_IMMUTABLE);
-                }
-                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                Toast.makeText(context, "Reminder set.", Toast.LENGTH_LONG).show();
-                alertDialog.dismiss();
-            });
-            dialogView.findViewById(R.id.cancelButton).setOnClickListener(view -> alertDialog.dismiss());
-            alertDialog.setView(dialogView);
-            alertDialog.show();
+        } else if (id == R.id.action_set_reminder) {
+            DateTimePickerDialog dateTimePickerDialog = new DateTimePickerDialog(this, currentFolder, currentNoteName, currentNoteContent);
+            dateTimePickerDialog.show();
         }
         return super.onOptionsItemSelected(item);
     }

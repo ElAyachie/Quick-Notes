@@ -1,4 +1,4 @@
-package QuickNotes;
+package QuickNotes.Adapters;
 
 import android.content.Context;
 import android.view.View;
@@ -8,13 +8,15 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import QuickNotes.R;
+
 public class NotesCustomAdapter extends BaseAdapter {
     private final Context context;
     private final ArrayList<String> noteNamesList;
     private final ArrayList<String> noteContentList;
     private final ArrayList<String> noteDateList;
 
-    NotesCustomAdapter(Context context, ArrayList<String> noteNames, ArrayList<String> noteContent, ArrayList<String> noteDate) {
+    public NotesCustomAdapter(Context context, ArrayList<String> noteNames, ArrayList<String> noteContent, ArrayList<String> noteDate) {
         this.context = context;
         this.noteContentList = noteContent;
         this.noteNamesList = noteNames;

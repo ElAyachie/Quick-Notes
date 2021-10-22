@@ -1,4 +1,4 @@
-package QuickNotes;
+package QuickNotes.Services;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -14,8 +14,10 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
-import java.util.Objects;
-
+import QuickNotes.HomePage;
+import QuickNotes.R;
+import QuickNotes.Reminder;
+import QuickNotes.RemindersPage;
 
 // idk what im doing because i want to make this have specific title and content for this to show as a notification.
 public class ReminderBroadcast extends BroadcastReceiver {

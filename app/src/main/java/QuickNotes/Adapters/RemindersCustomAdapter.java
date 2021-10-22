@@ -1,4 +1,4 @@
-package QuickNotes;
+package QuickNotes.Adapters;
 
 import android.content.Context;
 import android.view.View;
@@ -8,11 +8,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import QuickNotes.R;
+
 public class RemindersCustomAdapter extends BaseAdapter {
     private final Context context;
     private final ArrayList<String> noteNamesList;
 
-    RemindersCustomAdapter(Context context, ArrayList<String> noteNames) {
+    public RemindersCustomAdapter(Context context, ArrayList<String> noteNames) {
         this.context = context;
         this.noteNamesList = noteNames;
     }
