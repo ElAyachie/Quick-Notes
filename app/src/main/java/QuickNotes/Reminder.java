@@ -18,26 +18,25 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
 
-class Reminder {
+public class Reminder {
     private static boolean folderExists(Context context) {
         File file = new File(context.getFilesDir().getAbsolutePath() + "/" + "notes_folders" + "/" + "reminders_folder");
         return file.isDirectory();
     }
 
-    static void saveReminder(Context context, String noteName, String noteContent, String reminderDate, String notificationID){
+    public static void saveReminder(Context context, String noteName, String noteContent, String reminderDate, String notificationID) {
         String filePath = context.getFilesDir().getAbsolutePath();
         if (!folderExists(context)) {
             File folder = new File(filePath, "reminders_folder");
             filePath = filePath + "/reminders_folder";
             Boolean result = folder.mkdir();
             Log.d("Create result: ", result + "");
-        }
-        else{
+        } else {
             filePath = filePath + "/reminders_folder";
         }
         try {
-            String fileName = noteName + reminderDate + "_" + notificationID +".txt";
-            Log.d("reminderName: " , fileName);
+            String fileName = noteName + reminderDate + "_" + notificationID + ".txt";
+            Log.d("reminderName: ", fileName);
             // files get saved inside of the folder the user chooses
             File file = new File(filePath, fileName);
             //stream can be used to write into the file
@@ -49,14 +48,15 @@ class Reminder {
             Log.e("Exception", "File write failed: " + e.toString());
         }
     }
-    static void deleteReminder(Context context, String fileName){
+
+    static void deleteReminder(Context context, String fileName) {
         String filePath = context.getFilesDir().getAbsolutePath() + "/reminders_folder" + "/" + fileName;
         File fileOrDirectory = new File(filePath);
         Boolean result = fileOrDirectory.delete();
         Log.d("Create result: ", result + "");
     }
 
-    static void deleteReminder(Context context, String noteName, String reminderDate) {
+    public static void deleteReminder(Context context, String noteName, String reminderDate) {
         String folderName = context.getFilesDir().getAbsolutePath() + "/reminders_folder";
         File[] listFiles = new File(folderName).listFiles();
         assert listFiles != null;
@@ -75,22 +75,21 @@ class Reminder {
         }
     }
 
-    static ArrayList<String> loadReminderNames(Context context){
+    static ArrayList<String> loadReminderNames(Context context) {
         ArrayList<String> noteNames = new ArrayList<>();
         String filePath = context.getFilesDir().getAbsolutePath() + "/reminders_folder";
         File dir = new File(filePath);
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             for (File child : directoryListing) {
-                if (beforeCurrentDate(child.getName().substring(0, child.getName().length() - 4))){
+                if (beforeCurrentDate(child.getName().substring(0, child.getName().length() - 4))) {
                     deleteReminder(context, child.getName());
-                }
-                else {
+                } else {
                     noteNames.add(child.getName().substring(0, child.getName().length() - 4));
                 }
             }
         } else {
-            Log.d("Problem:","File is not a folder.");
+            Log.d("Problem:", "File is not a folder.");
         }
         return noteNames;
     }
@@ -105,7 +104,7 @@ class Reminder {
                 noteContent.add(loadReminderContent(context, child.getName()));
             }
         } else {
-            Log.d("Problem:","File is not a folder.");
+            Log.d("Problem:", "File is not a folder.");
         }
         return noteContent;
     }
@@ -150,10 +149,10 @@ class Reminder {
         String date = noteNameWDate.substring(noteNameWDate.length() - 20, endOfString);
 
         String currentDate = Calendar.getInstance().getTime().toString();
-        String reminderDate = date.substring(0,3) + " " + date.substring(3,6) + " " + date.substring(6,8) + " " + date.substring(8,13) + ":00 " + date.substring(13,16) + " " + date.substring(16,20);
-        ArrayList<String> monthValues = new ArrayList<> (Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"));
-        currentDate = currentDate.substring(24,28) + "/" + (monthValues.indexOf(currentDate.substring(4,7)) + 1) + "/" + currentDate.substring(8,10) + " " + currentDate.substring(11,16);
-        reminderDate = reminderDate.substring(24,28) + "/" + (monthValues.indexOf(reminderDate.substring(4,7)) + 1) + "/" + reminderDate.substring(8,10) + " " + reminderDate.substring(11,16);
+        String reminderDate = date.substring(0, 3) + " " + date.substring(3, 6) + " " + date.substring(6, 8) + " " + date.substring(8, 13) + ":00 " + date.substring(13, 16) + " " + date.substring(16, 20);
+        ArrayList<String> monthValues = new ArrayList<>(Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"));
+        currentDate = currentDate.substring(24, 28) + "/" + (monthValues.indexOf(currentDate.substring(4, 7)) + 1) + "/" + currentDate.substring(8, 10) + " " + currentDate.substring(11, 16);
+        reminderDate = reminderDate.substring(24, 28) + "/" + (monthValues.indexOf(reminderDate.substring(4, 7)) + 1) + "/" + reminderDate.substring(8, 10) + " " + reminderDate.substring(11, 16);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd h:m", Locale.US);
         try {

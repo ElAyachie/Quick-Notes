@@ -7,19 +7,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
+import java.util.Objects;
+
+import QuickNotes.Dialogs.DeleteFolderDialog;
+import QuickNotes.Dialogs.NewFolderDialog;
 
 public class Tab1Fragment extends Fragment {
     ListView folderNamesListView;
@@ -29,9 +30,9 @@ public class Tab1Fragment extends Fragment {
     Context context;
     View mainView;
     Activity activity;
-    ArrayList<String> folderNamesList;
+    public static ArrayList<String> folderNamesList;
     Spinner folderSpin;
-    ArrayAdapter<String> folderNamesListAdapter;
+    public static ArrayAdapter<String> folderNamesListAdapter;
     boolean folderIntentIsClicked;
 
     @Override
@@ -50,60 +51,18 @@ public class Tab1Fragment extends Fragment {
 
         // if a user presses the new folder button they can enter a name for folder and list view
         newFolderBtn.setOnClickListener(view -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            View alertView = getLayoutInflater().inflate(R.layout.alertdialog_new_folder, container, false);
-            final EditText folderName = alertView.findViewById(R.id.folderName);
-            folderName.requestFocus();
-            // Force a keyboard for the edit text.
-            InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-            final Button positiveButton = alertView.findViewById(R.id.positiveButton);
-            final Button cancelButton = alertView.findViewById(R.id.cancelButton);
-            builder.setView(alertView);
-            final AlertDialog optionDialog = builder.show();
-            positiveButton.setOnClickListener(view1 -> {
-                final String folderNameString = folderName.getText().toString();
-                if (!folderNameString.equals("")) {
-                    //creating a folder to store notes
-                    if (folderNamesList.contains(folderNameString)) {
-                        folderName.setError("Folder already exists.");
-                    } else {
-                        Note.saveFolderName(context, folderNameString);
-                        folderNamesList.add(folderNameString);
-                        folderNamesListAdapter.notifyDataSetChanged();
-                        new Tab2Fragment().refreshFolderSpinner(folderNameString, true);
-                        optionDialog.dismiss();
-                        Toast.makeText(context, "Folder made.", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    folderName.setError("Enter name.");
-                }
-            });
-
-            cancelButton.setOnClickListener(view12 -> optionDialog.dismiss());
+            NewFolderDialog newFolderDialog = new NewFolderDialog(context);
+            newFolderDialog.show();
         });
 
         //on item long click, the user will be asked if user wants to delete the folder.
         folderNamesListView.setOnItemLongClickListener((parent, view, position, id) -> {
-            final String folderNameString = folderNamesListView.getItemAtPosition(position).toString();
+            String folderNameString = folderNamesListView.getItemAtPosition(position).toString();
             if (folderNameString.equals("Unclassified")) {
                 Toast.makeText(getContext(), "Unclassified folder can't be deleted.", Toast.LENGTH_LONG).show();
             } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                View alertView = View.inflate(context, R.layout.alertdialog_delete_folder, null);
-                final Button positiveButton = alertView.findViewById(R.id.positiveButton);
-                final Button cancelButton = alertView.findViewById(R.id.cancelButton);
-                builder.setView(alertView);
-                final AlertDialog optionDialog = builder.show();
-                positiveButton.setOnClickListener(view13 -> {
-                    Note.deleteFolder(context, folderNameString);
-                    folderNamesList.remove(folderNameString);
-                    folderNamesListAdapter.notifyDataSetChanged();
-                    new Tab2Fragment().refreshFolderSpinner(folderNameString, false);
-                    optionDialog.dismiss();
-
-                });
-                cancelButton.setOnClickListener(view14 -> optionDialog.dismiss());
+                DeleteFolderDialog deleteFolderDialog = new DeleteFolderDialog(context, folderNameString);
+                deleteFolderDialog.show();
             }
             return true;
         });

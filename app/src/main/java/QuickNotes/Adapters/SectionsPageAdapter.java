@@ -1,4 +1,4 @@
-package QuickNotes;
+package QuickNotes.Adapters;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -6,12 +6,6 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by User on 8/22/2018.
- * class makes it possible to use fragments
- * play with fragments here/tabbed options below the app bar
- */
 
 public class SectionsPageAdapter extends FragmentPagerAdapter {
 

@@ -4,17 +4,24 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import com.google.android.material.tabs.TabLayout;
+
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
+
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import java.util.Objects;
+
+import QuickNotes.Adapters.SectionsPageAdapter;
 
 public class HomePage extends AppCompatActivity {
     SectionsPageAdapter mSectionsPageAdapter;
@@ -57,7 +64,6 @@ public class HomePage extends AppCompatActivity {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
 
             @Override
@@ -70,8 +76,6 @@ public class HomePage extends AppCompatActivity {
             }
         });
     }
-
-
 
     @Override
     public void onBackPressed() {
@@ -117,8 +121,8 @@ public class HomePage extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onResume(){
-        if (nightTheme != pref.getBoolean("NIGHT MODE", false)){
+    public void onResume() {
+        if (nightTheme != pref.getBoolean("NIGHT MODE", false)) {
             recreate();
         }
         super.onResume();

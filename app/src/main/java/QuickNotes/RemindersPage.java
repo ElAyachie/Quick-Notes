@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import QuickNotes.Adapters.RemindersCustomAdapter;
+import QuickNotes.Services.ReminderBroadcast;
 
 public class RemindersPage extends AppCompatActivity {
     ListView reminderListView;
@@ -72,9 +76,9 @@ public class RemindersPage extends AppCompatActivity {
             StringBuilder usingJustToReverse = new StringBuilder(longClickedNoteName);
             String reversedLongClickedName = usingJustToReverse.reverse().toString();
             int startNotificationID = longClickedNoteName.length() + 1;
-            for (int i = 0; i < reversedLongClickedName.length(); i++){
+            for (int i = 0; i < reversedLongClickedName.length(); i++) {
                 startNotificationID--;
-                if (reversedLongClickedName.charAt(i) == '_'){
+                if (reversedLongClickedName.charAt(i) == '_') {
                     break;
                 }
             }
@@ -101,11 +105,11 @@ public class RemindersPage extends AppCompatActivity {
 
     public void refreshReminderListView(Context context) {
         if (reminderListView != null) {
-        allReminderNames = Reminder.loadReminderNames(context);
-        allNotesContent = Reminder.loadAllNoteContentInReminderFolder(context);
-        notesAdapter = new RemindersCustomAdapter(context, allReminderNames);
-        reminderListView = findViewById(R.id.noteReminderListView);
-        reminderListView.setAdapter(notesAdapter);
+            allReminderNames = Reminder.loadReminderNames(context);
+            allNotesContent = Reminder.loadAllNoteContentInReminderFolder(context);
+            notesAdapter = new RemindersCustomAdapter(context, allReminderNames);
+            reminderListView = findViewById(R.id.noteReminderListView);
+            reminderListView.setAdapter(notesAdapter);
         }
     }
 

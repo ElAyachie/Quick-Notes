@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
-class Note {
-    static void saveNote(Context context, String folderName, String noteName, String content, String dateString) {
+public class Note {
+    public static void saveNote(Context context, String folderName, String noteName, String content, String dateString) {
         String filePath = context.getFilesDir().getAbsolutePath() + "/" + "notes_folders";
         try {
             String fileName = noteName + ".txt";
@@ -40,7 +40,7 @@ class Note {
     }
 
 
-    static void saveFolderName(Context context, String folderName) {
+    public static void saveFolderName(Context context, String folderName) {
         try {
             File folder = new File(context.getFilesDir() + "/notes_folders", folderName);
             Boolean result = folder.mkdir();
@@ -77,7 +77,7 @@ class Note {
                 noteNames.add(child.getName().substring(0, child.getName().length() - 4));
             }
         } else {
-            Log.d("Problem:","File is not a folder.");
+            Log.d("Problem:", "File is not a folder.");
         }
         Collections.reverse(noteNames);
         return noteNames;
@@ -94,7 +94,7 @@ class Note {
                 noteContent.add(loadNote(context, child.getName(), folderName));
             }
         } else {
-            Log.d("Problem:","File is not a folder.");
+            Log.d("Problem:", "File is not a folder.");
         }
         Collections.reverse(noteContent);
         return noteContent;
@@ -111,7 +111,7 @@ class Note {
                 noteDate.add(loadDate(context, child.getName(), folderName));
             }
         } else {
-            Log.d("Problem:","File is not a folder.");
+            Log.d("Problem:", "File is not a folder.");
         }
         Collections.reverse(noteDate);
         return noteDate;
@@ -196,27 +196,23 @@ class Note {
             }
 
         } catch (
-                FileNotFoundException e)
-
-        {
+                FileNotFoundException e) {
             Log.e("Note", "File not found: " + e.toString());
         } catch (
-                IOException e)
-
-        {
+                IOException e) {
             Log.e("Note", "Can not read file: " + e.toString());
         }
         return folderNamesList;
     }
 
-    static void deleteNote( Context context, String noteName, String folderName) {
+    public static void deleteNote(Context context, String noteName, String folderName) {
         String filePath = context.getFilesDir().getAbsolutePath() + "/notes_folders" + "/" + folderName + "/" + noteName + ".txt";
         File fileOrDirectory = new File(filePath);
         Boolean result = fileOrDirectory.delete();
         Log.d("Delete result: ", result + "");
     }
 
-    static void deleteFolder(Context context, String folderName) {
+    public static void deleteFolder(Context context, String folderName) {
         String filePath = context.getFilesDir().getAbsolutePath() + "/notes_folders/" + folderName;
         File fileOrDirectory = new File(filePath);
         if (fileOrDirectory.isDirectory()) {
