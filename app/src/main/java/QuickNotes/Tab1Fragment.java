@@ -55,7 +55,7 @@ public class Tab1Fragment extends Fragment {
             newFolderDialog.show();
         });
 
-        //on item long click, the user will be asked if user wants to delete the folder.
+        //on item long click, the user will be asked if they want to delete the folder.
         folderNamesListView.setOnItemLongClickListener((parent, view, position, id) -> {
             String folderNameString = folderNamesListView.getItemAtPosition(position).toString();
             if (folderNameString.equals("Unclassified")) {
