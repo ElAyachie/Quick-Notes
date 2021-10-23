@@ -41,7 +41,6 @@ public class RemindersCustomAdapter extends BaseAdapter {
             TextView noteNamesText = convertView.findViewById(R.id.noteNameText);
             TextView reminderDateText = convertView.findViewById(R.id.reminderDateText);
 
-            // formatting
             String noteNameWDateAndNotification = noteNamesList.get(position);
             StringBuilder sb = new StringBuilder(noteNameWDateAndNotification);
             String reversedNoteNameWDateAndNotification = sb.reverse().toString();

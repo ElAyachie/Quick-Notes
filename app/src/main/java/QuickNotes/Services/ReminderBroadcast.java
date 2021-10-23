@@ -19,7 +19,6 @@ import QuickNotes.R;
 import QuickNotes.Reminder;
 import QuickNotes.RemindersPage;
 
-// idk what im doing because i want to make this have specific title and content for this to show as a notification.
 public class ReminderBroadcast extends BroadcastReceiver {
     SharedPreferences pref;
     NotificationManager notificationManager;

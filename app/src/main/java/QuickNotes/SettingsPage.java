@@ -35,7 +35,7 @@ public class SettingsPage extends AppCompatActivity {
         assert actionBar != null;
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
-        pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        pref = getApplicationContext().getSharedPreferences("MyPref", 0);
         editor = pref.edit();
         toggleThemeSwitch = findViewById(R.id.toggleThemeSwitch);
         if (pref.getBoolean("NIGHT MODE", false)) {
