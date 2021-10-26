@@ -1,5 +1,6 @@
 package QuickNotes;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,12 +8,15 @@ import android.content.SharedPreferences;
 
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +36,8 @@ public class HomePage extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Check permissions.
+        checkIfAllowed(this);
         // Checking for correct theme.
         pref = getSharedPreferences("MyPref", 0);
         if (pref.getBoolean("NIGHT MODE", false)) {
@@ -126,6 +132,16 @@ public class HomePage extends AppCompatActivity {
             recreate();
         }
         super.onResume();
+    }
+
+    public void checkIfAllowed(Context context) {
+        if (!(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED)) {
+            Activity activity = this;
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+        }
     }
 }
 

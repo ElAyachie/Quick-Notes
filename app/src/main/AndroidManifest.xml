@@ -22,7 +22,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBqWyzdx3XdCUPhnk_YeNnlSETY1hkf5oQ" />
+            android:value="${MAP_API_KEY}" />
 
         <activity
             android:name="QuickNotes.HomePage"

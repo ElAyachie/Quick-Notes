@@ -28,7 +28,6 @@ import androidx.core.content.ContextCompat;
 // Used in the location reminder dialog.
 public class MyLocationListener extends Service implements LocationListener {
     private final Context context;
-    private final Activity activity;
 
     // flag for GPS status
     boolean isGPSEnabled = false;
@@ -52,10 +51,8 @@ public class MyLocationListener extends Service implements LocationListener {
     // Declaring a Location Manager
     protected LocationManager locationManager = null;
 
-    public MyLocationListener(Context context, Activity activity) {
+    public MyLocationListener(Context context) {
         this.context = context;
-        this.activity = activity;
-        CheckIfAllowed();
         getLocation();
     }
 
@@ -92,7 +89,6 @@ public class MyLocationListener extends Service implements LocationListener {
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
                     if (location == null) {
-                        CheckIfAllowed();
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
                         Log.d("GPS Enabled", "GPS Enabled");
                         if (locationManager != null) {
@@ -108,15 +104,6 @@ public class MyLocationListener extends Service implements LocationListener {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    public void CheckIfAllowed() {
-        if (!(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                        PackageManager.PERMISSION_GRANTED)) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
     }
 
