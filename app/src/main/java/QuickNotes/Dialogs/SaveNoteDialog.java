@@ -12,26 +12,25 @@ import java.util.Date;
 import java.util.Locale;
 
 import QuickNotes.Note;
+import QuickNotes.NoteFileOperations;
 import QuickNotes.R;
 
+// Dialog asks the user to confirm overwriting a note that is already saved.
+// This dialog is used in the specific notes edit page.
 public class SaveNoteDialog extends AlertDialog.Builder {
     AlertDialog optionDialog;
 
-    public SaveNoteDialog(Context context, String folderNameString, String currentNoteName, String currentFolder, String noteNameString, String noteContentString) {
+    public SaveNoteDialog(Context context, Note oldNote, Note newNote) {
         super(context);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View alertView = View.inflate(context, R.layout.alertdialog_save_note, null);
         Button positiveButton = alertView.findViewById(R.id.positiveButton);
         Button cancelButton = alertView.findViewById(R.id.cancelButton);
         positiveButton.setOnClickListener(view -> {
-            Date dateEdited = Calendar.getInstance().getTime();
-            Note.deleteNote(context, currentNoteName, currentFolder);
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            String dateString = formatter.format(dateEdited);
-            Note.saveNote(context, folderNameString, noteNameString, noteContentString, dateString);
+            NoteFileOperations.deleteNote(context, oldNote);
+            NoteFileOperations.saveNote(context, newNote);
             Toast.makeText(context, "Note saved.", Toast.LENGTH_LONG).show();
             optionDialog.dismiss();
-
         });
         cancelButton.setOnClickListener(view -> optionDialog.dismiss());
         builder.setView(alertView);

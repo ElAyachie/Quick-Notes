@@ -6,14 +6,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import QuickNotes.Note;
+import QuickNotes.NoteFileOperations;
 import QuickNotes.NotesInFolderPage;
 import QuickNotes.R;
 
+// Dialog asks the user to confirm deleting the note they selected.
+// This dialog is used in the notes in folder page.
 public class DeleteNoteDialog extends AlertDialog.Builder {
     AlertDialog optionDialog;
 
-    public DeleteNoteDialog(Context context, String currentFolder, String noteName) {
+    public DeleteNoteDialog(Context context, Note note) {
         super(context);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View alertView = View.inflate(context, R.layout.alertdialog_delete_note, null);
@@ -22,10 +27,7 @@ public class DeleteNoteDialog extends AlertDialog.Builder {
         builder.setView(alertView);
         optionDialog = builder.create();
         positiveButton.setOnClickListener(view -> {
-            Note.deleteNote(context, noteName, currentFolder);
-            NotesInFolderPage.allNoteNames.remove(noteName);
-            NotesInFolderPage.allNotesContent.remove(Note.loadNote(context, noteName, currentFolder));
-            NotesInFolderPage.allNoteDates.remove(Note.loadDate(context, noteName, currentFolder));
+            NoteFileOperations.deleteNote(context, note);
             Toast.makeText(context, "Note deleted.", Toast.LENGTH_LONG).show();
             optionDialog.dismiss();
         });

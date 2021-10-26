@@ -18,6 +18,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:textColorPrimary">#000000</item>
+        <item name="android:textColorTertiary">#fcfcfc</item>
     </style>
 
     <!-- Base application theme. -->
@@ -38,6 +39,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:textColorPrimary">#fcfcfc</item>
+        <item name="android:textColorTertiary">#fcfcfc</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>

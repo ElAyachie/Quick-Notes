@@ -43,7 +43,7 @@ public class Tab1Fragment extends Fragment {
         folderNamesListView = mainView.findViewById(R.id.notesFolderListView);
         folderNameView = mainView.findViewById(R.id.noteNameView);
         newFolderBtn = mainView.findViewById(R.id.newFolderBtn);
-        folderNamesList = Note.loadFolderNames(context);
+        folderNamesList = NoteFileOperations.loadFolderNames(context);
         folderNamesListAdapter = new ArrayAdapter<>(context, R.layout.folders_list_view, folderNamesList);
         folderNamesListView.setAdapter(folderNamesListAdapter);
         filePath = context.getFilesDir().getAbsolutePath();
@@ -67,7 +67,7 @@ public class Tab1Fragment extends Fragment {
             return true;
         });
 
-        //when a folder is pressed the user is taken to a page where user can view all of the
+        // when a folder is pressed the user is taken to a page where user can view all of the
         // notes in that folder
         folderNamesListView.setOnItemClickListener((parent, view, position, id) -> {
             // Check if a folder intent has not been clicked yet in the listview.

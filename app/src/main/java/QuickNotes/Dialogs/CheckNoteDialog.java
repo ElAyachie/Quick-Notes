@@ -14,13 +14,16 @@ import java.util.Date;
 import java.util.Locale;
 
 import QuickNotes.Note;
+import QuickNotes.NoteFileOperations;
 import QuickNotes.R;
 import QuickNotes.Tab2Fragment;
 
+// Dialog that allows the user check whether the user wants to overwrite an already existing note with the same name.
+// This dialog is used in the specific note edit and fragment 2 of the home page.
 public class CheckNoteDialog extends AlertDialog.Builder {
     AlertDialog optionDialog;
 
-    public CheckNoteDialog(Context context, String folderName, String noteNameString, String noteString) {
+    public CheckNoteDialog(Context context, Note note) {
         super(context);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View alertView = View.inflate(context, R.layout.alertdialog_overwrite_note, null);
@@ -28,10 +31,7 @@ public class CheckNoteDialog extends AlertDialog.Builder {
         Button cancelButton = alertView.findViewById(R.id.cancelButton);
         builder.setView(alertView);
         positiveButton.setOnClickListener(view -> {
-            Date dateCreated = Calendar.getInstance().getTime();
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            String dateString = formatter.format(dateCreated);
-            Note.saveNote(context, folderName, noteNameString, noteString, dateString);
+            NoteFileOperations.saveNote(context, note);
             Toast.makeText(getContext(), "Note overwritten.", Toast.LENGTH_LONG).show();
             optionDialog.dismiss();
         });

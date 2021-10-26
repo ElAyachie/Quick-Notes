@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -18,14 +19,18 @@ import androidx.appcompat.app.AlertDialog;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import QuickNotes.Note;
 import QuickNotes.R;
 import QuickNotes.Reminder;
+import QuickNotes.ReminderFileOperations;
 import QuickNotes.Services.ReminderBroadcast;
 
+// Dialog that allows the user to choose a date and time to trigger a reminder.
+// This dialog is used in the specific note edit.
 public class DateTimePickerDialog extends AlertDialog.Builder {
     AlertDialog optionDialog;
 
-    public DateTimePickerDialog(Context context, String currentFolder, String currentNoteName, String currentNoteContent) {
+    public DateTimePickerDialog(Context context, Note note) {
         super(context);
         View dialogView = View.inflate(context, R.layout.date_time_picker, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -35,7 +40,7 @@ public class DateTimePickerDialog extends AlertDialog.Builder {
         datePicker.setMinDate(System.currentTimeMillis() - 1000);
         builder.setView(dialogView);
         optionDialog = builder.create();
-        dialogView.findViewById(R.id.date_time_set).setOnClickListener(view -> {
+        dialogView.findViewById(R.id.setLocationButton).setOnClickListener(view -> {
             Calendar calendar = new GregorianCalendar(datePicker.getYear(),
                     datePicker.getMonth(),
                     datePicker.getDayOfMonth(),
@@ -47,17 +52,16 @@ public class DateTimePickerDialog extends AlertDialog.Builder {
             SharedPreferences.Editor editor = pref.edit();
             int notificationID = pref.getInt("notificationID", 0);
             editor.putInt("notificationID", notificationID + 1);
-            editor.putString("Note folder", currentFolder);
-            editor.putString("Note name", currentNoteName);
-            editor.putString("Note content", currentNoteContent);
-            editor.putString("Note date", formattedReminderDateTime);
-            notificationID = pref.getInt("notificationID", 0);
             editor.apply();
-            Reminder.saveReminder(context, currentNoteName, currentNoteContent, formattedReminderDateTime, String.valueOf(notificationID));
-            Intent intent1 = new Intent(context, ReminderBroadcast.class);
+            String type = "Time";
+            Reminder reminder = new Reminder(type, note.getFolderName(), note.getNoteName(), note.getNoteContent(), notificationID);
+            reminder.setReminderDate(formattedReminderDateTime);
+            ReminderFileOperations.saveReminder(context, reminder);
+            Intent intent = new Intent(context, ReminderBroadcast.class);
+            intent.putExtra("reminder", reminder);
             PendingIntent pendingIntent = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                pendingIntent = PendingIntent.getBroadcast(context, notificationID, intent1, PendingIntent.FLAG_IMMUTABLE);
+                pendingIntent = PendingIntent.getBroadcast(context, notificationID, intent, PendingIntent.FLAG_IMMUTABLE);
             }
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);

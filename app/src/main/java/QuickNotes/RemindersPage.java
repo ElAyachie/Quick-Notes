@@ -1,40 +1,28 @@
 package QuickNotes;
 
-import android.app.PendingIntent;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import QuickNotes.Adapters.RemindersCustomAdapter;
-import QuickNotes.Services.ReminderBroadcast;
+import QuickNotes.Dialogs.DeleteReminderDialog;
 
 public class RemindersPage extends AppCompatActivity {
     ListView reminderListView;
     Button newNotesBtn;
-    static ArrayList<String> allReminderNames = new ArrayList<>();
-    static ArrayList<String> allNotesContent = new ArrayList<>();
-    TextView reminderNameText;
-    TextView reminderDateText;
+    static ArrayList<Reminder> allReminders = new ArrayList<>();
     Context context;
-    String reminderNotificationID;
-    Intent intent;
-    PendingIntent pendingIntent;
-    RemindersCustomAdapter notesAdapter;
+    RemindersCustomAdapter reminderAdapter;
     SharedPreferences pref;
     private Boolean nightTheme;
 
@@ -56,61 +44,24 @@ public class RemindersPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         reminderListView = findViewById(R.id.noteReminderListView);
         newNotesBtn = findViewById(R.id.newNoteBtn);
-        allReminderNames = Reminder.loadReminderNames(this);
-        allNotesContent = Reminder.loadAllNoteContentInReminderFolder(this);
-        notesAdapter = new RemindersCustomAdapter(this, allReminderNames);
-        reminderListView.setAdapter(notesAdapter);
+        allReminders = ReminderFileOperations.loadAllReminders(this);
+        reminderAdapter = new RemindersCustomAdapter(this, allReminders);
+        reminderListView.setAdapter(reminderAdapter);
         context = getBaseContext();
 
-
         reminderListView.setOnItemLongClickListener((parent, view, position, id) -> {
-            final String longClickedNoteName = reminderListView.getItemAtPosition(position).toString();
-            AlertDialog.Builder builder = new AlertDialog.Builder(RemindersPage.this);
-            View alertView = View.inflate(context, R.layout.alertdialog_delete_reminder, null);
-            final Button positiveButton = alertView.findViewById(R.id.positiveButton);
-            final Button cancelButton = alertView.findViewById(R.id.cancelButton);
-            builder.setView(alertView);
-            final AlertDialog optionDialog = builder.show();
-            reminderNameText = findViewById(R.id.noteNameText);
-            reminderDateText = findViewById(R.id.reminderDateText);
-            StringBuilder usingJustToReverse = new StringBuilder(longClickedNoteName);
-            String reversedLongClickedName = usingJustToReverse.reverse().toString();
-            int startNotificationID = longClickedNoteName.length() + 1;
-            for (int i = 0; i < reversedLongClickedName.length(); i++) {
-                startNotificationID--;
-                if (reversedLongClickedName.charAt(i) == '_') {
-                    break;
-                }
-            }
-            reminderNotificationID = longClickedNoteName.substring(startNotificationID);
-            positiveButton.setOnClickListener(view12 -> {
-                Reminder.deleteReminder(context, longClickedNoteName, "");
-                intent = new Intent(context, ReminderBroadcast.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    pendingIntent = PendingIntent.getActivity(context, Integer.parseInt(reminderNotificationID), intent, PendingIntent.FLAG_IMMUTABLE);
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    new SpecificNoteEdit().cancelReminder(context, reminderNotificationID);
-                }
-                refreshReminderListView(context);
-                reminderListView.setAdapter(notesAdapter);
-                Toast.makeText(getBaseContext(), "Reminder deleted.", Toast.LENGTH_LONG).show();
-                optionDialog.dismiss();
-            });
-            cancelButton.setOnClickListener(view1 -> optionDialog.dismiss());
+            Reminder selectedReminder = (Reminder) reminderListView.getItemAtPosition(position);
+            DeleteReminderDialog deleteReminderDialog = new DeleteReminderDialog(this, selectedReminder);
+            AlertDialog optionDialog = deleteReminderDialog.show();
+            optionDialog.setOnDismissListener(dialogInterface -> refreshReminderListView());
             return true;
         });
-
     }
 
-    public void refreshReminderListView(Context context) {
-        if (reminderListView != null) {
-            allReminderNames = Reminder.loadReminderNames(context);
-            allNotesContent = Reminder.loadAllNoteContentInReminderFolder(context);
-            notesAdapter = new RemindersCustomAdapter(context, allReminderNames);
-            reminderListView = findViewById(R.id.noteReminderListView);
-            reminderListView.setAdapter(notesAdapter);
-        }
+    public void refreshReminderListView() {
+        allReminders = ReminderFileOperations.loadAllReminders(context);
+        reminderAdapter = new RemindersCustomAdapter(context, allReminders);
+        reminderListView.setAdapter(reminderAdapter);
     }
 
     @Override
@@ -123,6 +74,7 @@ public class RemindersPage extends AppCompatActivity {
         if (nightTheme != pref.getBoolean("NIGHT MODE", false)) {
             recreate();
         }
+        refreshReminderListView();
         super.onResume();
     }
 }

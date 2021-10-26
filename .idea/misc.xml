@@ -5,13 +5,16 @@
       <map>
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/alertdialog_delete_note.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/alertdialog_delete_reminder.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/alertdialog_location.xml" value="0.31525851197982346" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/alertdialog_new_folder.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/alertdialog_new_note.xml" value="0.4" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/alertdialog_overwrite_note.xml" value="0.190625" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/alertdialog_save_note.xml" value="0.11041666666666666" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/custom_spinner_dropdown.xml" value="0.11041666666666666" />
-        <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/date_time_picker.xml" value="0.18333333333333332" />
+        <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/date_time_picker.xml" value="0.264" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/location_select.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/map.xml" value="0.1" />
+        <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/map_fragment.xml" value="0.1" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/notes_in_folder_view.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/notes_list_view.xml" value="0.40657439446366783" />
         <entry key="..\:/Users/oulalm/Desktop/Projects/AndroidStudioProjects/QuickNotes_Simple/app/src/main/res/layout/reminder_page_view.xml" value="0.11041666666666666" />
@@ -27,7 +30,7 @@
   </component>
   <component name="NullableNotNullManager">
     <option name="myDefaultNullable" value="android.support.annotation.Nullable" />
-    <option name="myDefaultNotNull" value="android.support.annotation.NonNull" />
+    <option name="myDefaultNotNull" value="androidx.annotation.NonNull" />
     <option name="myNullables">
       <value>
         <list size="15">

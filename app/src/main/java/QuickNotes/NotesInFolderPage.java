@@ -17,7 +17,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import QuickNotes.Adapters.NotesCustomAdapter;
 import QuickNotes.Dialogs.DeleteNoteDialog;
@@ -28,9 +28,7 @@ public class NotesInFolderPage extends AppCompatActivity {
     ListView notesFolderListView;
     Button newNotesBtn;
     String currentFolder;
-    public static ArrayList<String> allNotesContent = new ArrayList<>();
-    public static ArrayList<String> allNoteNames = new ArrayList<>();
-    public static ArrayList<String> allNoteDates = new ArrayList<>();
+    public static List<Note> allNotes;
     String filePath;
     NotesCustomAdapter notesAdapter;
     SharedPreferences pref;
@@ -60,43 +58,35 @@ public class NotesInFolderPage extends AppCompatActivity {
         filePath = getFilesDir().getAbsolutePath();
         currentFolder = getIntent().getStringExtra("Folder Name");
         folderNameView.setText(currentFolder);
-        allNoteNames = Note.loadAllNoteNamesInFolder(this, currentFolder);
-        allNotesContent = Note.loadAllNoteContentInFolder(this, currentFolder);
-        allNoteDates = Note.loadAllNoteDateInFolder(this, currentFolder);
-        notesAdapter = new NotesCustomAdapter(this, allNoteNames, allNotesContent, allNoteDates);
+        allNotes = NoteFileOperations.loadAllNotesInFolder(this, currentFolder);
+        notesAdapter = new NotesCustomAdapter(this, allNotes);
         notesFolderListView.setAdapter(notesAdapter);
-        context = getBaseContext();
+        context = this;
 
         notesFolderListView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
             // Check if a folder intent has not been clicked yet in the listview.
             if (!noteIsClicked) {
                 noteIsClicked = true;
                 Intent intent = new Intent(view.getContext(), SpecificNoteEdit.class);
-                String clickedNoteName = notesFolderListView.getItemAtPosition(position).toString();
-                String clickedNoteContent = allNotesContent.get(position);
-                String clickedNoteDate = allNoteDates.get(position);
-                intent.putExtra("Folder name", currentFolder);
-                intent.putExtra("Note name", clickedNoteName);
-                intent.putExtra("Note content", clickedNoteContent);
-                intent.putExtra("Note date", clickedNoteDate);
+                Note selectedNote = (Note) notesFolderListView.getItemAtPosition(position);
+                intent.putExtra("note", selectedNote);
                 startActivity(intent);
             }
         });
 
         newNotesBtn.setOnClickListener((View view) -> {
-            NewNoteDialog newNoteDialog = new NewNoteDialog(view.getContext(), currentFolder);
-            newNoteDialog.show();
-            notesAdapter.notifyDataSetChanged();
+            NewNoteDialog newNoteDialog = new NewNoteDialog(this, currentFolder);
+            AlertDialog optionDialog = newNoteDialog.show();
+            optionDialog.setOnDismissListener(dialogInterface -> refreshListView());
         });
 
         notesFolderListView.setOnItemLongClickListener((parent, view, position, id) -> {
-            final String noteName = notesFolderListView.getItemAtPosition(position).toString();
-            DeleteNoteDialog deleteNoteDialog = new DeleteNoteDialog(this, currentFolder, noteName);
+            Note selectedNote = (Note) notesFolderListView.getItemAtPosition(position);
+            DeleteNoteDialog deleteNoteDialog = new DeleteNoteDialog(this, selectedNote);
             AlertDialog optionDialog = deleteNoteDialog.show();
-            optionDialog.setOnDismissListener(dialogInterface -> notesAdapter.notifyDataSetChanged());
+            optionDialog.setOnDismissListener(dialogInterface -> refreshListView());
             return true;
         });
-
     }
 
     @Override
@@ -105,12 +95,10 @@ public class NotesInFolderPage extends AppCompatActivity {
         return true;
     }
 
-    public void refreshListView(Context context, String currentFolder, ListView listView) {
-        allNoteNames = Note.loadAllNoteNamesInFolder(context, currentFolder);
-        allNotesContent = Note.loadAllNoteContentInFolder(context, currentFolder);
-        allNoteDates = Note.loadAllNoteDateInFolder(context, currentFolder);
-        notesAdapter = new NotesCustomAdapter(context, allNoteNames, allNotesContent, allNoteDates);
-        listView.setAdapter(notesAdapter);
+    public void refreshListView() {
+        allNotes = NoteFileOperations.loadAllNotesInFolder(context, currentFolder);
+        notesAdapter = new NotesCustomAdapter(context, allNotes);
+        notesFolderListView.setAdapter(notesAdapter);
     }
 
     @Override
@@ -144,8 +132,8 @@ public class NotesInFolderPage extends AppCompatActivity {
         if (nightTheme != pref.getBoolean("NIGHT MODE", false)) {
             recreate();
         }
+        refreshListView();
         noteIsClicked = false;
-        refreshListView(context, currentFolder, notesFolderListView);
         super.onResume();
     }
 }

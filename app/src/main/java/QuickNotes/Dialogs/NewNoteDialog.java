@@ -14,9 +14,12 @@ import java.util.Date;
 import java.util.Locale;
 
 import QuickNotes.Note;
+import QuickNotes.NoteFileOperations;
 import QuickNotes.NotesInFolderPage;
 import QuickNotes.R;
 
+// Dialog allows the user to create a note (user can enter a note name and content) in the folder they are in.
+// This dialog is used in the notes in folder page.
 public class NewNoteDialog extends AlertDialog.Builder {
     AlertDialog optionDialog;
 
@@ -33,24 +36,20 @@ public class NewNoteDialog extends AlertDialog.Builder {
         inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         EditText noteContentText = alertView.findViewById(R.id.reminderNameText);
         positiveButton.setOnClickListener(view -> {
-            String noteNameString = noteNameText.getText().toString();
-            String noteContentString = noteContentText.getText().toString();
-            if (noteNameString.equals("")) {
+            String noteName = noteNameText.getText().toString();
+            String noteContent = noteContentText.getText().toString();
+            Date dateCreated = Calendar.getInstance().getTime();
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            String dateString = formatter.format(dateCreated);
+            if (noteName.equals("")) {
                 noteNameText.setError("Please enter a name.");
-            }
-            else if (NotesInFolderPage.allNoteNames.contains(noteNameString)){
+            } else if (!checkIfValid(noteName)) {
                 noteNameText.setError("This note already exists.");
-            }
-            else {
-                Date dateCreated = Calendar.getInstance().getTime();
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                String dateString = formatter.format(dateCreated);
-                Note.saveNote(context, currentFolder, noteNameString, noteContentString, dateString);
-                NotesInFolderPage.allNoteNames.add(0, noteNameString);
-                NotesInFolderPage.allNotesContent.add(0, noteContentString);
-                NotesInFolderPage.allNoteDates.add(0, dateString);
-                optionDialog.dismiss();
+            } else {
+                Note note = new Note(noteName, noteContent, currentFolder, dateString);
+                NoteFileOperations.saveNote(context, note);
                 Toast.makeText(context, "Note saved.", Toast.LENGTH_LONG).show();
+                optionDialog.dismiss();
             }
         });
         cancelButton.setOnClickListener(view -> optionDialog.dismiss());
@@ -60,6 +59,18 @@ public class NewNoteDialog extends AlertDialog.Builder {
 
     public AlertDialog show() {
         optionDialog.show();
-        return null;
+        return optionDialog;
+    }
+
+    private static boolean checkIfValid(String noteName) {
+        // Check if a note in the allNotes list already has the same name.
+        boolean valid = true;
+        for (Note n : NotesInFolderPage.allNotes) {
+            if (n.getNoteName().equals(noteName)) {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
     }
 }

@@ -7,56 +7,74 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
+import QuickNotes.Note;
 import QuickNotes.R;
 
 public class NotesCustomAdapter extends BaseAdapter {
     private final Context context;
-    private final ArrayList<String> noteNamesList;
-    private final ArrayList<String> noteContentList;
-    private final ArrayList<String> noteDateList;
+    private List<Note> allNotes;
 
-    public NotesCustomAdapter(Context context, ArrayList<String> noteNames, ArrayList<String> noteContent, ArrayList<String> noteDate) {
+    public NotesCustomAdapter(Context context, List<Note> allNotes) {
         this.context = context;
-        this.noteContentList = noteContent;
-        this.noteNamesList = noteNames;
-        this.noteDateList = noteDate;
+        this.allNotes = allNotes;
     }
 
     @Override
     public int getCount() {
-        return noteNamesList.size();
+        return allNotes.size();
     }
 
     @Override
-    public Object getItem(int position) {
-        return this.noteNamesList.get(position);
+    public Note getItem(int position) {
+        return this.allNotes.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return this.noteNamesList.size();
+        return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
+            Note note = allNotes.get(position);
             convertView = View.inflate(this.context, R.layout.notes_list_view, null);
             TextView noteNamesText = convertView.findViewById(R.id.noteNameText);
             TextView noteContentText = convertView.findViewById(R.id.noteContentText);
             TextView noteDateText = convertView.findViewById(R.id.noteDateText);
 
-            noteNamesText.setText(noteNamesList.get(position));
-            noteContentText.setText(noteContentList.get(position));
-            noteDateText.setText(noteDateList.get(position));
-            System.out.println("Something date: " + noteDateText.getText().toString());
+            String noteName = note.getNoteName();
+            String noteContent = note.getNoteContent();
+            String noteDate = note.getDateCreated();
+
+            noteNamesText.setText(noteName);
+            noteContentText.setText(noteContent);
+            noteDateText.setText(noteDate);
             if (noteNamesText.getText().length() > 40) {
-                noteNamesText.setText(String.format("%s...", noteNamesList.get(position).substring(0, 40)));
+                noteNamesText.setText(String.format("%s...", noteName.substring(0, 40)));
             }
             if (noteContentText.getText().length() > 100) {
-                noteContentText.setText(String.format("%s...", noteContentList.get(position).substring(0, 100)));
+                noteContentText.setText(String.format("%s...", noteContent.substring(0, 100)));
             }
         }
         return convertView;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        if (getCount() > 0) {
+            return getCount();
+        } else {
+            return super.getViewTypeCount();
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 }

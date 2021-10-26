@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import QuickNotes.Dialogs.CheckNoteDialog;
@@ -35,7 +36,8 @@ public class Tab2Fragment extends Fragment {
     public static ArrayList<String> folderNamesList;
     Context context;
     Date dateCreated;
-    String noteNameString;
+    String noteName;
+    String noteContent;
     String noteString;
     RelativeLayout myLayout;
 
@@ -48,7 +50,7 @@ public class Tab2Fragment extends Fragment {
         folderSpin = mainView.findViewById(R.id.folderSpin);
         noteContentText = mainView.findViewById(R.id.reminderNameText);
         // Loading all folder names in the spinner.
-        folderNamesList = Note.loadFolderNames(context);
+        folderNamesList = NoteFileOperations.loadFolderNames(context);
         folderNamesListAdapter = new ArrayAdapter<>(context, R.layout.custom_spinner, folderNamesList);
         folderNamesListAdapter.setDropDownViewResource(R.layout.custom_spinner_dropdown);
         folderSpin.setAdapter(folderNamesListAdapter);
@@ -58,28 +60,33 @@ public class Tab2Fragment extends Fragment {
         // Button used for creating notes.
         addNoteButton = mainView.findViewById(R.id.addNoteButton);
         addNoteButton.setOnClickListener(view -> {
-            noteNameString = noteNameText.getText().toString();
+            noteName = noteNameText.getText().toString();
             if (noteContentText.getText() != null) {
-                noteString = noteContentText.getText().toString();
+                noteContent = noteContentText.getText().toString();
             } else {
                 noteString = "";
             }
             // Inform the user that they need a name for the note to be made.
-            if (noteNameString.equals("")) {
+            if (noteName.equals("")) {
                 noteNameText.setError("Please enter a name.");
             } else {
                 dateCreated = Calendar.getInstance().getTime();
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                String dateString = formatter.format(dateCreated);
                 String folderName = folderSpin.getSelectedItem().toString();
-                ArrayList<String> allNotesNames = Note.loadAllNoteNamesInFolder(context, folderName);
-                if (allNotesNames.contains(noteNameString)) {
-                    CheckNoteDialog checkNoteDialog = new CheckNoteDialog(context, folderName, noteNameString, noteString);
-                    AlertDialog optionDialog = checkNoteDialog.show();
-                    optionDialog.setOnDismissListener(dialogInterface -> updateTextFields());
-                } else {
-                    dateCreated = Calendar.getInstance().getTime();
-                    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                    String dateString = formatter.format(dateCreated);
-                    Note.saveNote(context, folderSpin.getSelectedItem().toString(), noteNameString, noteString, dateString);
+                List<Note> allNotes = NoteFileOperations.loadAllNotesInFolder(context, folderName);
+                Note note = new Note(noteName, noteContent, folderName, dateString);
+                boolean found = false;
+                for (Note n : allNotes) {
+                    if (n.getNoteName().equals(noteName)) {
+                        found = true;
+                        CheckNoteDialog checkNoteDialog = new CheckNoteDialog(context, note);
+                        AlertDialog optionDialog = checkNoteDialog.show();
+                        optionDialog.setOnDismissListener(dialogInterface -> updateTextFields());
+                    }
+                }
+                if (!found) {
+                    NoteFileOperations.saveNote(context, note);
                     updateTextFields();
                     Toast.makeText(getContext(), "Note saved.", Toast.LENGTH_LONG).show();
                 }
@@ -98,7 +105,6 @@ public class Tab2Fragment extends Fragment {
         }
         folderNamesListAdapter.notifyDataSetChanged();
     }
-
 
     // Created for when switching between fragment 1 and 2,
     // so that there is not any information left behind.
