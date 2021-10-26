@@ -1,0 +1,7 @@
+<androidx.fragment.app.FragmentContainerView android:id="@+id/map"
+    android:name="QuickNotes.MapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SpecificNoteEdit"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

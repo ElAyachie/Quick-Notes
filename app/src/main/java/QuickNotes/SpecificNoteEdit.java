@@ -29,7 +29,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,16 +36,16 @@ import java.util.Date;
 import java.util.Locale;
 
 import QuickNotes.Dialogs.DateTimePickerDialog;
+import QuickNotes.Dialogs.LocationReminderDialog;
 import QuickNotes.Dialogs.SaveNoteDialog;
 import QuickNotes.Services.ReminderBroadcast;
-
 
 public class SpecificNoteEdit extends AppCompatActivity {
     String currentFolder;
     String previousFolder;
+    Note note = new Note();
     String currentNoteName;
     String currentNoteContent;
-    String currentNoteDate;
     EditText noteNameText;
     TextInputEditText noteContentText;
     TextView noteDateText;
@@ -76,27 +75,27 @@ public class SpecificNoteEdit extends AppCompatActivity {
         assert actionBar != null;
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
         confirmChangesBtn = findViewById(R.id.addNoteButton);
         noteNameText = findViewById(R.id.noteNameText);
         noteDateText = findViewById(R.id.noteDateText);
         folderSpin = findViewById(R.id.folderSpin);
         noteContentText = findViewById(R.id.reminderNameText);
-        currentFolder = getIntent().getStringExtra("Folder name");
-        currentNoteName = getIntent().getStringExtra("Note name");
-        currentNoteContent = getIntent().getStringExtra("Note content");
-        currentNoteDate = getIntent().getStringExtra("Note date");
-        noteNameText.setText(currentNoteName);
-        noteContentText.setText(currentNoteContent);
-        noteDateText.setText(currentNoteDate);
+        note = (Note) getIntent().getSerializableExtra("note");
+        assert note != null;
+        noteNameText.setText(note.getNoteName());
+        noteContentText.setText(note.getNoteContent());
+        noteDateText.setText(note.getDateCreated());
+
         //setting up the spinner with folder names
-        folderNamesList = Note.loadFolderNames(context);
+        folderNamesList = NoteFileOperations.loadFolderNames(context);
         ArrayAdapter<String> folderNamesListAdapter = new ArrayAdapter<>(context, R.layout.custom_spinner, folderNamesList);
         folderNamesListAdapter.setDropDownViewResource(R.layout.custom_spinner_dropdown);
         folderSpin.setAdapter(folderNamesListAdapter);
         refreshFolderSpinner(context, folderNamesListAdapter);
-        folderSpin.setSelection(folderNamesListAdapter.getPosition(currentFolder));
+        folderSpin.setSelection(folderNamesListAdapter.getPosition(note.getFolderName()));
 
-        confirmChangesBtn.setOnClickListener(v -> {
+        confirmChangesBtn.setOnClickListener(view -> {
             previousFolder = currentFolder;
             currentFolder = folderSpin.getSelectedItem().toString();
             currentNoteName = noteNameText.getText().toString();
@@ -104,33 +103,40 @@ public class SpecificNoteEdit extends AppCompatActivity {
             currentNoteContent = noteContentText.getText().toString();
             if (currentNoteName.equals("")) {
                 noteNameText.setError("Please enter a name.");
+            } else {
+                dateEdited = Calendar.getInstance().getTime();
+                NoteFileOperations.deleteNote(context, note);
+                Date dateEdited = Calendar.getInstance().getTime();
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                String dateString = formatter.format(dateEdited);
+                Note newNote = new Note(currentNoteName, currentNoteContent, currentFolder, dateString);
+                NoteFileOperations.saveNote(context, newNote);
+                note = newNote;
+                Toast.makeText(context, "Note saved.", Toast.LENGTH_LONG).show();
             }
-            dateEdited = Calendar.getInstance().getTime();
-            Note.deleteNote(context, currentNoteName, previousFolder);
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            String dateString = formatter.format(dateEdited);
-            Note.saveNote(context, currentFolder, currentNoteName, currentNoteContent, dateString);
-            Toast.makeText(context, "Note saved.", Toast.LENGTH_LONG).show();
         });
     }
 
-
     public void refreshFolderSpinner(Context context, ArrayAdapter<String> aa) {
-        folderNamesList = Note.loadFolderNames(context);
+        folderNamesList = NoteFileOperations.loadFolderNames(context);
         aa.notifyDataSetChanged();
     }
 
     @Override
     public void onBackPressed() {
-        String noteNameString = noteNameText.getText().toString();
+        String newNoteName = noteNameText.getText().toString();
         assert noteContentText.getText() != null;
-        String noteContentString = noteContentText.getText().toString();
-        String folderNameString = folderSpin.getSelectedItem().toString();
-        if (noteNameString.equals("")) {
+        String newNoteContent = noteContentText.getText().toString();
+        String newNoteFolder = folderSpin.getSelectedItem().toString();
+        if (newNoteName.equals("")) {
             noteNameText.setError("Please enter a name.");
-        } else if (!currentNoteContent.equals(noteContentString) || !currentFolder.equals(folderNameString)
-                || !currentNoteName.equals(noteNameString)) {
-            SaveNoteDialog saveNoteDialog = new SaveNoteDialog(this, folderNameString, currentNoteName, currentFolder, noteNameString, noteContentString);
+        } else if (!note.getNoteContent().equals(newNoteContent) || !note.getFolderName().equals(newNoteFolder)
+                || !note.getNoteName().equals(newNoteName)) {
+            Date dateEdited = Calendar.getInstance().getTime();
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            String dateString = formatter.format(dateEdited);
+            Note newNote = new Note(newNoteName, newNoteContent, newNoteFolder, dateString);
+            SaveNoteDialog saveNoteDialog = new SaveNoteDialog(this, note, newNote);
             AlertDialog optionDialog = saveNoteDialog.show();
             optionDialog.setOnDismissListener(dialogInterface -> SpecificNoteEdit.super.onBackPressed());
         } else {
@@ -164,11 +170,14 @@ public class SpecificNoteEdit extends AppCompatActivity {
             intent = new Intent(this, SettingsPage.class);
             startActivity(intent);
         } else if (id == R.id.action_reminder_page) {
-            intent = new Intent(this, SettingsPage.class);
+            intent = new Intent(this, RemindersPage.class);
             startActivity(intent);
-        } else if (id == R.id.action_set_reminder) {
-            DateTimePickerDialog dateTimePickerDialog = new DateTimePickerDialog(this, currentFolder, currentNoteName, currentNoteContent);
+        } else if (id == R.id.action_set_time_reminder) {
+            DateTimePickerDialog dateTimePickerDialog = new DateTimePickerDialog(this, note);
             dateTimePickerDialog.show();
+        } else if (id == R.id.action_set_location_reminder) {
+            LocationReminderDialog locationReminderDialog = new LocationReminderDialog(this, getSupportFragmentManager(), note);
+            locationReminderDialog.show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -197,5 +206,4 @@ public class SpecificNoteEdit extends AppCompatActivity {
         }
         super.onResume();
     }
-
 }

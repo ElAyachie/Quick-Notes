@@ -3,16 +3,22 @@
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="Settings"
+        android:title="@string/settings"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_reminder_page"
         android:orderInCategory="100"
-        android:title="Reminders"
+        android:title="@string/reminders"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_set_reminder"
+        android:id="@+id/action_set_time_reminder"
         android:orderInCategory="100"
-        android:title="Schedule Reminder"
+        android:title="@string/schedule_time_reminder"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_set_location_reminder"
+        android:orderInCategory="100"
+        android:title="@string/schedule_location_reminder"
         app:showAsAction="never" />
 </menu>

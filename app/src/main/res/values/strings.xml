@@ -10,14 +10,11 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="delete_this_note">Delete this note?</string>
     <string name="delete_this_reminder">Delete this reminder?</string>
-    <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="new_note">New Note</string>
     <string name="overwrite_existing_note">Overwrite existing note?</string>
     <string name="would_you_like_to_save_this_note">Would you like to save this note?</string>
     <string name="yes">YES</string>
-    <string name="set">Set</string>
-    <string name="reminders">Reminders</string>
     <string name="enable_dark_mode">Enable Dark Mode</string>
     <string name="night_mode">Night Mode</string>
     <string name="name">Name</string>
@@ -26,4 +23,10 @@
     <string name="textview">TextView</string>
     <string name="folders">Folders</string>
     <string name="new_folder">New Folder</string>
+    <string name="cancel">Cancel</string>
+    <string name="set">Set</string>
+    <string name="settings">Settings</string>
+    <string name="reminders">Reminders</string>
+    <string name="schedule_time_reminder">Schedule Time Reminder</string>
+    <string name="schedule_location_reminder">Schedule Location Reminder</string>
 </resources>
