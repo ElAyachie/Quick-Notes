@@ -30,7 +30,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         // Add a marker to the users location.
         assert context != null;
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new MyLocationListener(context, activity);
+        locationListener = new MyLocationListener(context);
         // The current location of the user.
         double currentLatitude = locationListener.getLatitude();
         double currentLongitude = locationListener.getLongitude();
