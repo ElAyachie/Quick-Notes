@@ -175,14 +175,7 @@ public class SpecificNoteEdit extends AppCompatActivity {
             DateTimePickerDialog dateTimePickerDialog = new DateTimePickerDialog(this, note);
             dateTimePickerDialog.show();
         }
-        /* Work in progress
-        else if (id == R.id.action_set_location_reminder) {
-            LocationReminderDialog locationReminderDialog = new LocationReminderDialog(this, getSupportFragmentManager(), note);
-            locationReminderDialog.show();
-        }
-        */
         return super.onOptionsItemSelected(item);
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
