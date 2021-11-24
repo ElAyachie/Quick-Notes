@@ -17,12 +17,11 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import QuickNotes.Dialogs.DeleteFolderDialog;
 import QuickNotes.Dialogs.NewFolderDialog;
 
-public class Tab1Fragment extends Fragment {
+public class Tab1HomeFragment extends Fragment {
     ListView folderNamesListView;
     TextView folderNameView;
     Button newFolderBtn;

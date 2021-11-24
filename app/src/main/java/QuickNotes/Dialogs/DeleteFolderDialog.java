@@ -6,11 +6,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import QuickNotes.Note;
 import QuickNotes.NoteFileOperations;
 import QuickNotes.R;
-import QuickNotes.Tab1Fragment;
-import QuickNotes.Tab2Fragment;
+import QuickNotes.Tab1HomeFragment;
+import QuickNotes.Tab2HomeFragment;
 
 // Dialog that confirms whether the user is sure they want to delete a folder.
 // This dialog is used in fragment 1 of the home page.
@@ -25,9 +24,9 @@ public class DeleteFolderDialog extends AlertDialog.Builder {
         Button cancelButton = alertView.findViewById(R.id.cancelButton);
         positiveButton.setOnClickListener(view -> {
             NoteFileOperations.deleteFolder(context, folderNameString);
-            Tab1Fragment.folderNamesList.remove(folderNameString);
-            Tab1Fragment.folderNamesListAdapter.notifyDataSetChanged();
-            new Tab2Fragment().refreshFolderSpinner(folderNameString, false);
+            Tab1HomeFragment.folderNamesList.remove(folderNameString);
+            Tab1HomeFragment.folderNamesListAdapter.notifyDataSetChanged();
+            new Tab2HomeFragment().refreshFolderSpinner(folderNameString, false);
             Toast.makeText(context, "Folder deleted.", Toast.LENGTH_LONG).show();
             optionDialog.dismiss();
         });

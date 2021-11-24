@@ -90,6 +90,5 @@ public class ReminderBroadcast extends BroadcastReceiver {
         Notification notification = builder.build();
         notificationManager.notify(NOTIFY_ID, notification);
         ReminderFileOperations.deleteReminder(context, reminder);
-        new RemindersPage().refreshReminderListView();
     }
 }

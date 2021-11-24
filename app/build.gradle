@@ -9,7 +9,7 @@ android {
         applicationId "com.myapp.QuickNotes1"
         minSdkVersion 17
         targetSdkVersion 30
-        versionCode 50
+        versionCode 51
         versionName "2"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }

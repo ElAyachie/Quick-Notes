@@ -8,11 +8,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import QuickNotes.Note;
 import QuickNotes.NoteFileOperations;
 import QuickNotes.R;
-import QuickNotes.Tab1Fragment;
-import QuickNotes.Tab2Fragment;
+import QuickNotes.Tab1HomeFragment;
+import QuickNotes.Tab2HomeFragment;
 
 // Dialog allows the user to create a new folder.
 // This dialog is used in fragment 1 of the home page.
@@ -34,13 +33,13 @@ public class NewFolderDialog extends AlertDialog.Builder {
             String folderNameString = folderName.getText().toString();
             if (!folderNameString.equals("")) {
                 //creating a folder to store notes
-                if (Tab1Fragment.folderNamesList.contains(folderNameString)) {
+                if (Tab1HomeFragment.folderNamesList.contains(folderNameString)) {
                     folderName.setError("Folder already exists.");
                 } else {
                     NoteFileOperations.saveFolderName(context, folderNameString);
-                    Tab1Fragment.folderNamesList.add(folderNameString);
-                    Tab1Fragment.folderNamesListAdapter.notifyDataSetChanged();
-                    new Tab2Fragment().refreshFolderSpinner(folderNameString, true);
+                    Tab1HomeFragment.folderNamesList.add(folderNameString);
+                    Tab1HomeFragment.folderNamesListAdapter.notifyDataSetChanged();
+                    new Tab2HomeFragment().refreshFolderSpinner(folderNameString, true);
                     Toast.makeText(context, "Folder made.", Toast.LENGTH_LONG).show();
                     optionDialog.dismiss();
                 }

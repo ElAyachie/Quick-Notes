@@ -3,20 +3,12 @@ package QuickNotes.Dialogs;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 import QuickNotes.Note;
 import QuickNotes.NoteFileOperations;
 import QuickNotes.R;
-import QuickNotes.Tab2Fragment;
 
 // Dialog that allows the user check whether the user wants to overwrite an already existing note with the same name.
 // This dialog is used in the specific note edit and fragment 2 of the home page.

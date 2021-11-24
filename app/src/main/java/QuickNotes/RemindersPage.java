@@ -42,12 +42,13 @@ public class RemindersPage extends AppCompatActivity {
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         super.onCreate(savedInstanceState);
+        context = getBaseContext();
         reminderListView = findViewById(R.id.noteReminderListView);
         newNotesBtn = findViewById(R.id.newNoteBtn);
-        allReminders = ReminderFileOperations.loadAllReminders(this);
-        reminderAdapter = new RemindersCustomAdapter(this, allReminders);
+        allReminders = ReminderFileOperations.loadAllReminders(context);
+        reminderAdapter = new RemindersCustomAdapter(context, allReminders);
         reminderListView.setAdapter(reminderAdapter);
-        context = getBaseContext();
+
 
         reminderListView.setOnItemLongClickListener((parent, view, position, id) -> {
             Reminder selectedReminder = (Reminder) reminderListView.getItemAtPosition(position);
@@ -58,6 +59,7 @@ public class RemindersPage extends AppCompatActivity {
         });
     }
 
+    // The app will update this from anywhere on the app
     public void refreshReminderListView() {
         allReminders = ReminderFileOperations.loadAllReminders(context);
         reminderAdapter = new RemindersCustomAdapter(context, allReminders);
