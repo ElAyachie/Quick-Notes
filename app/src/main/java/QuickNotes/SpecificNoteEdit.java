@@ -1,6 +1,5 @@
 package QuickNotes;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -9,7 +8,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -19,8 +17,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +36,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import QuickNotes.Dialogs.DateTimePickerDialog;
-import QuickNotes.Dialogs.LocationReminderDialog;
 import QuickNotes.Dialogs.SaveNoteDialog;
 import QuickNotes.Services.ReminderBroadcast;
 
@@ -179,11 +174,15 @@ public class SpecificNoteEdit extends AppCompatActivity {
         } else if (id == R.id.action_set_time_reminder) {
             DateTimePickerDialog dateTimePickerDialog = new DateTimePickerDialog(this, note);
             dateTimePickerDialog.show();
-        } else if (id == R.id.action_set_location_reminder) {
+        }
+        /* Work in progress
+        else if (id == R.id.action_set_location_reminder) {
             LocationReminderDialog locationReminderDialog = new LocationReminderDialog(this, getSupportFragmentManager(), note);
             locationReminderDialog.show();
         }
+        */
         return super.onOptionsItemSelected(item);
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

@@ -23,8 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import java.util.Objects;
-
 import QuickNotes.Adapters.SectionsPageAdapter;
 
 public class HomePage extends AppCompatActivity {
@@ -62,8 +60,8 @@ public class HomePage extends AppCompatActivity {
     private void setupViewPager(final ViewPager viewPager) {
         // Attach the fragments in the order that they will be seen
         SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
-        adapter.addFragment(new Tab1Fragment(), "Collection");
-        adapter.addFragment(new Tab2Fragment(), "Make Note");
+        adapter.addFragment(new Tab1HomeFragment(), "Collection");
+        adapter.addFragment(new Tab2HomeFragment(), "Make Note");
 
         viewPager.setAdapter(adapter);
 

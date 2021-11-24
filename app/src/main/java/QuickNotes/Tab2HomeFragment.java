@@ -27,7 +27,7 @@ import java.util.Locale;
 import QuickNotes.Dialogs.CheckNoteDialog;
 
 
-public class Tab2Fragment extends Fragment {
+public class Tab2HomeFragment extends Fragment {
     public static ArrayAdapter<String> folderNamesListAdapter;
     ImageButton addNoteButton;
     TextInputEditText noteContentText;

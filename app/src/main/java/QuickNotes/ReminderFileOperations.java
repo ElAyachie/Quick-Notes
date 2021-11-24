@@ -189,8 +189,12 @@ public class ReminderFileOperations {
         String reminderDateMonth = String.valueOf(monthValues.indexOf(date.substring(0, 3)) + 1);
         String reminderDateDay = date.substring(4, 6);
         String reminderDateHour = date.substring(14, 16);
-        String reminderDateMinute = date.substring(17, 19);
-        String standardTime = date.substring(19, 21);
+        // Check if hour is only a singular time
+        if (reminderDateHour.contains(":")) {
+            reminderDateHour = reminderDateHour.substring(0, 1);
+        }
+        String reminderDateMinute = date.substring(date.length() - 4, date.length() - 2);
+        String standardTime = date.substring(date.length() - 2);
 
         // Need to have the time in military time.
         if (standardTime.equals("PM")) {
