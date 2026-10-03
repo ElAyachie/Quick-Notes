@@ -1,6 +1,8 @@
 package com.myapp.quicknotes.ui.reminders;
 
+import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -8,9 +10,11 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.myapp.quicknotes.R;
 import com.myapp.quicknotes.data.ReminderWithNote;
 import com.myapp.quicknotes.databinding.ItemReminderBinding;
 import com.myapp.quicknotes.ui.common.Formats;
+import com.myapp.quicknotes.ui.common.ReminderText;
 
 import java.util.function.Consumer;
 
@@ -37,7 +41,17 @@ public class ReminderAdapter
     public void onBindViewHolder(@NonNull ReminderViewHolder holder, int position) {
         ReminderWithNote item = getItem(position);
         holder.binding.noteTitle.setText(item.getNoteTitle());
-        holder.binding.reminderTime.setText(Formats.dateTime(item.getReminder().getTriggerAt()));
+        Context context = holder.itemView.getContext();
+        holder.binding.reminderTrigger.setText(ReminderText.trigger(context, item.getReminder()));
+        // Only history entries say when they fired.
+        Long firedAt = item.getReminder().getFiredAt();
+        if (firedAt == null) {
+            holder.binding.firedText.setVisibility(View.GONE);
+        } else {
+            holder.binding.firedText.setText(
+                    context.getString(R.string.reminded_on, Formats.dateTime(firedAt)));
+            holder.binding.firedText.setVisibility(View.VISIBLE);
+        }
         holder.itemView.setOnClickListener(view -> onClick.accept(item));
         holder.itemView.setOnLongClickListener(view -> {
             onLongClick.accept(item);

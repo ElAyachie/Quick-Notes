@@ -36,6 +36,21 @@
             app:argType="long" />
     </fragment>
 
+    <!-- Chooses the place for a new location reminder on the note given by noteId, or, with a
+         reminderId, changes the place of that reminder. -->
+    <fragment
+        android:id="@+id/placePickerFragment"
+        android:name="com.myapp.quicknotes.ui.placepicker.PlacePickerFragment"
+        android:label="@string/pick_a_place">
+        <argument
+            android:name="noteId"
+            app:argType="long" />
+        <argument
+            android:name="reminderId"
+            android:defaultValue="0L"
+            app:argType="long" />
+    </fragment>
+
     <fragment
         android:id="@+id/remindersFragment"
         android:name="com.myapp.quicknotes.ui.reminders.RemindersFragment"

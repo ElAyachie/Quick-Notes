@@ -1,14 +1,11 @@
 package com.myapp.quicknotes.ui.editor;
 
 import android.Manifest;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,12 +29,16 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.quicknotes.R;
 import com.myapp.quicknotes.data.Note;
+import com.myapp.quicknotes.data.ReminderType;
+import com.myapp.quicknotes.data.Repeat;
 import com.myapp.quicknotes.databinding.NoteFormBinding;
 import com.myapp.quicknotes.ui.common.FolderPicker;
 import com.myapp.quicknotes.ui.common.Formats;
+import com.myapp.quicknotes.ui.common.ReminderText;
+import com.myapp.quicknotes.ui.common.ReminderTimePicker;
 import com.myapp.quicknotes.ui.common.Screens;
-
-import java.util.Calendar;
+import com.myapp.quicknotes.ui.placepicker.LocationPermissionRequest;
+import com.myapp.quicknotes.ui.placepicker.PlacePickerViewModel;
 
 // Edits one note: its title, folder and text. Also where a reminder is attached to the note.
 public class NoteEditorFragment extends Fragment {
@@ -53,8 +54,11 @@ public class NoteEditorFragment extends Fragment {
                     Toast.makeText(requireContext(), R.string.notifications_denied,
                             Toast.LENGTH_LONG).show();
                 }
-                pickReminderTime();
+                chooseWhenOrWhere();
             });
+
+    private final LocationPermissionRequest locationPermission =
+            new LocationPermissionRequest(this, this::openPlacePicker);
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -171,7 +175,8 @@ public class NoteEditorFragment extends Fragment {
     }
 
     // A reminder belongs to a stored note, so the note is saved first when it needs to be.
-    private void startSettingReminder() {
+    private void startSettingReminder(ReminderType type) {
+        viewModel.setPendingReminderType(type);
         if (viewModel.isNewNote() || viewModel.hasUnsavedChanges(title(), content())) {
             save(this::askForNotificationPermission);
         } else {
@@ -184,35 +189,30 @@ public class NoteEditorFragment extends Fragment {
                 && !viewModel.canShowNotifications()) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS);
         } else {
-            pickReminderTime();
+            chooseWhenOrWhere();
         }
     }
 
-    private void pickReminderTime() {
-        Calendar now = Calendar.getInstance();
-        DatePickerDialog datePicker = new DatePickerDialog(requireContext(),
-                (picker, year, month, day) -> new TimePickerDialog(requireContext(),
-                        (timePicker, hour, minute) -> {
-                            Calendar chosen = Calendar.getInstance();
-                            chosen.set(year, month, day, hour, minute, 0);
-                            chosen.set(Calendar.MILLISECOND, 0);
-                            setReminder(chosen.getTimeInMillis());
-                        },
-                        now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE),
-                        DateFormat.is24HourFormat(requireContext())).show(),
-                now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-        datePicker.getDatePicker().setMinDate(now.getTimeInMillis());
-        datePicker.show();
+    private void chooseWhenOrWhere() {
+        if (viewModel.getPendingReminderType() == ReminderType.LOCATION) {
+            locationPermission.start();
+        } else {
+            ReminderTimePicker.show(requireContext(), System.currentTimeMillis(), Repeat.NONE,
+                    this::setReminder);
+        }
     }
 
-    private void setReminder(long triggerAt) {
-        if (triggerAt <= System.currentTimeMillis()) {
-            Toast.makeText(requireContext(), R.string.error_reminder_in_past,
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-        viewModel.addTimeReminder(triggerAt);
-        String message = getString(R.string.reminder_set, Formats.dateTime(triggerAt));
+    private void openPlacePicker() {
+        Screens.open(this, R.id.noteEditorFragment, R.id.placePickerFragment,
+                PlacePickerViewModel.argsForNewReminder(viewModel.getNoteId()));
+    }
+
+    private void setReminder(long triggerAt, Repeat repeat) {
+        viewModel.addTimeReminder(triggerAt, repeat);
+        String message = repeat == Repeat.NONE
+                ? getString(R.string.reminder_set, Formats.dateTime(triggerAt))
+                : getString(R.string.reminder_set_repeating, Formats.dateTime(triggerAt),
+                        getString(ReminderText.repeat(repeat)));
         if (viewModel.canScheduleExactAlarms()) {
             Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
         } else {
@@ -249,7 +249,11 @@ public class NoteEditorFragment extends Fragment {
         @Override
         public boolean onMenuItemSelected(@NonNull MenuItem item) {
             if (item.getItemId() == R.id.action_set_time_reminder) {
-                startSettingReminder();
+                startSettingReminder(ReminderType.TIME);
+                return true;
+            }
+            if (item.getItemId() == R.id.action_set_location_reminder) {
+                startSettingReminder(ReminderType.LOCATION);
                 return true;
             }
             if (item.getItemId() == R.id.action_delete_note) {

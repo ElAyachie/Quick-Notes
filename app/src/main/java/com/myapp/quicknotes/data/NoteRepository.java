@@ -50,8 +50,8 @@ public class NoteRepository {
 
     public void deleteNote(long noteId) {
         executors.io().execute(() -> {
-            for (long reminderId : reminderDao.getIdsForNote(noteId)) {
-                scheduler.cancel(reminderId);
+            for (Reminder reminder : reminderDao.getForNote(noteId)) {
+                scheduler.cancel(reminder);
             }
             noteDao.deleteById(noteId);
         });

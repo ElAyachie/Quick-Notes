@@ -15,6 +15,8 @@ import com.myapp.quicknotes.data.Folder;
 import com.myapp.quicknotes.data.Note;
 import com.myapp.quicknotes.data.NoteRepository;
 import com.myapp.quicknotes.data.ReminderRepository;
+import com.myapp.quicknotes.data.ReminderType;
+import com.myapp.quicknotes.data.Repeat;
 import com.myapp.quicknotes.reminders.ReminderNotifier;
 import com.myapp.quicknotes.reminders.ReminderScheduler;
 
@@ -27,6 +29,7 @@ public class NoteEditorViewModel extends AndroidViewModel {
     // Editor state that has to survive the app being killed in the background.
     private static final String STATE_SELECTED_FOLDER_ID = "selectedFolderId";
     private static final String STATE_FORM_FILLED = "formFilled";
+    private static final String STATE_PENDING_REMINDER_TYPE = "pendingReminderType";
 
     private final NoteRepository notes;
     private final ReminderRepository reminders;
@@ -141,11 +144,27 @@ public class NoteEditorViewModel extends AndroidViewModel {
     }
 
     // Only a saved note can have a reminder, because the reminder refers to the note by id.
-    public void addTimeReminder(long triggerAt) {
+    public void addTimeReminder(long triggerAt, Repeat repeat) {
         Note stored = note.getValue();
         if (stored != null && !stored.isNew()) {
-            reminders.addTimeReminder(stored.getId(), triggerAt);
+            reminders.addTimeReminder(stored.getId(), triggerAt, repeat);
         }
+    }
+
+    // Setting a reminder can take several steps (saving the note, permission prompts). This is
+    // the kind of reminder those steps are leading up to.
+    public ReminderType getPendingReminderType() {
+        ReminderType type = state.get(STATE_PENDING_REMINDER_TYPE);
+        return type != null ? type : ReminderType.TIME;
+    }
+
+    public void setPendingReminderType(ReminderType type) {
+        state.set(STATE_PENDING_REMINDER_TYPE, type);
+    }
+
+    public long getNoteId() {
+        Note stored = note.getValue();
+        return stored != null ? stored.getId() : 0;
     }
 
     public boolean canShowNotifications() {
