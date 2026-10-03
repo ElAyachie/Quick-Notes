@@ -13,6 +13,11 @@ public interface FolderDao {
     @Query("SELECT * FROM folders ORDER BY id")
     LiveData<List<Folder>> observeAll();
 
+    @Query("SELECT folders.*, COUNT(notes.id) AS note_count FROM folders "
+            + "LEFT JOIN notes ON notes.folder_id = folders.id "
+            + "GROUP BY folders.id ORDER BY folders.id")
+    LiveData<List<FolderWithNoteCount>> observeAllWithNoteCounts();
+
     @Query("SELECT COUNT(*) FROM folders WHERE name = :name")
     int countByName(String name);
 

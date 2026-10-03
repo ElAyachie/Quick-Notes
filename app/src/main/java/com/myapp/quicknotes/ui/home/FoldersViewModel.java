@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData;
 import com.myapp.quicknotes.QuickNotesApp;
 import com.myapp.quicknotes.data.Folder;
 import com.myapp.quicknotes.data.FolderRepository;
+import com.myapp.quicknotes.data.FolderWithNoteCount;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,8 +22,8 @@ public class FoldersViewModel extends AndroidViewModel {
         folders = QuickNotesApp.container(application).folderRepository();
     }
 
-    public LiveData<List<Folder>> getFolders() {
-        return folders.observeFolders();
+    public LiveData<List<FolderWithNoteCount>> getFolders() {
+        return folders.observeFoldersWithNoteCounts();
     }
 
     public void createFolder(String name, Consumer<Boolean> onResult) {

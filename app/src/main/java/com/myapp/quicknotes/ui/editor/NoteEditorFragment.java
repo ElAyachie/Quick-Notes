@@ -129,7 +129,7 @@ public class NoteEditorFragment extends Fragment {
     // Saves the note and then runs `afterwards`, unless the title is missing.
     private void save(@Nullable Runnable afterwards) {
         if (title().isEmpty()) {
-            form.titleInput.setError(getString(R.string.error_enter_name));
+            form.titleInput.setError(getString(R.string.error_enter_title));
             return;
         }
         viewModel.save(title(), content(), () -> {

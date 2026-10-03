@@ -73,7 +73,7 @@ public class RemindersFragment extends Fragment {
             adapter.submitList(reminders);
             binding.emptyText.setText(viewModel.isShowingHistory()
                     ? R.string.no_history : R.string.no_reminders);
-            binding.emptyText.setVisibility(reminders.isEmpty() ? View.VISIBLE : View.GONE);
+            binding.emptyState.setVisibility(reminders.isEmpty() ? View.VISIBLE : View.GONE);
         });
     }
 
