@@ -18,6 +18,8 @@ import java.util.Objects;
 // A TIME reminder has a trigger time and no place; a LOCATION reminder has a place (latitude,
 // longitude, radius, optional name) and no trigger time.
 //
+// A reminder repeating on chosen days of the week (Repeat.DAYS_OF_WEEK) also stores which days.
+//
 // A row is one occurrence. It fires once and is then kept, stamped with the moment it fired, as
 // history. A repeating reminder continues as a new row for its next occurrence.
 @Entity(
@@ -51,6 +53,8 @@ public class Reminder {
     @ColumnInfo(defaultValue = "NONE")
     @NonNull
     private final Repeat repeat;
+    @ColumnInfo(name = "repeat_days", defaultValue = "0")
+    private final int repeatDays;
     @ColumnInfo(name = "first_trigger_at")
     @Nullable
     private final Long firstTriggerAt;
@@ -61,7 +65,7 @@ public class Reminder {
     public Reminder(long id, long noteId, @NonNull ReminderType type, @Nullable Long triggerAt,
                     @Nullable Double latitude, @Nullable Double longitude,
                     @Nullable Float radiusMeters, @Nullable String placeName,
-                    @NonNull Repeat repeat, @Nullable Long firstTriggerAt,
+                    @NonNull Repeat repeat, int repeatDays, @Nullable Long firstTriggerAt,
                     @Nullable Long firedAt) {
         this.id = id;
         this.noteId = noteId;
@@ -72,15 +76,23 @@ public class Reminder {
         this.radiusMeters = radiusMeters;
         this.placeName = placeName;
         this.repeat = repeat;
+        this.repeatDays = repeatDays;
         this.firstTriggerAt = firstTriggerAt;
         this.firedAt = firedAt;
     }
 
-    // repeat is NONE or one of the calendar kinds (DAILY, WEEKLY, ...).
+    // repeat is NONE or one of the fixed intervals (DAILY, WEEKLY, MONTHLY, YEARLY).
     @Ignore
     public static Reminder atTime(long noteId, long triggerAt, @NonNull Repeat repeat) {
+        return atTime(noteId, triggerAt, repeat, DaysOfWeek.NONE);
+    }
+
+    // As above, or repeat is DAYS_OF_WEEK and repeatDays says which days.
+    @Ignore
+    public static Reminder atTime(long noteId, long triggerAt, @NonNull Repeat repeat,
+                                  int repeatDays) {
         return new Reminder(0, noteId, ReminderType.TIME, triggerAt, null, null, null, null,
-                repeat, triggerAt, null);
+                repeat, repeatDays, triggerAt, null);
     }
 
     // repeat is NONE or EVERY_ARRIVAL.
@@ -89,26 +101,26 @@ public class Reminder {
                                    float radiusMeters, @Nullable String placeName,
                                    @NonNull Repeat repeat) {
         return new Reminder(0, noteId, ReminderType.LOCATION, null, latitude, longitude,
-                radiusMeters, placeName, repeat, null, null);
+                radiusMeters, placeName, repeat, DaysOfWeek.NONE, null, null);
     }
 
     public Reminder withId(long id) {
         return new Reminder(id, noteId, type, triggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, firstTriggerAt, firedAt);
+                placeName, repeat, repeatDays, firstTriggerAt, firedAt);
     }
 
     // This reminder moved to another time. The series of a repeating reminder starts over from
     // the new time.
-    public Reminder rescheduled(long triggerAt, @NonNull Repeat repeat) {
+    public Reminder rescheduled(long triggerAt, @NonNull Repeat repeat, int repeatDays) {
         return new Reminder(id, noteId, type, triggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, triggerAt, firedAt);
+                placeName, repeat, repeatDays, triggerAt, firedAt);
     }
 
     // This reminder moved to another place.
     public Reminder moved(double latitude, double longitude, float radiusMeters,
                           @Nullable String placeName, @NonNull Repeat repeat) {
         return new Reminder(id, noteId, type, triggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, firstTriggerAt, firedAt);
+                placeName, repeat, repeatDays, firstTriggerAt, firedAt);
     }
 
     // The occurrence that follows this one, not yet stored; null when this reminder doesn't
@@ -120,13 +132,15 @@ public class Reminder {
             return null;
         }
         Long nextTriggerAt = null;
-        if (repeat.isTimeBased()) {
+        if (type == ReminderType.TIME) {
             long previous = Objects.requireNonNull(triggerAt);
             long first = firstTriggerAt != null ? firstTriggerAt : previous;
-            nextTriggerAt = repeat.nextAfter(first, previous, now, zone);
+            nextTriggerAt = repeat == Repeat.DAYS_OF_WEEK
+                    ? DaysOfWeek.nextAfter(repeatDays, first, Math.max(previous, now), zone)
+                    : repeat.nextAfter(first, previous, now, zone);
         }
         return new Reminder(0, noteId, type, nextTriggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, firstTriggerAt, null);
+                placeName, repeat, repeatDays, firstTriggerAt, null);
     }
 
     public long getId() {
@@ -175,6 +189,11 @@ public class Reminder {
         return repeat;
     }
 
+    // The days a DAYS_OF_WEEK reminder repeats on, as a DaysOfWeek set; empty otherwise.
+    public int getRepeatDays() {
+        return repeatDays;
+    }
+
     // The trigger time of the first occurrence of a repeating time reminder; later occurrences
     // are counted from it.
     @Nullable
@@ -201,6 +220,7 @@ public class Reminder {
                 && noteId == other.noteId
                 && type == other.type
                 && repeat == other.repeat
+                && repeatDays == other.repeatDays
                 && Objects.equals(triggerAt, other.triggerAt)
                 && Objects.equals(latitude, other.latitude)
                 && Objects.equals(longitude, other.longitude)
@@ -213,6 +233,6 @@ public class Reminder {
     @Override
     public int hashCode() {
         return Objects.hash(id, noteId, type, triggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, firstTriggerAt, firedAt);
+                placeName, repeat, repeatDays, firstTriggerAt, firedAt);
     }
 }

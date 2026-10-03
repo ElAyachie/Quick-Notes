@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {Folder.class, Note.class, Reminder.class}, version = 3)
+@Database(entities = {Folder.class, Note.class, Reminder.class}, version = 4)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String FILE_NAME = "quicknotes.db";
 
@@ -22,7 +22,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public static AppDatabase create(Context context) {
         return Room.databaseBuilder(context, AppDatabase.class, FILE_NAME)
                 .addCallback(SEED_DEFAULT_FOLDER)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build();
     }
 
@@ -75,6 +75,15 @@ public abstract class AppDatabase extends RoomDatabase {
             db.execSQL("ALTER TABLE reminders ADD COLUMN first_trigger_at INTEGER");
             db.execSQL("ALTER TABLE reminders ADD COLUMN fired_at INTEGER");
             db.execSQL("UPDATE reminders SET first_trigger_at = trigger_at");
+        }
+    };
+
+    // Version 4 lets a time reminder repeat on chosen days of the week. No stored reminder does
+    // yet, so the set of days starts out empty.
+    public static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE reminders ADD COLUMN repeat_days INTEGER NOT NULL DEFAULT 0");
         }
     };
 }
