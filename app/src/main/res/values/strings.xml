@@ -1,33 +1,64 @@
 <resources>
-    <string name="clear">Clear</string>
-    <string name="save">save</string>
-    <string name="section_format">Hello World from section: %1$d</string>
-    <string name="title_activity_main">MainActivity</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="delete_this_note">Delete this note?</string>
-    <string name="delete_this_reminder">Delete this reminder?</string>
-    <string name="ok">OK</string>
-    <string name="overwrite_existing_note">Overwrite existing note?</string>
-    <string name="would_you_like_to_save_this_note">Would you like to save this note?</string>
-    <string name="yes">YES</string>
-    <string name="enable_dark_mode">Enable Dark Mode</string>
-    <string name="night_mode">Night Mode</string>
-    <string name="name">Name</string>
-    <string name="todo">TODO</string>
-    <string name="note">Note</string>
-    <string name="textview">TextView</string>
+    <string name="app_name">Quick Notes</string>
+
+    <!-- Start screen -->
+    <string name="tab_collection">Collection</string>
+    <string name="tab_make_note">Make Note</string>
     <string name="folders">Folders</string>
     <string name="new_folder">+ New Folder</string>
-    <string name="cancel">Cancel</string>
-    <string name="set">Set</string>
-    <string name="settings">Settings</string>
-    <string name="reminders">Reminders</string>
-    <string name="schedule_time_reminder">Schedule Time Reminder</string>
-    <string name="schedule_location_reminder">Schedule Location Reminder</string>
-    <string name="folder">Folder</string>
+    <string name="new_folder_title">New folder</string>
+    <string name="folder_name">Folder name</string>
+    <string name="create">Create</string>
+    <string name="error_folder_exists">A folder with this name already exists.</string>
+    <string name="default_folder_cannot_be_deleted">The Unclassified folder can\'t be deleted.</string>
+    <string name="delete_folder_title">Delete \"%1$s\"?</string>
+    <string name="delete_folder_message">Its notes and their reminders are deleted too.</string>
+
+    <!-- Notes -->
+    <string name="notes">Notes</string>
     <string name="new_note">+ New Note</string>
+    <string name="no_notes">No notes in this folder yet.</string>
+    <string name="note">Note</string>
+    <string name="name">Name</string>
+    <string name="folder">Folder</string>
+    <string name="save_note">Save note</string>
+    <string name="note_saved">Note saved.</string>
+    <string name="last_edited">Last edited %1$s</string>
+    <string name="error_enter_name">Please enter a name.</string>
+    <string name="save_changes_question">Save your changes to this note?</string>
+    <string name="save">Save</string>
+    <string name="discard">Discard</string>
+    <string name="delete">Delete</string>
+    <string name="delete_note">Delete note</string>
+    <string name="delete_note_title">Delete this note?</string>
+    <string name="delete_note_message">Its reminders are deleted too.</string>
+    <string name="note_no_longer_exists">This note no longer exists.</string>
+
+    <!-- Reminders -->
+    <string name="reminders">Reminders</string>
+    <string name="no_reminders">No reminders set.</string>
+    <string name="set_time_reminder">Set time reminder</string>
+    <string name="reminder_set">Reminder set for %1$s.</string>
+    <string name="reminder_may_be_late">It may arrive late unless exact alarms are allowed.</string>
+    <string name="allow">Allow</string>
+    <string name="error_reminder_in_past">Pick a time in the future.</string>
+    <string name="notifications_denied">Notifications are off, so this reminder won\'t be shown. You can turn them on in the system settings.</string>
+    <string name="delete_reminder_title">Delete this reminder?</string>
+    <string name="delete_reminder_message">The note \"%1$s\" is kept.</string>
+    <string name="reminder_channel_name">Note reminders</string>
+    <string name="reminder_notification_title">Reminder: %1$s</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="theme">Theme</string>
+    <string-array name="theme_names">
+        <item>System default</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+    <string-array name="theme_values" translatable="false">
+        <item>system</item>
+        <item>light</item>
+        <item>dark</item>
+    </string-array>
 </resources>

@@ -3,7 +3,6 @@ agp = "9.4.1"
 activity = "1.13.0"
 appcompat = "1.8.0"
 constraintlayout = "2.2.2"
-coreTesting = "2.2.0"
 fragment = "1.9.1"
 junit = "4.13.2"
 lifecycle = "2.11.0"
@@ -33,7 +32,6 @@ androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", vers
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "testExtJunit" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "testRunner" }
 

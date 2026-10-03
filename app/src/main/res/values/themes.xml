@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- One theme for light and dark: the colours it points at switch with the night qualifier. -->
+    <style name="Theme.QuickNotes" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorOnTertiary">@color/on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/on_tertiary_container</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/on_background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="colorSurfaceContainerLowest">@color/surface_container_lowest</item>
+        <item name="colorSurfaceContainerLow">@color/surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_container_highest</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
+
+        <item name="materialButtonStyle">@style/Widget.QuickNotes.Button</item>
+        <item name="materialIconButtonFilledStyle">@style/Widget.QuickNotes.IconButton</item>
+        <item name="drawerArrowStyle">@style/Widget.QuickNotes.BackArrow</item>
+    </style>
+
+    <!-- Buttons keep the brand red in both themes, like the app bar. -->
+    <style name="Widget.QuickNotes.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/app_bar</item>
+        <item name="android:textColor">@color/on_app_bar</item>
+        <item name="iconTint">@color/on_app_bar</item>
+    </style>
+
+    <style name="Widget.QuickNotes.IconButton" parent="Widget.Material3.Button.IconButton.Filled">
+        <item name="backgroundTint">@color/app_bar</item>
+        <item name="iconTint">@color/on_app_bar</item>
+    </style>
+
+    <!-- The toolbar's back arrow is drawn by the navigation library and takes its colour from here. -->
+    <style name="Widget.QuickNotes.BackArrow" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@color/on_app_bar</item>
+    </style>
+</resources>

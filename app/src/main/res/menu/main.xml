@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Each item's id is the id of the screen it opens (see nav_graph.xml). "secondary" keeps the
+     current screen on the back stack instead of returning to the start screen first. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@id/remindersFragment"
+        android:menuCategory="secondary"
+        android:orderInCategory="100"
+        android:title="@string/reminders"
+        app:showAsAction="never" />
+    <item
+        android:id="@id/settingsFragment"
+        android:menuCategory="secondary"
+        android:orderInCategory="101"
+        android:title="@string/settings"
+        app:showAsAction="never" />
+</menu>
