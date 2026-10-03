@@ -1,9 +1,24 @@
-*.iml
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
+# Gradle / build outputs
+.gradle/
+build/
 /captures
 .externalNativeBuild
+.cxx/
+*.apk
+*.aab
+/app/release/
+/app/debug/
+/release/
+/debug/
+
+# Local machine config (SDK path, API keys)
+/local.properties
+
+# IDE
+*.iml
+.idea/
+/app/src/.idea/
+/app/src/main/.idea/
+
+# OS
+.DS_Store
