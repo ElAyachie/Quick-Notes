@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     defaultConfig {
         applicationId "com.myapp.QuickNotes1"
         minSdkVersion 17
-        targetSdkVersion 30
-        versionCode 51
+        targetSdkVersion 31
+        versionCode 54
         versionName "2"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
@@ -19,6 +19,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'QuickNotes'
 }
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
