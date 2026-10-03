@@ -45,8 +45,9 @@ public class RemindersViewModel extends AndroidViewModel {
         state.set(STATE_SHOWING_HISTORY, showingHistory);
     }
 
-    public void rescheduleReminder(Reminder reminder, long triggerAt, Repeat repeat) {
-        reminders.updateReminder(reminder.rescheduled(triggerAt, repeat));
+    public void rescheduleReminder(Reminder reminder, long triggerAt, Repeat repeat,
+                                   int repeatDays) {
+        reminders.updateReminder(reminder.rescheduled(triggerAt, repeat, repeatDays));
     }
 
     public void deleteReminder(Reminder reminder) {

@@ -106,14 +106,15 @@ public class RemindersFragment extends Fragment {
                 .show();
     }
 
-    // A time reminder is changed through the same three questions that set it; a location
+    // A time reminder is changed through the same questions that set it; a location
     // reminder goes back to the map.
     private void edit(Reminder reminder) {
         if (reminder.getType() == ReminderType.TIME) {
             ReminderTimePicker.show(requireContext(),
                     Objects.requireNonNull(reminder.getTriggerAt()), reminder.getRepeat(),
-                    (triggerAt, repeat) -> {
-                        viewModel.rescheduleReminder(reminder, triggerAt, repeat);
+                    reminder.getRepeatDays(),
+                    (triggerAt, repeat, repeatDays) -> {
+                        viewModel.rescheduleReminder(reminder, triggerAt, repeat, repeatDays);
                         Toast.makeText(requireContext(), R.string.reminder_updated,
                                 Toast.LENGTH_SHORT).show();
                     });

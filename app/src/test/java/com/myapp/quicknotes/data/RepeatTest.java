@@ -132,7 +132,7 @@ public class RepeatTest {
         long moved = at(2026, 3, 15, 10, 0);
         Reminder monthly = Reminder.atTime(1, first, Repeat.MONTHLY).withId(4);
 
-        Reminder rescheduled = monthly.rescheduled(moved, Repeat.MONTHLY);
+        Reminder rescheduled = monthly.rescheduled(moved, Repeat.MONTHLY, DaysOfWeek.NONE);
         Reminder next = rescheduled.nextOccurrence(moved + 1_000, NEW_YORK);
 
         assertEquals(4, rescheduled.getId());

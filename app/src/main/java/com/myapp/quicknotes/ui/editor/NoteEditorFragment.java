@@ -28,6 +28,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.quicknotes.R;
+import com.myapp.quicknotes.data.DaysOfWeek;
 import com.myapp.quicknotes.data.Note;
 import com.myapp.quicknotes.data.ReminderType;
 import com.myapp.quicknotes.data.Repeat;
@@ -198,7 +199,7 @@ public class NoteEditorFragment extends Fragment {
             locationPermission.start();
         } else {
             ReminderTimePicker.show(requireContext(), System.currentTimeMillis(), Repeat.NONE,
-                    this::setReminder);
+                    DaysOfWeek.NONE, this::setReminder);
         }
     }
 
@@ -207,12 +208,12 @@ public class NoteEditorFragment extends Fragment {
                 PlacePickerViewModel.argsForNewReminder(viewModel.getNoteId()));
     }
 
-    private void setReminder(long triggerAt, Repeat repeat) {
-        viewModel.addTimeReminder(triggerAt, repeat);
+    private void setReminder(long triggerAt, Repeat repeat, int repeatDays) {
+        viewModel.addTimeReminder(triggerAt, repeat, repeatDays);
         String message = repeat == Repeat.NONE
                 ? getString(R.string.reminder_set, Formats.dateTime(triggerAt))
                 : getString(R.string.reminder_set_repeating, Formats.dateTime(triggerAt),
-                        getString(ReminderText.repeat(repeat)));
+                        ReminderText.repeatLabel(requireContext(), repeat, repeatDays));
         if (viewModel.canScheduleExactAlarms()) {
             Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
         } else {
