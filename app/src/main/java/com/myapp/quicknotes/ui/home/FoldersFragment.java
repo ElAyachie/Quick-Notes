@@ -21,7 +21,7 @@ import com.myapp.quicknotes.databinding.FragmentFoldersBinding;
 import com.myapp.quicknotes.ui.common.Screens;
 import com.myapp.quicknotes.ui.notes.NotesViewModel;
 
-// The "Collection" tab: every folder, with a button to add one. Tap opens a folder, long press
+// The "Collection" tab: every folder with its number of notes, and a button to add one. Tap opens a folder, long press
 // offers to delete it.
 public class FoldersFragment extends Fragment {
     private FragmentFoldersBinding binding;
