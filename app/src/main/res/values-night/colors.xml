@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_bar">#9A0A19</color>
+
+    <color name="primary">#FFB4AB</color>
+    <color name="on_primary">#690005</color>
+    <color name="primary_container">#93000A</color>
+    <color name="on_primary_container">#FFDAD5</color>
+    <color name="secondary">#E7BDB7</color>
+    <color name="on_secondary">#442926</color>
+    <color name="secondary_container">#5D3F3B</color>
+    <color name="on_secondary_container">#FFDAD5</color>
+    <color name="tertiary">#DFC38C</color>
+    <color name="on_tertiary">#3E2E04</color>
+    <color name="tertiary_container">#574419</color>
+    <color name="on_tertiary_container">#FCDFA6</color>
+
+    <color name="background">#303030</color>
+    <color name="on_background">#FCFCFC</color>
+    <color name="surface">#303030</color>
+    <color name="on_surface">#FCFCFC</color>
+    <color name="surface_variant">#4A4646</color>
+    <color name="on_surface_variant">#D0C4C2</color>
+    <color name="surface_container_lowest">#262626</color>
+    <color name="surface_container_low">#343434</color>
+    <color name="surface_container">#3A3A3A</color>
+    <color name="surface_container_high">#424242</color>
+    <color name="surface_container_highest">#4D4D4D</color>
+    <color name="outline">#A08C8A</color>
+    <color name="outline_variant">#534341</color>
+</resources>

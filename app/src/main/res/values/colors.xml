@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#b71013</color>
-    <color name="colorPrimaryDark">#7e0202</color>
-    <color name="colorAccent">#FF4081</color>
+    <!-- Light theme. values-night/colors.xml holds the dark counterparts. -->
+
+    <!-- The app bar and tab strip keep the brand red in both themes. -->
+    <color name="app_bar">#B71013</color>
+    <color name="on_app_bar">#FFFFFF</color>
+    <color name="on_app_bar_muted">#CCFFFFFF</color>
+
+    <color name="primary">#B71013</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#FFDAD5</color>
+    <color name="on_primary_container">#410001</color>
+    <color name="secondary">#775651</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#FFDAD5</color>
+    <color name="on_secondary_container">#2C1512</color>
+    <color name="tertiary">#705C2E</color>
+    <color name="on_tertiary">#FFFFFF</color>
+    <color name="tertiary_container">#FCDFA6</color>
+    <color name="on_tertiary_container">#261A00</color>
+
+    <color name="background">#FCFCFC</color>
+    <color name="on_background">#201A19</color>
+    <color name="surface">#FCFCFC</color>
+    <color name="on_surface">#201A19</color>
+    <color name="surface_variant">#EFE3E1</color>
+    <color name="on_surface_variant">#534341</color>
+    <color name="surface_container_lowest">#FFFFFF</color>
+    <color name="surface_container_low">#F7F3F2</color>
+    <color name="surface_container">#F2EDEC</color>
+    <color name="surface_container_high">#ECE7E6</color>
+    <color name="surface_container_highest">#E6E1E0</color>
+    <color name="outline">#857371</color>
+    <color name="outline_variant">#D8C2BE</color>
 </resources>

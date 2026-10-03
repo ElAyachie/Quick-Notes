@@ -1,60 +1,43 @@
-<?xml version="1.1" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Showing reminder notifications (runtime permission on Android 13+). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Firing time reminders at the minute the user picked. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Alarms are lost on reboot; ReminderRestoreReceiver schedules them again. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name=".QuickNotesApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Quick Notes"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:fullBackupContent="true">
+        android:theme="@style/Theme.QuickNotes">
 
         <activity
-            android:name="QuickNotes.HomePage"
-            android:label="Quick Notes"
-            android:theme="@style/AppTheme"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            tools:ignore="ExtraText"
-            android:exported="true">
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="QuickNotes.NotesInFolderPage"
-            android:label="Quick Notes"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity
-            android:name="QuickNotes.SpecificNoteEdit"
-            android:label="Quick Notes"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            />
-        <activity
-            android:name="QuickNotes.RemindersPage"
-            android:label="Quick Notes"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            />
-        <activity android:name="QuickNotes.SettingsPage" />
+        <receiver
+            android:name=".reminders.ReminderAlarmReceiver"
+            android:exported="false" />
 
         <receiver
-            android:name=".Services.ReminderBroadcast"
-            android:enabled="true"
-            android:exported="true"
-            android:label="RestartServices">
+            android:name=".reminders.ReminderRestoreReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="restart_services"/>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
     </application>
