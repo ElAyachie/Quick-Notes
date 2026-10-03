@@ -19,6 +19,7 @@
         <item name="windowNoTitle">true</item>
         <item name="android:textColorPrimary">#000000</item>
         <item name="android:textColorTertiary">#fcfcfc</item>
+        <item name="android:windowBackground">#303030</item>
     </style>
 
     <!-- Base application theme. -->

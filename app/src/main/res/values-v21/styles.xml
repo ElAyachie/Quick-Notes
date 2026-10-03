@@ -21,7 +21,7 @@
         <item name="android:textColorTertiary">#fcfcfc</item>
     </style>
 
-    <!-- Base application theme. -->
+    <!-- Dark application theme. -->
     <style name="DarkTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#9A0A19</item>
@@ -40,6 +40,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:textColorTertiary">#fcfcfc</item>
+        <item name="android:windowBackground">#303030</item>
     </style>
 
 
