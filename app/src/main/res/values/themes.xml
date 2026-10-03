@@ -35,14 +35,24 @@
 
     <!-- Buttons keep the brand red in both themes, like the app bar. -->
     <style name="Widget.QuickNotes.Button" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@color/app_bar</item>
-        <item name="android:textColor">@color/on_app_bar</item>
-        <item name="iconTint">@color/on_app_bar</item>
+        <item name="backgroundTint">@color/button_background</item>
+        <item name="android:textColor">@color/button_content</item>
+        <item name="iconTint">@color/button_content</item>
     </style>
 
     <style name="Widget.QuickNotes.IconButton" parent="Widget.Material3.Button.IconButton.Filled">
-        <item name="backgroundTint">@color/app_bar</item>
-        <item name="iconTint">@color/on_app_bar</item>
+        <item name="backgroundTint">@color/button_background</item>
+        <item name="iconTint">@color/button_content</item>
+    </style>
+
+    <!-- A tab strip that continues the app bar. -->
+    <style name="Widget.QuickNotes.TabLayout" parent="Widget.Material3.TabLayout">
+        <item name="android:background">@color/app_bar</item>
+        <item name="tabGravity">fill</item>
+        <item name="tabIndicatorColor">@color/on_app_bar</item>
+        <item name="tabMode">fixed</item>
+        <item name="tabSelectedTextColor">@color/on_app_bar</item>
+        <item name="tabTextColor">@color/on_app_bar_muted</item>
     </style>
 
     <!-- The toolbar's back arrow is drawn by the navigation library and takes its colour from here. -->

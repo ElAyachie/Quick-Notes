@@ -43,8 +43,8 @@ public class FolderRepository {
             return;
         }
         executors.io().execute(() -> {
-            for (long reminderId : reminderDao.getIdsForFolder(folder.getId())) {
-                scheduler.cancel(reminderId);
+            for (Reminder reminder : reminderDao.getForFolder(folder.getId())) {
+                scheduler.cancel(reminder);
             }
             folderDao.deleteById(folder.getId());
         });

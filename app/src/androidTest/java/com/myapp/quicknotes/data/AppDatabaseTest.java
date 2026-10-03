@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class AppDatabaseTest {
     @Test
     public void deletingANoteDeletesItsReminders() {
         long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Call", "", Folder.DEFAULT_ID));
-        long reminderId = reminders.insert(Reminder.atTime(noteId, 1_000));
+        long reminderId = reminders.insert(Reminder.atTime(noteId, 1_000, Repeat.NONE));
 
         notes.deleteById(noteId);
 
@@ -80,7 +81,7 @@ public class AppDatabaseTest {
     public void deletingAFolderDeletesItsNotesAndTheirReminders() {
         long folderId = folders.insert(new Folder("Trips"));
         long noteId = notes.insert(Note.blank(folderId).edited("Pack", "", folderId));
-        long reminderId = reminders.insert(Reminder.atTime(noteId, 1_000));
+        long reminderId = reminders.insert(Reminder.atTime(noteId, 1_000, Repeat.NONE));
 
         folders.deleteById(folderId);
 
@@ -89,16 +90,87 @@ public class AppDatabaseTest {
     }
 
     @Test
-    public void reminderIdsForAFolderCoverOnlyThatFoldersNotes() {
+    public void remindersForAFolderCoverOnlyThatFoldersNotes() {
         long folderId = folders.insert(new Folder("Trips"));
         long inFolder = notes.insert(Note.blank(folderId).edited("Pack", "", folderId));
         long elsewhere = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Call", "", Folder.DEFAULT_ID));
-        long first = reminders.insert(Reminder.atTime(inFolder, 1_000));
-        long second = reminders.insert(Reminder.atTime(inFolder, 2_000));
-        reminders.insert(Reminder.atTime(elsewhere, 3_000));
+        long first = reminders.insert(Reminder.atTime(inFolder, 1_000, Repeat.NONE));
+        long second = reminders.insert(Reminder.atPlace(inFolder, 48.8584, 2.2945, 200, "Tower", Repeat.NONE));
+        reminders.insert(Reminder.atTime(elsewhere, 3_000, Repeat.NONE));
 
-        List<Long> ids = reminders.getIdsForFolder(folderId);
+        List<Long> ids = new ArrayList<>();
+        for (Reminder reminder : reminders.getForFolder(folderId)) {
+            ids.add(reminder.getId());
+        }
 
         assertEquals(Arrays.asList(first, second), ids);
+    }
+
+    @Test
+    public void locationReminderKeepsItsPlace() {
+        long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Milk", "", Folder.DEFAULT_ID));
+        long reminderId = reminders.insert(Reminder.atPlace(noteId, 48.8584, 2.2945, 350, "Shop", Repeat.EVERY_ARRIVAL));
+
+        Reminder stored = reminders.getById(reminderId);
+
+        assertNotNull(stored);
+        assertEquals(ReminderType.LOCATION, stored.getType());
+        assertNull(stored.getTriggerAt());
+        assertEquals(48.8584, stored.getLatitude(), 0.0);
+        assertEquals(2.2945, stored.getLongitude(), 0.0);
+        assertEquals(350f, stored.getRadiusMeters(), 0f);
+        assertEquals("Shop", stored.getPlaceName());
+        assertEquals(Repeat.EVERY_ARRIVAL, stored.getRepeat());
+    }
+
+    @Test
+    public void firedReminderLeavesTheUpcomingList() {
+        long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Call", "", Folder.DEFAULT_ID));
+        long firedId = reminders.insert(Reminder.atTime(noteId, 1_000, Repeat.NONE));
+        long waitingId = reminders.insert(Reminder.atTime(noteId, 2_000, Repeat.NONE));
+
+        reminders.markFired(firedId, 1_500);
+
+        List<Reminder> upcoming = reminders.getUpcoming();
+        assertEquals(1, upcoming.size());
+        assertEquals(waitingId, upcoming.get(0).getId());
+        Reminder fired = reminders.getById(firedId);
+        assertNotNull(fired);
+        assertEquals(Long.valueOf(1_500), fired.getFiredAt());
+    }
+
+    @Test
+    public void firingARepeatingReminderKeepsItAsHistoryAndStoresTheNextOccurrence() {
+        long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Pills", "", Folder.DEFAULT_ID));
+        Reminder daily = Reminder.atTime(noteId, 1_000, Repeat.DAILY);
+        long firedId = reminders.insert(daily);
+        Reminder next = daily.withId(firedId).nextOccurrence(1_500, java.time.ZoneOffset.UTC);
+        assertNotNull(next);
+
+        long nextId = reminders.markFiredAndInsertNext(firedId, 1_500, next);
+
+        Reminder fired = reminders.getById(firedId);
+        assertNotNull(fired);
+        assertTrue(fired.hasFired());
+        List<Reminder> upcoming = reminders.getUpcoming();
+        assertEquals(1, upcoming.size());
+        assertEquals(nextId, upcoming.get(0).getId());
+        assertEquals(Long.valueOf(1_000 + 24 * 60 * 60 * 1_000), upcoming.get(0).getTriggerAt());
+    }
+
+    @Test
+    public void editedReminderKeepsItsId() {
+        long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Call", "", Folder.DEFAULT_ID));
+        long reminderId = reminders.insert(Reminder.atTime(noteId, 1_000, Repeat.NONE));
+        Reminder stored = reminders.getById(reminderId);
+        assertNotNull(stored);
+
+        reminders.update(stored.rescheduled(9_000, Repeat.WEEKLY));
+
+        Reminder edited = reminders.getById(reminderId);
+        assertNotNull(edited);
+        assertEquals(Long.valueOf(9_000), edited.getTriggerAt());
+        assertEquals(Repeat.WEEKLY, edited.getRepeat());
+        assertEquals(1, reminders.getUpcoming().size());
     }
 }
