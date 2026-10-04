@@ -104,7 +104,8 @@ The owner asked for a more modern, clean look.
 
 ## Open items
 
-- **Pull request** for `weekday-reminders` (includes `ui-polish`) has not been opened.
+- **Pull request #1** for `weekday-reminders` (includes `ui-polish`) was opened on
+  2026-10-03 and is waiting for the owner to merge it.
 - **Google Play:** background location must be declared and justified in the Play
   Console before an update with location reminders is approved.
 - **Not tested on a real phone.** On a device, a geofence notification can lag a few
