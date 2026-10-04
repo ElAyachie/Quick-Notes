@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- Alarms and watched places are lost on reboot; ReminderRestoreReceiver restores them. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <!-- Location reminders: knowing when the device arrives at a chosen place, including while
-         the app is closed (background location). -->
+    <!-- Location reminders: knowing when the device arrives at or leaves a chosen place,
+         including while the app is closed (background location). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -59,6 +59,10 @@
 
         <receiver
             android:name=".reminders.GeofenceReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".reminders.ReminderActionReceiver"
             android:exported="false" />
 
         <receiver

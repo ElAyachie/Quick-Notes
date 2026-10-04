@@ -16,7 +16,8 @@ import java.util.Objects;
 // note as it is when the reminder fires. Deleting the note deletes its reminders.
 //
 // A TIME reminder has a trigger time and no place; a LOCATION reminder has a place (latitude,
-// longitude, radius, optional name) and no trigger time.
+// longitude, radius, optional name) and no trigger time, and says whether it fires on arriving
+// at the place or on leaving it.
 //
 // A reminder repeating on chosen days of the week (Repeat.DAYS_OF_WEEK) also stores which days.
 //
@@ -50,6 +51,9 @@ public class Reminder {
     @ColumnInfo(name = "place_name")
     @Nullable
     private final String placeName;
+    @ColumnInfo(name = "place_trigger", defaultValue = "ARRIVING")
+    @NonNull
+    private final PlaceTrigger placeTrigger;
     @ColumnInfo(defaultValue = "NONE")
     @NonNull
     private final Repeat repeat;
@@ -65,8 +69,8 @@ public class Reminder {
     public Reminder(long id, long noteId, @NonNull ReminderType type, @Nullable Long triggerAt,
                     @Nullable Double latitude, @Nullable Double longitude,
                     @Nullable Float radiusMeters, @Nullable String placeName,
-                    @NonNull Repeat repeat, int repeatDays, @Nullable Long firstTriggerAt,
-                    @Nullable Long firedAt) {
+                    @NonNull PlaceTrigger placeTrigger, @NonNull Repeat repeat, int repeatDays,
+                    @Nullable Long firstTriggerAt, @Nullable Long firedAt) {
         this.id = id;
         this.noteId = noteId;
         this.type = type;
@@ -75,6 +79,7 @@ public class Reminder {
         this.longitude = longitude;
         this.radiusMeters = radiusMeters;
         this.placeName = placeName;
+        this.placeTrigger = placeTrigger;
         this.repeat = repeat;
         this.repeatDays = repeatDays;
         this.firstTriggerAt = firstTriggerAt;
@@ -92,40 +97,50 @@ public class Reminder {
     public static Reminder atTime(long noteId, long triggerAt, @NonNull Repeat repeat,
                                   int repeatDays) {
         return new Reminder(0, noteId, ReminderType.TIME, triggerAt, null, null, null, null,
-                repeat, repeatDays, triggerAt, null);
+                PlaceTrigger.ARRIVING, repeat, repeatDays, triggerAt, null);
     }
 
-    // repeat is NONE or EVERY_ARRIVAL.
+    // Fires on arriving at the place. repeat is NONE or EVERY_ARRIVAL.
     @Ignore
     public static Reminder atPlace(long noteId, double latitude, double longitude,
                                    float radiusMeters, @Nullable String placeName,
                                    @NonNull Repeat repeat) {
+        return atPlace(noteId, latitude, longitude, radiusMeters, placeName,
+                PlaceTrigger.ARRIVING, repeat);
+    }
+
+    // As above, on arriving at the place or on leaving it.
+    @Ignore
+    public static Reminder atPlace(long noteId, double latitude, double longitude,
+                                   float radiusMeters, @Nullable String placeName,
+                                   @NonNull PlaceTrigger placeTrigger, @NonNull Repeat repeat) {
         return new Reminder(0, noteId, ReminderType.LOCATION, null, latitude, longitude,
-                radiusMeters, placeName, repeat, DaysOfWeek.NONE, null, null);
+                radiusMeters, placeName, placeTrigger, repeat, DaysOfWeek.NONE, null, null);
     }
 
     public Reminder withId(long id) {
         return new Reminder(id, noteId, type, triggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, repeatDays, firstTriggerAt, firedAt);
+                placeName, placeTrigger, repeat, repeatDays, firstTriggerAt, firedAt);
     }
 
     // This reminder moved to another time. The series of a repeating reminder starts over from
     // the new time.
     public Reminder rescheduled(long triggerAt, @NonNull Repeat repeat, int repeatDays) {
         return new Reminder(id, noteId, type, triggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, repeatDays, triggerAt, firedAt);
+                placeName, placeTrigger, repeat, repeatDays, triggerAt, firedAt);
     }
 
-    // This reminder moved to another place.
+    // This reminder moved to another place, or changed between arriving and leaving.
     public Reminder moved(double latitude, double longitude, float radiusMeters,
-                          @Nullable String placeName, @NonNull Repeat repeat) {
+                          @Nullable String placeName, @NonNull PlaceTrigger placeTrigger,
+                          @NonNull Repeat repeat) {
         return new Reminder(id, noteId, type, triggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, repeatDays, firstTriggerAt, firedAt);
+                placeName, placeTrigger, repeat, repeatDays, firstTriggerAt, firedAt);
     }
 
     // The occurrence that follows this one, not yet stored; null when this reminder doesn't
     // repeat. A time reminder moves on to its next due time; a location reminder waits for the
-    // next arrival at the same place.
+    // next arrival at the same place, or the next time it is left.
     @Nullable
     public Reminder nextOccurrence(long now, ZoneId zone) {
         if (repeat == Repeat.NONE) {
@@ -140,7 +155,7 @@ public class Reminder {
                     : repeat.nextAfter(first, previous, now, zone);
         }
         return new Reminder(0, noteId, type, nextTriggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, repeatDays, firstTriggerAt, null);
+                placeName, placeTrigger, repeat, repeatDays, firstTriggerAt, null);
     }
 
     public long getId() {
@@ -172,7 +187,8 @@ public class Reminder {
         return longitude;
     }
 
-    // How close to the place counts as having arrived.
+    // How close to the place counts as being there: arriving is coming within this distance,
+    // leaving is going beyond it.
     @Nullable
     public Float getRadiusMeters() {
         return radiusMeters;
@@ -182,6 +198,13 @@ public class Reminder {
     @Nullable
     public String getPlaceName() {
         return placeName;
+    }
+
+    // Whether a LOCATION reminder fires on arriving at its place or on leaving it. Means nothing
+    // for a TIME reminder.
+    @NonNull
+    public PlaceTrigger getPlaceTrigger() {
+        return placeTrigger;
     }
 
     @NonNull
@@ -219,6 +242,7 @@ public class Reminder {
         return id == other.id
                 && noteId == other.noteId
                 && type == other.type
+                && placeTrigger == other.placeTrigger
                 && repeat == other.repeat
                 && repeatDays == other.repeatDays
                 && Objects.equals(triggerAt, other.triggerAt)
@@ -233,6 +257,6 @@ public class Reminder {
     @Override
     public int hashCode() {
         return Objects.hash(id, noteId, type, triggerAt, latitude, longitude, radiusMeters,
-                placeName, repeat, repeatDays, firstTriggerAt, firedAt);
+                placeName, placeTrigger, repeat, repeatDays, firstTriggerAt, firedAt);
     }
 }

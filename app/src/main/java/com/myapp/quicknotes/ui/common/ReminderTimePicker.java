@@ -18,13 +18,15 @@ import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 // Asks when a time reminder should fire: the date, the time of day, and whether to repeat. A
 // reminder repeating on specific days of the week gets a fourth question, which days. Used both
-// to set a new reminder and to change an existing one.
+// to set a new reminder and to change an existing one. A new reminder is first offered a few
+// ready-made times, which skip those questions.
 public final class ReminderTimePicker {
     public interface OnPicked {
         // repeatDays is a DaysOfWeek set when repeat is DAYS_OF_WEEK, and empty otherwise.
@@ -36,6 +38,33 @@ public final class ReminderTimePicker {
             Repeat.YEARLY};
 
     private ReminderTimePicker() {
+    }
+
+    // For a new reminder: offers the ready-made times, with the full questions as the last
+    // choice. A ready-made time sets a reminder that doesn't repeat.
+    public static void showForNewReminder(Context context, OnPicked onPicked) {
+        long now = System.currentTimeMillis();
+        List<String> labels = new ArrayList<>();
+        List<Long> times = new ArrayList<>();
+        for (ReminderPreset preset : ReminderPreset.values()) {
+            Long time = preset.timeFor(now, ZoneId.systemDefault());
+            if (time != null) {
+                labels.add(ReminderText.presetLabel(context, preset, time));
+                times.add(time);
+            }
+        }
+        labels.add(context.getString(R.string.pick_date_and_time));
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.remind_me)
+                .setItems(labels.toArray(new String[0]), (dialog, which) -> {
+                    if (which < times.size()) {
+                        onPicked.onPicked(times.get(which), Repeat.NONE, DaysOfWeek.NONE);
+                    } else {
+                        show(context, System.currentTimeMillis(), Repeat.NONE, DaysOfWeek.NONE,
+                                onPicked);
+                    }
+                })
+                .show();
     }
 
     // Each step starts out at the given time and repeat setting. Nothing is reported if the user

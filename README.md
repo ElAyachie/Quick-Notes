@@ -8,13 +8,16 @@ A note-taking app for Android whose notes can remind you of themselves.
 - **Folders** — create and delete. Deleting a folder deletes the notes in it. The
   "Unclassified" folder always exists.
 - **Time reminders** — attach a date and time to a note; a notification shows the note
-  when the time comes, and tapping it opens the note. A time reminder can repeat every
-  day, week, month or year, or on chosen days of the week (say Monday, Wednesday and
-  Friday), like an alarm clock.
-- **Location reminders** — pick a place on a map and how close counts as arriving
-  (100 m to 2 km); the note is shown when you get there, even if the app is closed. The
-  reminder fires on arriving, so one set while you are already at the place waits for
-  your next visit. It can fire once, or on every visit.
+  when the time comes, and tapping it opens the note. "Later today", "Tomorrow morning"
+  and "Next week" set one in a single tap. A time reminder can repeat every day, week,
+  month or year, or on chosen days of the week (say Monday, Wednesday and Friday), like
+  an alarm clock.
+- **Location reminders** — pick a place on a map and how close counts as being there
+  (100 m to 2 km); the note is shown when you arrive, or when you leave, even if the app
+  is closed. An arriving reminder set while you are already at the place waits for your
+  next visit. It can fire once, or every time.
+- **Snooze** — a reminder's notification has "Done", "In 10 min" and "In 1 hour" buttons,
+  so it can be put off without opening the app.
 - **Reminders screen** — "Upcoming" lists the reminders still waiting; tap one to edit
   it, open its note or delete it. "History" lists the ones that have fired.
 - Reminders survive a reboot.
@@ -28,7 +31,7 @@ Java, XML layouts, a single activity. Everything lives under
 | Package | What's in it |
 |---|---|
 | `data` | The Room database: `Folder`, `Note` and `Reminder` tables, their DAOs, and one repository per table. Repositories are the only way the rest of the app touches data. |
-| `reminders` | `ReminderScheduler` hands a reminder to the system: an alarm for a time, a geofence (Google Play services) for a place. `ReminderAlarmReceiver` and `GeofenceReceiver` run when one comes due, `ReminderNotifier` shows the notification, `ReminderRestoreReceiver` re-schedules everything after a reboot or app update. |
+| `reminders` | `ReminderScheduler` hands a reminder to the system: an alarm for a time, a geofence (Google Play services) for a place. `ReminderAlarmReceiver` and `GeofenceReceiver` run when one comes due, `ReminderNotifier` shows the notification, `ReminderActionReceiver` handles the notification's buttons, `ReminderRestoreReceiver` re-schedules everything after a reboot or app update. |
 | `ui` | `MainActivity` owns the toolbar; each screen is a fragment with a view model (`home`, `notes`, `editor`, `placepicker`, `reminders`, `settings`). Screens are wired together in `res/navigation/nav_graph.xml`. |
 | (root) | `QuickNotesApp` and `AppContainer` build the database, repositories and reminder classes once and share them. |
 

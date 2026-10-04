@@ -86,6 +86,7 @@ public class MigrationTest {
         assertEquals(ReminderType.LOCATION, reminder.getType());
         assertEquals(Double.valueOf(42.4), reminder.getLatitude());
         assertEquals("Shop", reminder.getPlaceName());
+        assertEquals(PlaceTrigger.ARRIVING, reminder.getPlaceTrigger());
         assertEquals(Repeat.NONE, reminder.getRepeat());
         assertNull(reminder.getFiredAt());
         // Still waiting, so it is among the reminders that get scheduled.
@@ -120,12 +121,42 @@ public class MigrationTest {
         assertEquals(1, database.reminderDao().getUpcoming().size());
     }
 
+    @Test
+    public void version4RemindersSurviveMigrationToTheCurrentVersion() throws Exception {
+        SQLiteDatabase v4 = createDatabaseAtVersion(4);
+        v4.execSQL("INSERT INTO folders (id, name) VALUES (1, 'Unclassified')");
+        v4.execSQL("INSERT INTO notes (id, folder_id, title, content, created_at, updated_at) "
+                + "VALUES (7, 1, 'Gym', '', 100, 200)");
+        v4.execSQL("INSERT INTO reminders "
+                + "(id, note_id, type, trigger_at, repeat, repeat_days, first_trigger_at) "
+                + "VALUES (8, 7, 'TIME', 1000, 'DAYS_OF_WEEK', 21, 1000)");
+        v4.execSQL("INSERT INTO reminders "
+                + "(id, note_id, type, latitude, longitude, radius_meters, place_name, repeat, "
+                + "repeat_days) "
+                + "VALUES (9, 7, 'LOCATION', 42.4, -71.0, 250, 'Gym', 'EVERY_ARRIVAL', 0)");
+        v4.close();
+
+        AppDatabase database = openMigrated();
+        Reminder weekdays = database.reminderDao().getById(8);
+        Reminder place = database.reminderDao().getById(9);
+
+        assertNotNull(weekdays);
+        assertEquals(Repeat.DAYS_OF_WEEK, weekdays.getRepeat());
+        assertEquals(21, weekdays.getRepeatDays());
+        // Every location reminder stored before version 5 fires on arriving.
+        assertNotNull(place);
+        assertEquals(PlaceTrigger.ARRIVING, place.getPlaceTrigger());
+        assertEquals(Repeat.EVERY_ARRIVAL, place.getRepeat());
+        assertEquals("Gym", place.getPlaceName());
+        assertEquals(2, database.reminderDao().getUpcoming().size());
+    }
+
     // Opening the database runs the migrations. Room then compares the resulting tables with the
     // current entities and throws if they differ.
     private AppDatabase openMigrated() {
         migrated = Room.databaseBuilder(context, AppDatabase.class, TEST_DB)
                 .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3,
-                        AppDatabase.MIGRATION_3_4)
+                        AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5)
                 .build();
         return migrated;
     }

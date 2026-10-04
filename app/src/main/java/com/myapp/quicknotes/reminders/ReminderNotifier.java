@@ -45,7 +45,9 @@ public class ReminderNotifier {
         return permitted && NotificationManagerCompat.from(context).areNotificationsEnabled();
     }
 
-    // Tapping the notification opens the note. Each reminder gets its own notification.
+    // Tapping the notification opens the note. Its buttons put it away without opening the app:
+    // "Done" for good, the other two to be reminded again later (see ReminderActionReceiver).
+    // Each reminder gets its own notification.
     public void show(long reminderId, Note note) {
         if (!canNotify()) {
             return;
@@ -68,11 +70,22 @@ public class ReminderNotifier {
                 .setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(openNote)
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .addAction(0, context.getString(R.string.reminder_done),
+                        ReminderActionReceiver.done(context, reminderId, note.getId()))
+                .addAction(0, context.getString(R.string.snooze_short),
+                        ReminderActionReceiver.snoozeShort(context, reminderId, note.getId()))
+                .addAction(0, context.getString(R.string.snooze_long),
+                        ReminderActionReceiver.snoozeLong(context, reminderId, note.getId()));
         try {
             NotificationManagerCompat.from(context).notify((int) reminderId, notification.build());
         } catch (SecurityException e) {
             // The notification permission was revoked between the check and the call.
         }
+    }
+
+    // Puts a reminder's notification away, if it is still showing.
+    public void dismiss(long reminderId) {
+        NotificationManagerCompat.from(context).cancel((int) reminderId);
     }
 }

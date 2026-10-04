@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {Folder.class, Note.class, Reminder.class}, version = 4)
+@Database(entities = {Folder.class, Note.class, Reminder.class}, version = 5)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String FILE_NAME = "quicknotes.db";
 
@@ -22,7 +22,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public static AppDatabase create(Context context) {
         return Room.databaseBuilder(context, AppDatabase.class, FILE_NAME)
                 .addCallback(SEED_DEFAULT_FOLDER)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build();
     }
 
@@ -84,6 +84,16 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             db.execSQL("ALTER TABLE reminders ADD COLUMN repeat_days INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    // Version 5 lets a location reminder fire on leaving its place. Every stored one fires on
+    // arriving.
+    public static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE reminders "
+                    + "ADD COLUMN place_trigger TEXT NOT NULL DEFAULT 'ARRIVING'");
         }
     };
 }

@@ -86,6 +86,25 @@ The owner asked for a more modern, clean look.
 "Like an alarm": a time plus ticked weekdays. Stored as `Repeat.DAYS_OF_WEEK` with a
 `repeat_days` set. Database version 4.
 
+### 2026-10-03: snooze, quick times, leaving a place (branch `reminder-actions`)
+
+The owner asked what reminder features were missing and chose the three suggested first.
+
+- **Snooze and Done.** A reminder's notification has "Done", "In 10 min" and "In 1 hour"
+  buttons (`ReminderActionReceiver`). A snooze adds a new one-off time reminder for the
+  note; nothing about the reminder that fired changes.
+- **Quick times.** Setting a time reminder first offers "Later today", "Tomorrow morning"
+  and "Next week" (`ReminderPreset`), each showing the time it stands for, with "Pick date
+  and time…" leading to the questions as before. "Later today" is not offered after 9 PM.
+- **Leaving a place.** The place picker has "When I arrive" / "When I leave". Stored as
+  `place_trigger`; a leaving reminder is a geofence watched for exit. Database version 5.
+
+Checked on the `QuickNotes_Test` emulator in both themes: a preset, both snooze buttons and
+Done; a leaving reminder firing on exit and not while inside; an arriving one ignoring the
+exit and firing on re-entry; editing a reminder from arriving to leaving. The owner's
+emulator still runs the `master` build; installing this one there upgrades its database to
+version 5, after which the older build can no longer open it.
+
 ## Decisions and their reasons
 
 | Decision | Reason |
@@ -100,12 +119,20 @@ The owner asked for a more modern, clean look.
 | The scheduler waits for Play services | A geofence registered from a broadcast could otherwise be lost when the app is frozen. |
 | Red app bar, tabs and buttons kept in the polish | They are the app's identity; the polish changed what sits under them. |
 | White pages with tinted cards | Off-white pages left a visible seam under the white editor and map panel. |
+| A snooze is a new one-off reminder | Keeps "a row is one occurrence": the fired row stays as history, a repeating series is not disturbed, and the snooze shows in Upcoming like any other reminder. |
+| A ready-made time doesn't ask about repeating | It is the one-tap path. A repeating reminder goes through "Pick date and time…". |
+| One geofence transition per reminder | A place is watched only for the crossing its reminder waits for, so the receiver needs no lookup to tell arriving from leaving. |
 | Pull requests for `master` | GitHub has a rule requiring them. One direct push bypassed it by accident on 2026-10-03. |
 
 ## Open items
 
-- **Pull request #1** for `weekday-reminders` (includes `ui-polish`) was opened on
-  2026-10-03 and is waiting for the owner to merge it.
+- **Pull request** for `reminder-actions` is open and waiting for the owner to merge it.
+  (#1, `weekday-reminders`, was merged on 2026-10-03.)
+- The place picker's map crashed once on the test emulator, inside Google's legacy map
+  renderer (`ArrayIndexOutOfBoundsException` in `android.opengl.Matrix.multiplyMV`, no
+  app code in the trace). It did not repeat on the same steps. Not seen on a phone.
+- With the keyboard open in the place picker, the taller panel leaves only a strip of map.
+- The snooze lengths are fixed at 10 minutes and 1 hour.
 - **Google Play:** background location must be declared and justified in the Play
   Console before an update with location reminders is approved.
 - **Not tested on a real phone.** On a device, a geofence notification can lag a few
@@ -126,3 +153,7 @@ The owner asked for a more modern, clean look.
 - Zoom buttons on the map (offered; the owner was fine without).
 - A lighter, white app bar with red as an accent only (offered, not requested).
 - Re-activating a fired reminder from History (the owner's wording was unclear; ask).
+- More reminder features, suggested 2026-10-03 and not yet chosen: "every N" intervals,
+  repeat until a date or a count, nag until done, saved places (Home, Work), a place plus
+  a time window, a home-screen widget, clear history, a warning when reminders can't fire.
+  A full-screen alarm-style alert was advised against (Play restricts the permission).
