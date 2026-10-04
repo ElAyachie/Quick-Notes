@@ -12,6 +12,7 @@ import androidx.lifecycle.SavedStateHandle;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.myapp.quicknotes.QuickNotesApp;
+import com.myapp.quicknotes.data.PlaceTrigger;
 import com.myapp.quicknotes.data.Reminder;
 import com.myapp.quicknotes.data.ReminderRepository;
 import com.myapp.quicknotes.data.ReminderType;
@@ -24,6 +25,7 @@ public class PlacePickerViewModel extends AndroidViewModel {
     private static final String ARG_REMINDER_ID = "reminderId";
     private static final String STATE_PLACE = "place";
     private static final String STATE_RADIUS = "radiusMeters";
+    private static final String STATE_PLACE_TRIGGER = "placeTrigger";
     private static final float DEFAULT_RADIUS_METERS = 200;
 
     private final ReminderRepository reminders;
@@ -47,6 +49,7 @@ public class PlacePickerViewModel extends AndroidViewModel {
                 if (getPlace() == null) {
                     setPlace(new LatLng(reminder.getLatitude(), reminder.getLongitude()));
                     setRadiusMeters(reminder.getRadiusMeters());
+                    setPlaceTrigger(reminder.getPlaceTrigger());
                 }
                 editedReminder.setValue(reminder);
             });
@@ -92,17 +95,28 @@ public class PlacePickerViewModel extends AndroidViewModel {
         state.set(STATE_RADIUS, radiusMeters);
     }
 
+    // Whether the reminder is for arriving at the place or for leaving it.
+    @NonNull
+    public PlaceTrigger getPlaceTrigger() {
+        PlaceTrigger trigger = state.get(STATE_PLACE_TRIGGER);
+        return trigger != null ? trigger : PlaceTrigger.ARRIVING;
+    }
+
+    public void setPlaceTrigger(PlaceTrigger placeTrigger) {
+        state.set(STATE_PLACE_TRIGGER, placeTrigger);
+    }
+
     // Stores the chosen place: as a change to the reminder being edited, or as a new reminder.
     // Returns false when there is nothing to store yet.
-    public boolean save(@Nullable String placeName, boolean everyArrival) {
+    public boolean save(@Nullable String placeName, boolean everyVisit) {
         LatLng place = getPlace();
         if (place == null) {
             return false;
         }
-        Repeat repeat = everyArrival ? Repeat.EVERY_ARRIVAL : Repeat.NONE;
+        Repeat repeat = everyVisit ? Repeat.EVERY_ARRIVAL : Repeat.NONE;
         if (!isEditing()) {
             reminders.addLocationReminder(longArg(ARG_NOTE_ID), place.latitude, place.longitude,
-                    getRadiusMeters(), placeName, repeat);
+                    getRadiusMeters(), placeName, getPlaceTrigger(), repeat);
             return true;
         }
         Reminder edited = editedReminder.getValue();
@@ -110,7 +124,7 @@ public class PlacePickerViewModel extends AndroidViewModel {
             return false;
         }
         reminders.updateReminder(edited.moved(place.latitude, place.longitude,
-                getRadiusMeters(), placeName, repeat));
+                getRadiusMeters(), placeName, getPlaceTrigger(), repeat));
         return true;
     }
 

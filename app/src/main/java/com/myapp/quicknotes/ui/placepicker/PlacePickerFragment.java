@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.slider.Slider;
 import com.myapp.quicknotes.R;
+import com.myapp.quicknotes.data.PlaceTrigger;
 import com.myapp.quicknotes.data.Repeat;
 import com.myapp.quicknotes.databinding.FragmentPlacePickerBinding;
 import com.myapp.quicknotes.reminders.LocationAccess;
@@ -34,8 +35,9 @@ import com.myapp.quicknotes.ui.common.Formats;
 import com.myapp.quicknotes.ui.common.Screens;
 
 // Chooses where a location reminder fires: tap the map to place the pin, drag the slider to set
-// how close counts as arriving. The circle on the map shows that distance. The switch chooses
-// between reminding on the next arrival only and on every arrival.
+// how close counts as being there. The circle on the map shows that distance. The two buttons at
+// the top choose between reminding on arriving at the place and on leaving it; the switch chooses
+// between reminding the next time only and every time.
 public class PlacePickerFragment extends Fragment {
     private static final float STREET_ZOOM = 15;
     private static final double METERS_PER_DEGREE_OF_LATITUDE = 111_320;
@@ -61,6 +63,14 @@ public class PlacePickerFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         viewModel = new ViewModelProvider(this).get(PlacePickerViewModel.class);
 
+        showPlaceTrigger();
+        binding.placeTriggerToggle.addOnButtonCheckedListener((group, buttonId, checked) -> {
+            if (checked) {
+                viewModel.setPlaceTrigger(buttonId == R.id.leaving_button
+                        ? PlaceTrigger.LEAVING : PlaceTrigger.ARRIVING);
+                showPlace();
+            }
+        });
         binding.radiusSlider.setValue(viewModel.getRadiusMeters());
         binding.radiusSlider.setLabelFormatter(
                 meters -> Formats.distance(requireContext(), meters));
@@ -90,6 +100,7 @@ public class PlacePickerFragment extends Fragment {
                 binding.repeatSwitch.setChecked(reminder.getRepeat() == Repeat.EVERY_ARRIVAL);
             }
             binding.radiusSlider.setValue(viewModel.getRadiusMeters());
+            showPlaceTrigger();
             showPlace();
             if (firstTime) {
                 showEditedPlaceOnMap();
@@ -148,15 +159,25 @@ public class PlacePickerFragment extends Fragment {
         }
     }
 
+    private void showPlaceTrigger() {
+        binding.placeTriggerToggle.check(viewModel.getPlaceTrigger() == PlaceTrigger.LEAVING
+                ? R.id.leaving_button : R.id.arriving_button);
+    }
+
     // Brings the pin, the circle and the text below the map in line with the chosen place and
-    // distance. Safe to call before the map is ready or before a place is chosen.
+    // distance, and with whether the reminder is for arriving or leaving. Safe to call before
+    // the map is ready or before a place is chosen.
     private void showPlace() {
         LatLng place = viewModel.getPlace();
         float radius = viewModel.getRadiusMeters();
+        boolean leaving = viewModel.getPlaceTrigger() == PlaceTrigger.LEAVING;
         binding.setReminderButton.setEnabled(place != null);
         binding.statusText.setText(place == null
                 ? getString(R.string.tap_map_to_choose)
-                : getString(R.string.remind_within, Formats.distance(requireContext(), radius)));
+                : getString(leaving ? R.string.remind_beyond : R.string.remind_within,
+                        Formats.distance(requireContext(), radius)));
+        binding.repeatSwitch.setText(leaving
+                ? R.string.remind_every_departure : R.string.remind_every_arrival);
         if (map == null || place == null) {
             return;
         }
@@ -224,6 +245,8 @@ public class PlacePickerFragment extends Fragment {
             message = R.string.location_reminder_set_but_location_off;
         } else if (viewModel.isEditing()) {
             message = R.string.reminder_updated;
+        } else if (viewModel.getPlaceTrigger() == PlaceTrigger.LEAVING) {
+            message = R.string.location_reminder_set_leaving;
         } else {
             message = R.string.location_reminder_set;
         }

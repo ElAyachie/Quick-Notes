@@ -22,6 +22,10 @@ public final class Formats {
                 .format(new Date(millis));
     }
 
+    public static String time(long millis) {
+        return DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(millis));
+    }
+
     // "250 m" below a kilometre, "1.5 km" from there on.
     public static String distance(Context context, float meters) {
         if (meters < 1000) {

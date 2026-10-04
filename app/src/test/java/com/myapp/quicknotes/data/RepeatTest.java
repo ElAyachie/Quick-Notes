@@ -127,6 +127,17 @@ public class RepeatTest {
     }
 
     @Test
+    public void nextOccurrenceOfALeavingReminderWaitsForLeavingAgain() {
+        Reminder everyDeparture = Reminder.atPlace(5, 42.4, -71.0, 300, "Work",
+                PlaceTrigger.LEAVING, Repeat.EVERY_ARRIVAL).withId(8);
+
+        Reminder next = everyDeparture.nextOccurrence(1_000, NEW_YORK);
+
+        assertNotNull(next);
+        assertEquals(PlaceTrigger.LEAVING, next.getPlaceTrigger());
+    }
+
+    @Test
     public void reschedulingARepeatingReminderStartsItsSeriesOver() {
         long first = at(2026, 1, 31, 8, 0);
         long moved = at(2026, 3, 15, 10, 0);
