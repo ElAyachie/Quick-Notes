@@ -36,7 +36,7 @@ public class NotesFragment extends Fragment {
         binding.noteList.setAdapter(adapter);
         viewModel.getNotes().observe(getViewLifecycleOwner(), notes -> {
             adapter.submitList(notes);
-            binding.emptyText.setVisibility(notes.isEmpty() ? View.VISIBLE : View.GONE);
+            binding.emptyState.setVisibility(notes.isEmpty() ? View.VISIBLE : View.GONE);
         });
         binding.newNoteButton.setOnClickListener(button -> openEditor(0));
     }

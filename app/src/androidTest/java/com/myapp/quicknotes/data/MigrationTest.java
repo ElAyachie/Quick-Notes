@@ -92,11 +92,40 @@ public class MigrationTest {
         assertEquals(1, database.reminderDao().getUpcoming().size());
     }
 
+    @Test
+    public void version3RepeatingReminderAndHistorySurviveMigrationToTheCurrentVersion()
+            throws Exception {
+        SQLiteDatabase v3 = createDatabaseAtVersion(3);
+        v3.execSQL("INSERT INTO folders (id, name) VALUES (1, 'Unclassified')");
+        v3.execSQL("INSERT INTO notes (id, folder_id, title, content, created_at, updated_at) "
+                + "VALUES (7, 1, 'Pills', '', 100, 200)");
+        v3.execSQL("INSERT INTO reminders "
+                + "(id, note_id, type, trigger_at, repeat, first_trigger_at, fired_at) "
+                + "VALUES (5, 7, 'TIME', 1000, 'DAILY', 1000, 1500)");
+        v3.execSQL("INSERT INTO reminders "
+                + "(id, note_id, type, trigger_at, repeat, first_trigger_at) "
+                + "VALUES (6, 7, 'TIME', 86401000, 'DAILY', 1000)");
+        v3.close();
+
+        AppDatabase database = openMigrated();
+        Reminder fired = database.reminderDao().getById(5);
+        Reminder waiting = database.reminderDao().getById(6);
+
+        assertNotNull(fired);
+        assertEquals(Long.valueOf(1500), fired.getFiredAt());
+        assertNotNull(waiting);
+        assertEquals(Repeat.DAILY, waiting.getRepeat());
+        assertEquals(DaysOfWeek.NONE, waiting.getRepeatDays());
+        assertEquals(Long.valueOf(1000), waiting.getFirstTriggerAt());
+        assertEquals(1, database.reminderDao().getUpcoming().size());
+    }
+
     // Opening the database runs the migrations. Room then compares the resulting tables with the
     // current entities and throws if they differ.
     private AppDatabase openMigrated() {
         migrated = Room.databaseBuilder(context, AppDatabase.class, TEST_DB)
-                .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
+                .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3,
+                        AppDatabase.MIGRATION_3_4)
                 .build();
         return migrated;
     }

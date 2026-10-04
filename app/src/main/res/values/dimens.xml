@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- How far the place picker's bottom panel reaches up over the map. -->
+    <dimen name="map_overlap">24dp</dimen>
+    <dimen name="map_overlap_negative">-24dp</dimen>
+</resources>

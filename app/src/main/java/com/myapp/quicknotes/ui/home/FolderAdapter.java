@@ -1,5 +1,6 @@
 package com.myapp.quicknotes.ui.home;
 
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -8,12 +9,14 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.myapp.quicknotes.R;
 import com.myapp.quicknotes.data.Folder;
+import com.myapp.quicknotes.data.FolderWithNoteCount;
 import com.myapp.quicknotes.databinding.ItemFolderBinding;
 
 import java.util.function.Consumer;
 
-public class FolderAdapter extends ListAdapter<Folder, FolderAdapter.FolderViewHolder> {
+public class FolderAdapter extends ListAdapter<FolderWithNoteCount, FolderAdapter.FolderViewHolder> {
     private final Consumer<Folder> onClick;
     private final Consumer<Folder> onLongClick;
 
@@ -32,8 +35,14 @@ public class FolderAdapter extends ListAdapter<Folder, FolderAdapter.FolderViewH
 
     @Override
     public void onBindViewHolder(@NonNull FolderViewHolder holder, int position) {
-        Folder folder = getItem(position);
+        FolderWithNoteCount item = getItem(position);
+        Folder folder = item.getFolder();
+        Resources resources = holder.itemView.getResources();
         holder.binding.folderName.setText(folder.getName());
+        holder.binding.folderCount.setText(item.getNoteCount() == 0
+                ? resources.getString(R.string.no_notes_in_folder)
+                : resources.getQuantityString(R.plurals.note_count,
+                        item.getNoteCount(), item.getNoteCount()));
         holder.itemView.setOnClickListener(view -> onClick.accept(folder));
         holder.itemView.setOnLongClickListener(view -> {
             onLongClick.accept(folder);
@@ -50,15 +59,18 @@ public class FolderAdapter extends ListAdapter<Folder, FolderAdapter.FolderViewH
         }
     }
 
-    private static final DiffUtil.ItemCallback<Folder> DIFF = new DiffUtil.ItemCallback<>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull Folder oldItem, @NonNull Folder newItem) {
-            return oldItem.getId() == newItem.getId();
-        }
+    private static final DiffUtil.ItemCallback<FolderWithNoteCount> DIFF =
+            new DiffUtil.ItemCallback<>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull FolderWithNoteCount oldItem,
+                                               @NonNull FolderWithNoteCount newItem) {
+                    return oldItem.getFolder().getId() == newItem.getFolder().getId();
+                }
 
-        @Override
-        public boolean areContentsTheSame(@NonNull Folder oldItem, @NonNull Folder newItem) {
-            return oldItem.equals(newItem);
-        }
-    };
+                @Override
+                public boolean areContentsTheSame(@NonNull FolderWithNoteCount oldItem,
+                                                  @NonNull FolderWithNoteCount newItem) {
+                    return oldItem.equals(newItem);
+                }
+            };
 }

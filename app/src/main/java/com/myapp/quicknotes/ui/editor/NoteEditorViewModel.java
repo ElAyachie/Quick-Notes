@@ -144,10 +144,10 @@ public class NoteEditorViewModel extends AndroidViewModel {
     }
 
     // Only a saved note can have a reminder, because the reminder refers to the note by id.
-    public void addTimeReminder(long triggerAt, Repeat repeat) {
+    public void addTimeReminder(long triggerAt, Repeat repeat, int repeatDays) {
         Note stored = note.getValue();
         if (stored != null && !stored.isNew()) {
-            reminders.addTimeReminder(stored.getId(), triggerAt, repeat);
+            reminders.addTimeReminder(stored.getId(), triggerAt, repeat, repeatDays);
         }
     }
 

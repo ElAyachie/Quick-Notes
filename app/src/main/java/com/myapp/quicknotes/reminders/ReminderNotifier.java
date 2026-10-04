@@ -61,7 +61,7 @@ public class ReminderNotifier {
                 .createPendingIntent();
 
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.outline_notifications_black)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(context.getString(R.string.reminder_notification_title, note.getTitle()))
                 .setContentText(note.getContent())
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(note.getContent()))

@@ -13,6 +13,9 @@ public enum Repeat {
     WEEKLY(ChronoUnit.WEEKS),
     MONTHLY(ChronoUnit.MONTHS),
     YEARLY(ChronoUnit.YEARS),
+    // For time reminders: on chosen days of the week, like an alarm clock. Which days is stored
+    // with the reminder; see DaysOfWeek.
+    DAYS_OF_WEEK(null),
     // For location reminders: again on every later arrival at the place.
     EVERY_ARRIVAL(null);
 
@@ -22,12 +25,8 @@ public enum Repeat {
         this.period = period;
     }
 
-    // True for the kinds that repeat on the calendar.
-    public boolean isTimeBased() {
-        return period != null;
-    }
-
-    // The next moment a time reminder is due: the first step of the series that lies after both
+    // For the kinds that repeat at a fixed interval (DAILY to YEARLY), the next moment a time
+    // reminder is due: the first step of the series that lies after both
     // the occurrence that just fired and the present. Stepping from the first occurrence rather
     // than the previous one keeps "monthly on the 31st" on the 31st after passing through a
     // shorter month. Occurrences missed while the device was off are skipped, not replayed.
@@ -35,7 +34,7 @@ public enum Repeat {
     // Steps are taken in local time, so a daily 9:00 reminder stays at 9:00 across a clock change.
     public long nextAfter(long firstTriggerAt, long previousTriggerAt, long now, ZoneId zone) {
         if (period == null) {
-            throw new IllegalStateException(this + " does not repeat on the calendar");
+            throw new IllegalStateException(this + " does not repeat at a fixed interval");
         }
         ZonedDateTime first = Instant.ofEpochMilli(firstTriggerAt).atZone(zone);
         long after = Math.max(previousTriggerAt, now);
