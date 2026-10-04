@@ -50,6 +50,11 @@
     <string name="open_note">Open note</string>
     <string name="reminder_updated">Reminder updated.</string>
     <string name="set_time_reminder">Set time reminder</string>
+    <string name="remind_me">Remind me</string>
+    <string name="preset_later_today">Later today · %1$s</string>
+    <string name="preset_tomorrow_morning">Tomorrow morning · %1$s</string>
+    <string name="preset_next_week">Next week · %1$s %2$s</string>
+    <string name="pick_date_and_time">Pick date and time…</string>
     <string name="reminder_set">Reminder set for %1$s.</string>
     <string name="reminder_set_repeating">Reminder set for %1$s. Repeats: %2$s.</string>
     <string name="repeat_title">Repeat</string>
@@ -70,26 +75,36 @@
     <string name="delete_reminder_message">The note \"%1$s\" is kept.</string>
     <string name="reminder_channel_name">Note reminders</string>
     <string name="reminder_notification_title">Reminder: %1$s</string>
+    <!-- Notification buttons. The two snooze lengths are set in ReminderActionReceiver. -->
+    <string name="reminder_done">Done</string>
+    <string name="snooze_short">In 10 min</string>
+    <string name="snooze_long">In 1 hour</string>
 
     <!-- Location reminders -->
     <string name="set_location_reminder">Set location reminder</string>
     <string name="pick_a_place">Pick a place</string>
     <string name="tap_map_to_choose">Tap the map to choose a place.</string>
+    <string name="when_i_arrive">When I arrive</string>
+    <string name="when_i_leave">When I leave</string>
     <string name="remind_within">Remind me within %1$s of this place.</string>
+    <string name="remind_beyond">Remind me when I go more than %1$s from this place.</string>
     <string name="reminder_distance">How close to the place</string>
     <string name="place_name_optional">Place name (optional)</string>
     <string name="set_reminder">Set reminder</string>
     <string name="save_changes">Save changes</string>
     <string name="remind_every_arrival">Remind me every time I arrive</string>
+    <string name="remind_every_departure">Remind me every time I leave</string>
     <string name="location_reminder_set">You\'ll be reminded when you arrive.</string>
+    <string name="location_reminder_set_leaving">You\'ll be reminded when you leave.</string>
     <string name="location_reminder_set_but_location_off">Reminder saved, but location is turned off on this device. Turn it on for the reminder to work.</string>
     <string name="within_distance_of_place">Within %1$s of %2$s</string>
+    <string name="beyond_distance_of_place">More than %1$s from %2$s</string>
     <string name="coordinates">%1$.4f, %2$.4f</string>
     <string name="distance_meters">%1$d m</string>
     <string name="distance_kilometers">%1$s km</string>
-    <string name="precise_location_needed">A location reminder needs your precise location to tell when you\'ve arrived. You can allow it in the app\'s settings.</string>
+    <string name="precise_location_needed">A location reminder needs your precise location to tell when you\'ve arrived or left. You can allow it in the app\'s settings.</string>
     <string name="background_location_title">Allow location all the time</string>
-    <string name="background_location_message">Quick Notes uses your location to remind you of this note when you arrive at the place you pick, even when the app is closed or not in use.\n\nOn the next screen, choose \"%1$s\".</string>
+    <string name="background_location_message">Quick Notes uses your location to remind you of this note when you arrive at or leave the place you pick, even when the app is closed or not in use.\n\nOn the next screen, choose \"%1$s\".</string>
     <string name="background_location_needed">Without location access all the time, the reminder can\'t fire while the app is closed. You can allow it in the app\'s settings.</string>
     <string name="allow_all_the_time">Allow all the time</string>
     <string name="continue_label">Continue</string>

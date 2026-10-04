@@ -16,6 +16,7 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.myapp.quicknotes.data.PlaceTrigger;
 import com.myapp.quicknotes.data.Reminder;
 import com.myapp.quicknotes.data.ReminderType;
 
@@ -94,9 +95,10 @@ public class ReminderScheduler {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    // The reminder fires on arriving: on crossing into the circle from outside. Being inside it
+    // An arriving reminder fires on crossing into the circle from outside. Being inside it
     // already when the reminder is set does not count, so "remind me when I get home", set at
-    // home, waits for the next time.
+    // home, waits for the next time. A leaving reminder fires on crossing out of the circle, so
+    // one set away from the place waits until the place has been visited and left.
     //
     // Without the location permissions the place can't be watched. The reminder stays stored and
     // is tried again the next time the app starts.
@@ -113,7 +115,9 @@ public class ReminderScheduler {
                         Objects.requireNonNull(reminder.getLatitude()),
                         Objects.requireNonNull(reminder.getLongitude()),
                         Objects.requireNonNull(reminder.getRadiusMeters()))
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                .setTransitionTypes(reminder.getPlaceTrigger() == PlaceTrigger.LEAVING
+                        ? Geofence.GEOFENCE_TRANSITION_EXIT
+                        : Geofence.GEOFENCE_TRANSITION_ENTER)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .build();
         GeofencingRequest request = new GeofencingRequest.Builder()
@@ -134,7 +138,7 @@ public class ReminderScheduler {
         }
     }
 
-    // One intent serves every geofence; the event it delivers says which ones were entered.
+    // One intent serves every geofence; the event it delivers says which ones were crossed.
     // Play services writes that event into the intent, so the intent has to be mutable.
     private PendingIntent geofenceIntent() {
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;

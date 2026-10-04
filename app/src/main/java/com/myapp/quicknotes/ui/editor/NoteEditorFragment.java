@@ -28,7 +28,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.quicknotes.R;
-import com.myapp.quicknotes.data.DaysOfWeek;
 import com.myapp.quicknotes.data.Note;
 import com.myapp.quicknotes.data.ReminderType;
 import com.myapp.quicknotes.data.Repeat;
@@ -198,8 +197,7 @@ public class NoteEditorFragment extends Fragment {
         if (viewModel.getPendingReminderType() == ReminderType.LOCATION) {
             locationPermission.start();
         } else {
-            ReminderTimePicker.show(requireContext(), System.currentTimeMillis(), Repeat.NONE,
-                    DaysOfWeek.NONE, this::setReminder);
+            ReminderTimePicker.showForNewReminder(requireContext(), this::setReminder);
         }
     }
 
