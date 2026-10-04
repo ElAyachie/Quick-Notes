@@ -46,7 +46,7 @@ public class QuickNoteFragment extends Fragment {
     private void save() {
         String title = String.valueOf(form.titleInput.getText()).trim();
         if (title.isEmpty()) {
-            form.titleInput.setError(getString(R.string.error_enter_name));
+            form.titleInput.setError(getString(R.string.error_enter_title));
             return;
         }
         viewModel.saveNote(title, String.valueOf(form.contentInput.getText()), () -> {

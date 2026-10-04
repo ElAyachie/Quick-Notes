@@ -26,6 +26,10 @@ public class FolderRepository {
         return folderDao.observeAll();
     }
 
+    public LiveData<List<FolderWithNoteCount>> observeFoldersWithNoteCounts() {
+        return folderDao.observeAllWithNoteCounts();
+    }
+
     // Reports false, without creating anything, when a folder with this name already exists.
     public void createFolder(String name, Consumer<Boolean> onResult) {
         executors.io().execute(() -> {

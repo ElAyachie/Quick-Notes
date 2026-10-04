@@ -119,6 +119,9 @@ public class PlacePickerFragment extends Fragment {
             return;
         }
         map = readyMap;
+        // The bottom panel overlaps the map's lower edge; keep the map's own controls, its logo
+        // and the centre of the camera clear of it.
+        map.setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.map_overlap));
         map.setOnMapClickListener(place -> {
             viewModel.setPlace(place);
             showPlace();

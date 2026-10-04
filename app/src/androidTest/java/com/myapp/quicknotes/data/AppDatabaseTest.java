@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -165,12 +166,14 @@ public class AppDatabaseTest {
         Reminder stored = reminders.getById(reminderId);
         assertNotNull(stored);
 
-        reminders.update(stored.rescheduled(9_000, Repeat.WEEKLY));
+        int tuesdayAndThursday = DaysOfWeek.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY);
+        reminders.update(stored.rescheduled(9_000, Repeat.DAYS_OF_WEEK, tuesdayAndThursday));
 
         Reminder edited = reminders.getById(reminderId);
         assertNotNull(edited);
         assertEquals(Long.valueOf(9_000), edited.getTriggerAt());
-        assertEquals(Repeat.WEEKLY, edited.getRepeat());
+        assertEquals(Repeat.DAYS_OF_WEEK, edited.getRepeat());
+        assertEquals(tuesdayAndThursday, edited.getRepeatDays());
         assertEquals(1, reminders.getUpcoming().size());
     }
 }

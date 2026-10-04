@@ -36,8 +36,8 @@ public class ReminderRepository {
         return reminderDao.observeHistory();
     }
 
-    public void addTimeReminder(long noteId, long triggerAt, Repeat repeat) {
-        add(Reminder.atTime(noteId, triggerAt, repeat));
+    public void addTimeReminder(long noteId, long triggerAt, Repeat repeat, int repeatDays) {
+        add(Reminder.atTime(noteId, triggerAt, repeat, repeatDays));
     }
 
     public void addLocationReminder(long noteId, double latitude, double longitude,

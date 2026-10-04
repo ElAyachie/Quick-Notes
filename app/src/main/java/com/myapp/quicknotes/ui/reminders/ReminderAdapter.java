@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.myapp.quicknotes.R;
+import com.myapp.quicknotes.data.ReminderType;
 import com.myapp.quicknotes.data.ReminderWithNote;
 import com.myapp.quicknotes.databinding.ItemReminderBinding;
 import com.myapp.quicknotes.ui.common.Formats;
@@ -42,6 +43,9 @@ public class ReminderAdapter
         ReminderWithNote item = getItem(position);
         holder.binding.noteTitle.setText(item.getNoteTitle());
         Context context = holder.itemView.getContext();
+        holder.binding.reminderIcon.setImageResource(
+                item.getReminder().getType() == ReminderType.LOCATION
+                        ? R.drawable.ic_place : R.drawable.ic_schedule);
         holder.binding.reminderTrigger.setText(ReminderText.trigger(context, item.getReminder()));
         // Only history entries say when they fired.
         Long firedAt = item.getReminder().getFiredAt();

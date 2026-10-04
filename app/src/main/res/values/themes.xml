@@ -28,6 +28,12 @@
         <item name="colorOutline">@color/outline</item>
         <item name="colorOutlineVariant">@color/outline_variant</item>
 
+        <!-- Raised surfaces keep the colour they are given instead of being tinted in the dark
+             theme; the theme's surface colours already tell the layers apart. -->
+        <item name="elevationOverlayEnabled">false</item>
+
+        <item name="materialCardViewStyle">@style/Widget.QuickNotes.Card</item>
+        <item name="extendedFloatingActionButtonStyle">@style/Widget.QuickNotes.ExtendedFab</item>
         <item name="materialButtonStyle">@style/Widget.QuickNotes.Button</item>
         <item name="materialIconButtonFilledStyle">@style/Widget.QuickNotes.IconButton</item>
         <item name="drawerArrowStyle">@style/Widget.QuickNotes.BackArrow</item>
@@ -43,6 +49,34 @@
     <style name="Widget.QuickNotes.IconButton" parent="Widget.Material3.Button.IconButton.Filled">
         <item name="backgroundTint">@color/button_background</item>
         <item name="iconTint">@color/button_content</item>
+    </style>
+
+    <!-- List rows are flat, tinted cards with a touch ripple. -->
+    <style name="Widget.QuickNotes.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/card</item>
+        <item name="cardElevation">0dp</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.QuickNotes.Card</item>
+    </style>
+
+    <style name="ShapeAppearance.QuickNotes.Card" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <!-- A panel that sits over the bottom of a screen: rounded at the top only. -->
+    <style name="ShapeAppearance.QuickNotes.BottomPanel" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- The main action of a screen, in the brand red like the other buttons. -->
+    <style name="Widget.QuickNotes.ExtendedFab" parent="Widget.Material3.ExtendedFloatingActionButton.Icon.Primary">
+        <item name="backgroundTint">@color/app_bar</item>
+        <item name="android:textColor">@color/on_app_bar</item>
+        <item name="iconTint">@color/on_app_bar</item>
     </style>
 
     <!-- A tab strip that continues the app bar. -->

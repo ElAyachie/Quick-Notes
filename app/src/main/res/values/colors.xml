@@ -20,16 +20,18 @@
     <color name="tertiary_container">#FCDFA6</color>
     <color name="on_tertiary_container">#261A00</color>
 
-    <color name="background">#FCFCFC</color>
+    <!-- Pages are white; list rows are flat cards in a soft warm tint. -->
+    <color name="background">#FFFFFF</color>
     <color name="on_background">#201A19</color>
-    <color name="surface">#FCFCFC</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="card">#F6F1F0</color>
     <color name="on_surface">#201A19</color>
     <color name="surface_variant">#EFE3E1</color>
     <color name="on_surface_variant">#534341</color>
     <color name="surface_container_lowest">#FFFFFF</color>
-    <color name="surface_container_low">#F7F3F2</color>
-    <color name="surface_container">#F2EDEC</color>
-    <color name="surface_container_high">#ECE7E6</color>
+    <color name="surface_container_low">#F3EEED</color>
+    <color name="surface_container">#EFEAE9</color>
+    <color name="surface_container_high">#EBE6E5</color>
     <color name="surface_container_highest">#E6E1E0</color>
     <color name="outline">#857371</color>
     <color name="outline_variant">#D8C2BE</color>

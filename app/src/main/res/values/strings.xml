@@ -4,8 +4,7 @@
     <!-- Start screen -->
     <string name="tab_collection">Collection</string>
     <string name="tab_make_note">Make Note</string>
-    <string name="folders">Folders</string>
-    <string name="new_folder">+ New Folder</string>
+    <string name="new_folder">New folder</string>
     <string name="new_folder_title">New folder</string>
     <string name="folder_name">Folder name</string>
     <string name="create">Create</string>
@@ -15,15 +14,20 @@
     <string name="delete_folder_message">Its notes and their reminders are deleted too.</string>
 
     <!-- Notes -->
-    <string name="notes">Notes</string>
-    <string name="new_note">+ New Note</string>
+    <plurals name="note_count">
+        <item quantity="one">%d note</item>
+        <item quantity="other">%d notes</item>
+    </plurals>
+    <string name="no_notes_in_folder">No notes</string>
+    <string name="new_note">New note</string>
     <string name="no_notes">No notes in this folder yet.</string>
     <string name="note">Note</string>
-    <string name="name">Name</string>
+    <string name="title">Title</string>
     <string name="folder">Folder</string>
-    <string name="save_note">Save note</string>
+    <string name="save_note">Save</string>
     <string name="note_saved">Note saved.</string>
     <string name="last_edited">Last edited %1$s</string>
+    <string name="error_enter_title">Please enter a title.</string>
     <string name="error_enter_name">Please enter a name.</string>
     <string name="save_changes_question">Save your changes to this note?</string>
     <string name="save">Save</string>
@@ -52,6 +56,8 @@
     <string name="repeat_none">Does not repeat</string>
     <string name="repeat_daily">Every day</string>
     <string name="repeat_weekly">Every week</string>
+    <string name="repeat_days_of_week">Specific days of the week…</string>
+    <string name="repeat_on">Repeat on</string>
     <string name="repeat_monthly">Every month</string>
     <string name="repeat_yearly">Every year</string>
     <string name="repeat_every_arrival">Every visit</string>

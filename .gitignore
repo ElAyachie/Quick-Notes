@@ -11,8 +11,9 @@ build/
 /release/
 /debug/
 
-# Local machine config (SDK path, API keys)
+# Local machine config (SDK path, API keys, this computer's notes for Claude Code)
 /local.properties
+/CLAUDE.local.md
 
 # IDE
 *.iml

@@ -9,7 +9,8 @@ A note-taking app for Android whose notes can remind you of themselves.
   "Unclassified" folder always exists.
 - **Time reminders** — attach a date and time to a note; a notification shows the note
   when the time comes, and tapping it opens the note. A time reminder can repeat every
-  day, week, month or year.
+  day, week, month or year, or on chosen days of the week (say Monday, Wednesday and
+  Friday), like an alarm clock.
 - **Location reminders** — pick a place on a map and how close counts as arriving
   (100 m to 2 km); the note is shown when you get there, even if the app is closed. The
   reminder fires on arriving, so one set while you are already at the place waits for
@@ -36,7 +37,7 @@ shows the note as it is when the reminder fires.
 
 A row in the `reminders` table is one occurrence. When it fires it is stamped with the
 time and stays as history; a repeating reminder continues as a new row for its next
-occurrence (`Reminder.nextOccurrence`, `Repeat.nextAfter`).
+occurrence (`Reminder.nextOccurrence`, `Repeat.nextAfter`, `DaysOfWeek.nextAfter`).
 
 ## Building
 
