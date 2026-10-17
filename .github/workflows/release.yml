@@ -36,14 +36,14 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "21"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Decode the signing key
         env:
@@ -72,7 +72,21 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'release' }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: ./gradlew --no-daemon assembleRelease
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          if ! ./gradlew --no-daemon assembleRelease 2>&1 | tee "$RUNNER_TEMP/gradle.log"; then
+            # Put Gradle's own explanation on the run's summary page, where it's easy to find.
+            {
+              echo '### Gradle build failed'
+              echo '```'
+              sed -n '/What went wrong/,/^\* Try:/p' "$RUNNER_TEMP/gradle.log" | head -60
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            msg=$(sed -n '/What went wrong/,/^\* Try:/p' "$RUNNER_TEMP/gradle.log" | head -40 | sed -e 's/%/%25/g' -e 's/\r//g' | sed ':a;N;$!ba;s/\n/%0A/g')
+            echo "::error title=Gradle build failed::${msg:-See the step log}"
+            exit 1
+          fi
 
       - name: Verify the signature and write the checksum
         run: |
