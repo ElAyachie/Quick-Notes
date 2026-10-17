@@ -9,6 +9,11 @@ if (localPropertiesFile.exists()) {
     localPropertiesFile.withInputStream { localProperties.load(it) }
 }
 
+// Release signing. The keystore is never committed: the release workflow (and anyone building a
+// signed release on their own computer) points at it with these environment variables. Without
+// them the release build comes out unsigned.
+def releaseKeystore = System.getenv("ANDROID_KEYSTORE_PATH")
+
 android {
     namespace 'com.myapp.quicknotes'
     compileSdk 36
@@ -33,8 +38,22 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            if (releaseKeystore) {
+                storeFile file(releaseKeystore)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: "release"
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (releaseKeystore) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

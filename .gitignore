@@ -11,6 +11,16 @@ build/
 /release/
 /debug/
 
+# Signing keys and secrets. Release builds are signed by the GitHub release workflow from
+# repository secrets; keys never belong in the repository.
+*.jks
+*.keystore
+*.p12
+*.pem
+keystore.properties
+.env
+google-services.json
+
 # Local machine config (SDK path, API keys, this computer's notes for Claude Code)
 /local.properties
 /CLAUDE.local.md
