@@ -1,8 +1,8 @@
 # Quick Notes
 
 An Android note-taking app whose notes can remind you of themselves: at a time, on a
-schedule, or when you arrive at a place. Published on Google Play as
-`com.myapp.QuickNotes1`. The owner has further ambitions for it that are not yet specified.
+schedule, or when you arrive at a place. Formerly on Google Play as `com.myapp.QuickNotes1`;
+now distributed as signed APKs on GitHub releases (see "Releases" in `README.md`). The owner has further ambitions for it that are not yet specified.
 
 For what was built, when and why, read `docs/HISTORY.md`. For this computer's paths,
 emulators and build commands, read `CLAUDE.local.md` (not committed; may not exist on
@@ -64,6 +64,11 @@ gradlew lintDebug
 - The map needs `MAP_API_KEY=...` in `local.properties` (not committed).
 - `connectedDebugAndroidTest` runs on **every** connected device and uninstalls the app afterwards. Set `ANDROID_SERIAL` to the device you mean.
 - Geofences cannot be tested by setting the emulator's location in its control panel. Feed fixes from a shell; the commands are in `README.md`.
+
+## Secrets
+
+The repository is public. Never commit keystores, API keys or `local.properties`. Release
+signing happens in `.github/workflows/release.yml` from repository secrets.
 
 ## Working agreements
 

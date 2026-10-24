@@ -23,6 +23,16 @@ A note-taking app for Android whose notes can remind you of themselves.
 - Reminders survive a reboot.
 - **Light and dark theme**, or follow the system.
 
+## Download
+
+**[Download the latest APK](https://github.com/ElAyachie/Quick-Notes/releases/latest/download/QuickNotes.apk)**
+(Android 8.0 or newer), or see every version on the
+[Releases page](https://github.com/ElAyachie/Quick-Notes/releases).
+
+Installing from here rather than Google Play, Android will ask you to allow installs from your
+browser the first time. Each release also has `QuickNotes.apk.sha256`, the file's SHA-256
+checksum, if you want to check the download.
+
 ## How the code is organised
 
 Java, XML layouts, a single activity. Everything lives under
@@ -57,6 +67,31 @@ point `sdk.dir` at your Android SDK; Android Studio writes it for you.
 
 The place picker uses Google Maps. Put a Maps SDK for Android key in `local.properties`
 as `MAP_API_KEY=...`; without it the app still runs but the map shows no tiles.
+
+## Releases
+
+Releases are built and signed by GitHub Actions (`.github/workflows/release.yml`); no signing
+key is kept in the repository. To publish a version, bump `versionCode` and `versionName` in
+`app/build.gradle` (Android only installs an update over an older version code), then push a
+tag such as `git tag v3.1 && git push origin v3.1`, or run **Release APK** from the Actions tab.
+
+The workflow needs these repository secrets (Settings > Secrets and variables > Actions):
+
+| Secret | |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | The release keystore, base64-encoded |
+| `ANDROID_KEYSTORE_PASSWORD` | Its password |
+| `ANDROID_KEY_ALIAS` | Optional, defaults to `release` |
+| `MAP_API_KEY` | Optional. Without it the map shows no tiles. |
+
+The Maps key ends up inside the public APK, which is normal for Android, so restrict it in the
+Google Cloud console: under **Application restrictions** choose Android apps and add
+`com.myapp.QuickNotes1` with the release certificate's SHA-1, and under **API restrictions**
+allow only Maps SDK for Android.
+
+To build a signed release on your own computer, set `ANDROID_KEYSTORE_PATH` and
+`ANDROID_KEYSTORE_PASSWORD` and run `gradlew assembleRelease`. Without them the release build
+is unsigned.
 
 ## Location reminders and permissions
 

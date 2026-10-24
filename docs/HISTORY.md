@@ -105,6 +105,23 @@ exit and firing on re-entry; editing a reminder from arriving to leaving. The ow
 emulator still runs the `master` build; installing this one there upgrades its database to
 version 5, after which the older build can no longer open it.
 
+### 2026-10-17: secrets removed from history; GitHub releases
+
+- The repository is public, and its history held two signing keystores
+  (`app/keyStore0.jks`, `app/keyStore1.jks`), a Google Maps API key in an old
+  `AndroidManifest.xml`, old `.aab` bundles and two zip archives of an earlier copy of the
+  project (which also contained the keystores). All were removed from every commit with
+  `git filter-repo` and force-pushed, so **commit hashes in this file from before this date no
+  longer match**. The Maps key was replaced with `REMOVED_API_KEY`.
+- The old keystores and Maps key were public for years; treat them as compromised. The Maps
+  key should be deleted in the Google Cloud console.
+- Release APKs are now built by `.github/workflows/release.yml` on a `v*` tag, signed with a new
+  release key held only in repository secrets, and published as a GitHub release with a
+  SHA-256 checksum. `app/build.gradle` signs the release build only when
+  `ANDROID_KEYSTORE_PATH` is set. The portfolio links to
+  `releases/latest/download/QuickNotes.apk`.
+- `.gitignore` now ignores keystores (`*.jks`, `*.keystore`, `*.p12`) and other secret files.
+
 ## Decisions and their reasons
 
 | Decision | Reason |

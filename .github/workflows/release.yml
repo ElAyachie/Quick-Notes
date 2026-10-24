@@ -1,0 +1,119 @@
+name: Release APK
+
+# Builds a signed release APK and publishes it, with its SHA-256 checksum, as a GitHub release.
+# The portfolio's download button points at the newest release's QuickNotes.apk.
+#
+# To publish a version, push a tag:   git tag v1.2 && git push origin v1.2
+# or run this workflow from the Actions tab and give it the tag to publish.
+#
+# Needs these repository secrets (Settings > Secrets and variables > Actions):
+#   ANDROID_KEYSTORE_BASE64    the release keystore, base64-encoded
+#   ANDROID_KEYSTORE_PASSWORD  its password (also used as the key's password)
+#   ANDROID_KEY_ALIAS          optional; defaults to "release"
+#   MAP_API_KEY                optional; Maps SDK key for the place picker. It ends up inside the
+#                              public APK, so restrict it to this app's package and signing
+#                              certificate in the Google Cloud console.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish, such as v1.2. Created on the selected branch if it doesn't exist."
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+  APK: QuickNotes
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Decode the signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::The ANDROID_KEYSTORE_BASE64 secret is not set, so the APK can't be signed. See Releases in README.md."
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Write local.properties
+        env:
+          MAP_API_KEY: ${{ secrets.MAP_API_KEY }}
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          if [ -n "$MAP_API_KEY" ]; then
+            echo "MAP_API_KEY=$MAP_API_KEY" >> local.properties
+          else
+            echo "::warning::MAP_API_KEY is not set, so the place picker's map will show no tiles."
+          fi
+
+      - name: Build the release APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'release' }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          if ! ./gradlew --no-daemon assembleRelease 2>&1 | tee "$RUNNER_TEMP/gradle.log"; then
+            # Put Gradle's own explanation on the run's summary page, where it's easy to find.
+            {
+              echo '### Gradle build failed'
+              echo '```'
+              sed -n '/What went wrong/,/^\* Try:/p' "$RUNNER_TEMP/gradle.log" | head -60
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            msg=$(sed -n '/What went wrong/,/^\* Try:/p' "$RUNNER_TEMP/gradle.log" | head -40 | sed -e 's/%/%25/g' -e 's/\r//g' | sed ':a;N;$!ba;s/\n/%0A/g')
+            echo "::error title=Gradle build failed::${msg:-See the step log}"
+            exit 1
+          fi
+
+      - name: Verify the signature and write the checksum
+        run: |
+          built=app/build/outputs/apk/release/app-release.apk
+          if [ ! -f "$built" ]; then
+            echo "::error::No signed APK was built. Check the ANDROID_KEYSTORE_PASSWORD secret."
+            ls -R app/build/outputs/apk || true
+            exit 1
+          fi
+          apksigner="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner"
+          "$apksigner" verify --print-certs "$built"
+          cp "$built" "$APK.apk"
+          sha256sum "$APK.apk" > "$APK.apk.sha256"
+          cat "$APK.apk.sha256"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$APK.apk" "$APK.apk.sha256" --clobber
+          else
+            gh release create "$TAG" "$APK.apk" "$APK.apk.sha256" \
+              --target "$GITHUB_SHA" \
+              --title "Quick Notes $TAG" \
+              --generate-notes \
+              --notes "**Install:** open this page on your Android phone (Android 8.0 or newer) and tap **$APK.apk**. This app isn't installed from Google Play, so Android will ask you to allow installs from your browser first.
+
+          **Check the download (optional):** the SHA-256 of $APK.apk is in $APK.apk.sha256. On a computer, compare it with \`sha256sum $APK.apk\` (macOS/Linux) or \`Get-FileHash $APK.apk\` (Windows)."
+          fi
