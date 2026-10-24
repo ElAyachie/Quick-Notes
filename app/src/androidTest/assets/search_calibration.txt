@@ -1,0 +1,128 @@
+# Calibration texts for the Universal Sentence Encoder centering vectors (see
+# search/UniversalSentenceEncoder.java and CenteringVectorsTest). Everyday notes and searches,
+# written separately from the evaluation set in SearchEvalSet, which must not be used here.
+#
+# "Q:" lines are searches. "P:" lines are note passages as they are embedded: the title, then
+# " | " standing for the line break, then the passage.
+
+Q: eye exam
+Q: renew driver's license
+Q: birthday party
+Q: electricity bill
+Q: christmas shopping
+Q: lunch ideas
+Q: moving boxes
+Q: printer ink
+Q: yoga class schedule
+Q: school pickup
+Q: concert tickets
+Q: thank you cards
+Q: bike repair
+Q: phone contract
+Q: vacation days
+Q: job interview questions
+Q: anniversary dinner
+Q: garden tools
+Q: library card
+Q: blood test
+Q: hotel booking
+Q: baby name ideas
+Q: snow tires
+Q: podcast recommendations
+Q: password manager
+Q: coffee machine
+Q: neighbour's keys
+Q: water heater
+Q: museum opening hours
+Q: spanish vocabulary
+Q: camping gear
+Q: retirement savings
+Q: haircut
+Q: train times
+Q: halloween costume
+Q: recycling day
+Q: cat litter
+Q: photo album
+Q: holiday flights
+Q: meeting notes
+Q: budget
+Q: medicine
+Q: groceries
+Q: pharmacy
+Q: insurance claim
+Q: car wash
+Q: dentist appointment
+Q: wine to buy
+Q: what to pack for the beach
+Q: things to fix in the house
+Q: ideas for a weekend away
+Q: when is the parent teacher conference
+Q: who to call about the roof
+Q: how much do I owe
+Q: favourite restaurants
+Q: movies to watch
+Q: laundry
+Q: new year's resolutions
+Q: email to send
+Q: piano practice
+
+P: Eye doctor | Annual exam on the 9th at 2 PM. Bring old glasses and the insurance card.
+P: Electricity bill | Due the 20th. Autopay failed last month, check the bank account.
+P: Christmas list | Dad: wool scarf. Lucy: art set. Grandma: framed photo of the kids.
+P: Moving day | Rent a van for Saturday morning. Label boxes by room. Cancel the internet at the old place.
+P: Printer | Out of black ink. Model HP 4155, cartridge 67XL.
+P: Yoga | Tuesday and Thursday 7 AM at the community center. Bring a mat.
+P: School pickup | Early dismissal Wednesday at 12:30. Ask Mark to cover if the meeting runs late.
+P: Concert | Two tickets for the symphony, March 8, row K. Parking garage on Huntington Ave.
+P: Bike | Rear brake squeaks and the chain slips in third gear. Shop on Elm Street fixes same day.
+P: Phone plan | Contract ends in August. Compare the family plan with the prepaid option.
+P: Interview prep | Read about the company's new product. Prepare a story about leading a project under pressure.
+P: Anniversary | Book the rooftop restaurant for the 12th. Flowers from the market, peonies if they have them.
+P: Garden | Buy a new hose, pruning shears and two bags of compost. Plant tomatoes after the last frost.
+P: Blood work | Fasting from 10 PM the night before. Lab opens at 7.
+P: Hotel in Rome | Booked three nights near Piazza Navona, check-in after 3 PM. Breakfast included.
+P: Baby names | Girls: Nora, Iris, June. Boys: Theo, Felix, Arthur.
+P: Winter prep | Swap to snow tires before December. Find the ice scraper and the shovel.
+P: Podcasts | The history one about the Roman empire, and the science show Leah recommended.
+P: Coffee machine | Descale every two months. Filters are in the drawer under the sink.
+P: Spare keys | Neighbour at number 14 has a key. The code for the lockbox is in the password manager.
+P: Water heater | Pilot light keeps going out. Technician quoted $180 to replace the thermocouple.
+P: Spanish | Practise ten minutes a day. Irregular verbs this week: ir, ser, tener.
+P: Camping trip | Tent, sleeping bags, headlamps, stove, bear spray. Reserve site 12 at the state park.
+P: Retirement | Raise the 401k contribution to 8% in January. Rebalance the index funds.
+P: Haircut | Every six weeks. Next one with Dana, Friday after work.
+P: Commute | The 7:42 train is always crowded; the 7:58 gets in by 8:40.
+P: Halloween | Kids want to be a dinosaur and an astronaut. Buy candy the week before.
+P: Recycling | Paper and cans on Thursdays, glass every other Monday.
+P: Cat | Litter and the senior food from the pet store. Vet says she should lose a pound.
+P: Photos | Print the summer pictures for the album. Order by the 30th for the discount.
+P: Team meeting | Agenda: hiring plan, the outage last week, and holiday coverage.
+P: Monthly budget | Rent 1800, groceries 600, transport 150, savings 500. Cut back on takeout.
+P: Pharmacy | Pick up the antibiotics after 4 PM. Ask about the generic version.
+P: Insurance claim | Water damage in the basement. Photos sent, adjuster visiting on Monday.
+P: Wine | A dry Riesling for the fish, and a Rioja for Sunday.
+P: Beach weekend | Sunscreen, towels, umbrella, cooler, the kids' buckets and spades.
+P: House repairs | Loose stair rail, the bathroom fan, a cracked tile by the door.
+P: Roof | Shingles blew off in the storm. Call Harbor Roofing, ask for a quote.
+P: Money owed | Lent Chris $60 for the concert. Sara owes me for half of the cabin.
+P: Restaurants | The Thai place on Main, the ramen bar downtown, the bakery with the almond croissants.
+P: Movies | Watch the new Miyazaki film, and the documentary about the Antarctic expedition.
+P: Laundry | Dry clean the wool coat. Wash the duvet cover on hot.
+P: Resolutions | Read twelve books, walk every day, learn to make bread.
+P: Emails | Reply to the landlord about the lease. Send the slides to Priscilla.
+P: Piano | Practise the Chopin nocturne, slow left hand. Lesson on Wednesday.
+P: Shopping | Light bulbs, batteries, dish soap, paper towels.
+P: Car | Registration renewal due in May. Check engine light came on yesterday.
+P: Wedding gift | Registry at the department store. The set of glasses is still available.
+P: Volunteering | Food bank shift on the first Saturday of the month, 9 to 12.
+P: Reading list | A biography of Lincoln, a short story collection, and a thriller for the plane.
+P: Sleep | No screens after 10. Try the white noise machine.
+P: Packing | Passport, charger, adapter, medication, a warm jumper for the plane.
+P: Doctor questions | Ask about the knee pain when running, and whether to keep taking vitamin D.
+P: Kids' activities | Swimming on Saturdays, art club on Thursdays. Sign up for summer camp by April.
+P: Home office | New chair, a monitor arm, and a lamp for the desk.
+P: Neighbours | Invite the new family across the street for dinner.
+P: Taxes for the business | Keep receipts for the laptop and the software subscriptions.
+P: Dog walker | Monday to Friday at noon, $15 a walk. Leave the leash by the door.
+P: Bread | 500 g flour, 350 g water, 10 g salt, a spoon of starter. Bake at 240°C.
+P: Weekend | Farmers market, then the hike by the lake if the weather holds.

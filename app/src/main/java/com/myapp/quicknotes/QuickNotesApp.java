@@ -17,6 +17,8 @@ public class QuickNotesApp extends Application {
         // Covers reminders dropped while the app was force-stopped, restored from a backup, or
         // (for places) while location was switched off.
         container.executors().io().execute(container.reminderRepository()::rescheduleAll);
+        // Notes saved before search existed, or before an update changed the search model.
+        container.searchRepository().indexAllNotes();
     }
 
     public static AppContainer container(Context context) {

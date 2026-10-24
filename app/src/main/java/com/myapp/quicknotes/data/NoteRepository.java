@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 
 import com.myapp.quicknotes.AppExecutors;
 import com.myapp.quicknotes.reminders.ReminderScheduler;
+import com.myapp.quicknotes.search.SearchRepository;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,13 +13,15 @@ public class NoteRepository {
     private final NoteDao noteDao;
     private final ReminderDao reminderDao;
     private final ReminderScheduler scheduler;
+    private final SearchRepository search;
     private final AppExecutors executors;
 
-    public NoteRepository(NoteDao noteDao, ReminderDao reminderDao,
-                          ReminderScheduler scheduler, AppExecutors executors) {
+    public NoteRepository(NoteDao noteDao, ReminderDao reminderDao, ReminderScheduler scheduler,
+                          SearchRepository search, AppExecutors executors) {
         this.noteDao = noteDao;
         this.reminderDao = reminderDao;
         this.scheduler = scheduler;
+        this.search = search;
         this.executors = executors;
     }
 
@@ -44,6 +47,7 @@ public class NoteRepository {
                 noteDao.update(note);
                 saved = note;
             }
+            search.indexNote(saved);
             executors.runOnMain(() -> onSaved.accept(saved));
         });
     }

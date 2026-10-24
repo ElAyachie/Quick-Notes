@@ -9,7 +9,9 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {Folder.class, Note.class, Reminder.class}, version = 5)
+@Database(
+        entities = {Folder.class, Note.class, Reminder.class, NoteChunk.class, NoteFts.class},
+        version = 6)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String FILE_NAME = "quicknotes.db";
 
@@ -19,10 +21,13 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract ReminderDao reminderDao();
 
+    public abstract SearchDao searchDao();
+
     public static AppDatabase create(Context context) {
         return Room.databaseBuilder(context, AppDatabase.class, FILE_NAME)
                 .addCallback(SEED_DEFAULT_FOLDER)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
+                        MIGRATION_5_6)
                 .build();
     }
 
@@ -95,5 +100,52 @@ public abstract class AppDatabase extends RoomDatabase {
             db.execSQL("ALTER TABLE reminders "
                     + "ADD COLUMN place_trigger TEXT NOT NULL DEFAULT 'ARRIVING'");
         }
+    };
+
+    // Version 6 adds search: a full-text index of the notes, filled here from the notes already
+    // stored, and a table of embedded passages, filled by search.SearchRepository when the app
+    // starts. The statements are Room's own (app/schemas/.../6.json), so the result matches what
+    // Room creates for a new database.
+    public static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `note_chunks` ("
+                    + "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                    + "`note_id` INTEGER NOT NULL, "
+                    + "`start_offset` INTEGER NOT NULL, "
+                    + "`end_offset` INTEGER NOT NULL, "
+                    + "`model_id` TEXT NOT NULL, "
+                    + "`source_hash` TEXT NOT NULL, "
+                    + "`vector` BLOB NOT NULL, "
+                    + "FOREIGN KEY(`note_id`) REFERENCES `notes`(`id`) "
+                    + "ON UPDATE NO ACTION ON DELETE CASCADE )");
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_note_chunks_note_id` "
+                    + "ON `note_chunks` (`note_id`)");
+            db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `notes_fts` USING FTS4("
+                    + "`title` TEXT NOT NULL, `content` TEXT NOT NULL, "
+                    + "tokenize=unicode61, content=`notes`)");
+            for (String sql : FTS_TRIGGERS) {
+                db.execSQL(sql);
+            }
+            db.execSQL("INSERT INTO notes_fts(notes_fts) VALUES ('rebuild')");
+        }
+    };
+
+    // Keep the full-text index in step with the notes table.
+    private static final String[] FTS_TRIGGERS = {
+            "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_notes_fts_BEFORE_UPDATE "
+                    + "BEFORE UPDATE ON `notes` BEGIN "
+                    + "DELETE FROM `notes_fts` WHERE `docid`=OLD.`rowid`; END",
+            "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_notes_fts_BEFORE_DELETE "
+                    + "BEFORE DELETE ON `notes` BEGIN "
+                    + "DELETE FROM `notes_fts` WHERE `docid`=OLD.`rowid`; END",
+            "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_notes_fts_AFTER_UPDATE "
+                    + "AFTER UPDATE ON `notes` BEGIN "
+                    + "INSERT INTO `notes_fts`(`docid`, `title`, `content`) "
+                    + "VALUES (NEW.`rowid`, NEW.`title`, NEW.`content`); END",
+            "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_notes_fts_AFTER_INSERT "
+                    + "AFTER INSERT ON `notes` BEGIN "
+                    + "INSERT INTO `notes_fts`(`docid`, `title`, `content`) "
+                    + "VALUES (NEW.`rowid`, NEW.`title`, NEW.`content`); END",
     };
 }
