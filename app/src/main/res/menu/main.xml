@@ -3,6 +3,15 @@
      current screen on the back stack instead of returning to the start screen first. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- Shown on the folder and note lists only (MainActivity). -->
+    <item
+        android:id="@id/searchFragment"
+        android:icon="@drawable/ic_search"
+        android:menuCategory="secondary"
+        android:orderInCategory="1"
+        android:title="@string/search"
+        app:iconTint="@color/on_app_bar"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@id/remindersFragment"
         android:menuCategory="secondary"

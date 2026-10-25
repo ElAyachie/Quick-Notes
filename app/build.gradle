@@ -23,8 +23,8 @@ android {
         applicationId "com.myapp.QuickNotes1"
         minSdk 26
         targetSdk 36
-        versionCode 55
-        versionName "3.0"
+        versionCode 56
+        versionName "3.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // The Google Maps key for the place picker. Without it the map shows no tiles.
@@ -53,6 +53,12 @@ android {
         release {
             if (releaseKeystore) {
                 signingConfig signingConfigs.release
+            }
+            // MediaPipe (search by meaning) brings a native library of 10 to 15 MB for each kind
+            // of processor. Phones are ARM; the x86 ones only serve emulators, which run debug
+            // builds, so the release APK leaves them out.
+            ndk {
+                abiFilters 'arm64-v8a', 'armeabi-v7a'
             }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -89,10 +95,13 @@ dependencies {
     annotationProcessor libs.androidx.room.compiler
     implementation libs.androidx.viewpager2
     implementation libs.material
+    implementation libs.mediapipe.tasks.text
     implementation libs.play.services.location
     implementation libs.play.services.maps
 
     testImplementation libs.junit
+    // The real org.json, for parsing in JVM tests; Android's own is only a stub there.
+    testImplementation libs.json
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.test.runner
 }

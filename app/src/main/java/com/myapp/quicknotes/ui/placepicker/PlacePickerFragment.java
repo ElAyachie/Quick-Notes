@@ -34,8 +34,8 @@ import com.myapp.quicknotes.reminders.LocationAccess;
 import com.myapp.quicknotes.ui.common.Formats;
 import com.myapp.quicknotes.ui.common.Screens;
 
-// Chooses where a location reminder fires: tap the map to place the pin, drag the slider to set
-// how close counts as being there. The circle on the map shows that distance. The two buttons at
+// Chooses where a location reminder fires: tap the map to place the pin (tapping a shop or
+// landmark's icon also fills in its name), drag the slider to set how close counts as being there. The circle on the map shows that distance. The two buttons at
 // the top choose between reminding on arriving at the place and on leaving it; the switch chooses
 // between reminding the next time only and every time.
 public class PlacePickerFragment extends Fragment {
@@ -51,6 +51,10 @@ public class PlacePickerFragment extends Fragment {
     private Marker pin;
     @Nullable
     private Circle circle;
+    // The name last filled in from a tapped shop or landmark. Tapping another replaces it, but
+    // never a name the user typed.
+    @Nullable
+    private String filledInName;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -135,6 +139,17 @@ public class PlacePickerFragment extends Fragment {
         map.setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.map_overlap));
         map.setOnMapClickListener(place -> {
             viewModel.setPlace(place);
+            showPlace();
+            keepCircleInView();
+        });
+        map.setOnPoiClickListener(poi -> {
+            viewModel.setPlace(poi.latLng);
+            String typed = String.valueOf(binding.placeNameInput.getText()).trim();
+            if (typed.isEmpty() || typed.equals(filledInName)) {
+                // Map labels can run over two lines.
+                filledInName = poi.name.replace('\n', ' ').trim();
+                binding.placeNameInput.setText(filledInName);
+            }
             showPlace();
             keepCircleInView();
         });

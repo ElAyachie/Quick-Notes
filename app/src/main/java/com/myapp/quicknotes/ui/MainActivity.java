@@ -17,6 +17,7 @@ import androidx.core.view.MenuProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -57,12 +58,24 @@ public class MainActivity extends AppCompatActivity {
                 inflater.inflate(R.menu.main, menu);
             }
 
+            // Search is offered where notes are listed; elsewhere its icon would crowd the
+            // screen's own actions.
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                NavDestination current = navController.getCurrentDestination();
+                int screen = current != null ? current.getId() : 0;
+                menu.findItem(R.id.searchFragment).setVisible(
+                        screen == R.id.homeFragment || screen == R.id.notesFragment);
+            }
+
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem item) {
                 // The menu item ids are the ids of the screens they open.
                 return NavigationUI.onNavDestinationSelected(item, navController);
             }
         });
+        navController.addOnDestinationChangedListener(
+                (controller, destination, arguments) -> invalidateMenu());
     }
 
     // The toolbar's back arrow behaves like the system back button, so a screen that intercepts

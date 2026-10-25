@@ -7,3 +7,4 @@
 *.jar binary
 *.aab binary
 *.apk binary
+*.tflite binary

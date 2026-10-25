@@ -5,6 +5,7 @@ import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 
 import com.myapp.quicknotes.AppExecutors;
+import com.myapp.quicknotes.places.NearbyPlacesRepository;
 import com.myapp.quicknotes.reminders.ReminderNotifier;
 import com.myapp.quicknotes.reminders.ReminderScheduler;
 
@@ -17,14 +18,17 @@ public class ReminderRepository {
     private final NoteDao noteDao;
     private final ReminderScheduler scheduler;
     private final ReminderNotifier notifier;
+    private final NearbyPlacesRepository nearbyPlaces;
     private final AppExecutors executors;
 
     public ReminderRepository(ReminderDao reminderDao, NoteDao noteDao, ReminderScheduler scheduler,
-                              ReminderNotifier notifier, AppExecutors executors) {
+                              ReminderNotifier notifier, NearbyPlacesRepository nearbyPlaces,
+                              AppExecutors executors) {
         this.reminderDao = reminderDao;
         this.noteDao = noteDao;
         this.scheduler = scheduler;
         this.notifier = notifier;
+        this.nearbyPlaces = nearbyPlaces;
         this.executors = executors;
     }
 
@@ -50,6 +54,7 @@ public class ReminderRepository {
     private void add(Reminder reminder) {
         executors.io().execute(() ->
                 scheduler.schedule(reminder.withId(reminderDao.insert(reminder))));
+        nearbyPlaces.lookUpAround(reminder);
     }
 
     // Reports null when the reminder no longer exists.
@@ -67,6 +72,7 @@ public class ReminderRepository {
             reminderDao.update(updated);
             scheduler.schedule(updated);
         });
+        nearbyPlaces.lookUpAround(updated);
     }
 
     // Deleting a waiting reminder stops it (and, if it repeats, the whole series). Deleting a

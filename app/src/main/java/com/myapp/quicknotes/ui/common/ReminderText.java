@@ -10,6 +10,7 @@ import com.myapp.quicknotes.data.PlaceTrigger;
 import com.myapp.quicknotes.data.Reminder;
 import com.myapp.quicknotes.data.ReminderType;
 import com.myapp.quicknotes.data.Repeat;
+import com.myapp.quicknotes.search.ReminderMatcher;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -52,6 +53,36 @@ public final class ReminderText {
         }
         return context.getString(R.string.trigger_with_repeat, trigger,
                 repeatLabel(context, reminder.getRepeat(), reminder.getRepeatDays()));
+    }
+
+    // Why a search found a note through its reminder: "Reminder Oct 30, 2026 9:00 AM · Every day",
+    // "Reminder when you arrive at Walgreens", "Reminder when you arrive near Walgreens" (a place
+    // the user didn't name, recognised by what is near it), "Reminder when you leave Home, near
+    // Elm Street".
+    public static String searchReason(Context context, ReminderMatcher.Match match) {
+        Reminder reminder = match.reminder;
+        if (match.isByTime()) {
+            String when = context.getString(R.string.search_reason_time,
+                    Formats.dateTime(Objects.requireNonNull(match.occurrence)));
+            return reminder.getRepeat() == Repeat.NONE ? when
+                    : context.getString(R.string.trigger_with_repeat, when,
+                    repeatLabel(context, reminder.getRepeat(), reminder.getRepeatDays()));
+        }
+        boolean leaving = reminder.getPlaceTrigger() == PlaceTrigger.LEAVING;
+        String named = reminder.getPlaceName();
+        String nearby = match.nearbyName;
+        if (nearby != null && named != null && !nearby.equalsIgnoreCase(named)) {
+            return context.getString(leaving ? R.string.search_reason_leave_named_near
+                    : R.string.search_reason_arrive_named_near, named, nearby);
+        }
+        if (named == null && nearby != null) {
+            return context.getString(leaving ? R.string.search_reason_leave_near
+                    : R.string.search_reason_arrive_near, nearby);
+        }
+        String place = named != null ? named : context.getString(R.string.coordinates,
+                reminder.getLatitude(), reminder.getLongitude());
+        return context.getString(leaving ? R.string.search_reason_leave
+                : R.string.search_reason_arrive, place);
     }
 
     // How often a reminder repeats, in words. For chosen days of the week, the days themselves:

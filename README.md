@@ -18,6 +18,13 @@ A note-taking app for Android whose notes can remind you of themselves.
   next visit. It can fire once, or every time.
 - **Snooze** — a reminder's notification has "Done", "In 10 min" and "In 1 hour" buttons,
   so it can be put off without opening the app.
+- **Search** — across all folders, by words and by meaning: "doctor" finds a note about a
+  cardiology appointment that never uses the word. It also searches reminders: "tomorrow"
+  finds what is due tomorrow, and "Target" or "pharmacy" finds a note whose location reminder
+  is near one, even if you never named the place. Each result says why it was found. See
+  [How search works](#how-search-works).
+- **Place picker shortcuts** — tapping a shop or landmark's icon on the map chooses it and
+  fills in its name.
 - **Reminders screen** — "Upcoming" lists the reminders still waiting; tap one to edit
   it, open its note or delete it. "History" lists the ones that have fired.
 - Reminders survive a reboot.
@@ -40,9 +47,11 @@ Java, XML layouts, a single activity. Everything lives under
 
 | Package | What's in it |
 |---|---|
-| `data` | The Room database: `Folder`, `Note` and `Reminder` tables, their DAOs, and one repository per table. Repositories are the only way the rest of the app touches data. |
+| `data` | The Room database: `Folder`, `Note` and `Reminder` tables, the search tables (`NoteChunk`, `NoteFts`), the nearby-place tables (`PlaceLookup`, `NearbyPlace`), their DAOs, and one repository per table. Repositories are the only way the rest of the app touches data. |
 | `reminders` | `ReminderScheduler` hands a reminder to the system: an alarm for a time, a geofence (Google Play services) for a place. `ReminderAlarmReceiver` and `GeofenceReceiver` run when one comes due, `ReminderNotifier` shows the notification, `ReminderActionReceiver` handles the notification's buttons, `ReminderRestoreReceiver` re-schedules everything after a reboot or app update. |
-| `ui` | `MainActivity` owns the toolbar; each screen is a fragment with a view model (`home`, `notes`, `editor`, `placepicker`, `reminders`, `settings`). Screens are wired together in `res/navigation/nav_graph.xml`. |
+| `search` | Search by meaning, by words and by reminders: splitting notes into passages, the on-device embedding model, reading times in a query, matching reminders, ranking and merging. See [How search works](#how-search-works). |
+| `places` | Looking up what is near a location reminder's place on OpenStreetMap. |
+| `ui` | `MainActivity` owns the toolbar; each screen is a fragment with a view model (`home`, `notes`, `editor`, `placepicker`, `reminders`, `search`, `settings`). Screens are wired together in `res/navigation/nav_graph.xml`. |
 | (root) | `QuickNotesApp` and `AppContainer` build the database, repositories and reminder classes once and share them. |
 
 A reminder stores the id of its note, not a copy of the text, so the notification always
@@ -52,14 +61,114 @@ A row in the `reminders` table is one occurrence. When it fires it is stamped wi
 time and stays as history; a repeating reminder continues as a new row for its next
 occurrence (`Reminder.nextOccurrence`, `Repeat.nextAfter`, `DaysOfWeek.nextAfter`).
 
+## How search works
+
+Search combines two rankings, both computed on the phone with no network call and no cost.
+
+**By meaning.** When a note is saved, its text is split into passages at blank lines (long
+paragraphs are cut at a sentence end), and each passage, with the note's title in front, is
+turned into a vector of 100 numbers by Google's
+[Universal Sentence Encoder](https://developers.google.com/edge/mediapipe/solutions/text/text_embedder),
+run by MediaPipe from a 6 MB model inside the app. Vectors are stored in the `note_chunks`
+table with the model that made them and a fingerprint of the text, so a note is embedded again
+only when its text or the model changes. A search embeds the query and compares it with every
+passage; a note scores as well as its best passage, and that passage is shown in the results.
+
+**By words.** SQLite's full-text index (FTS4, kept up to date by triggers) finds notes
+containing the query's words, ignoring case and accents and leaving out common words like
+"the". This catches what a language model can't know: names, ticket numbers, codes.
+
+**By reminders.** Waiting reminders are a third and fourth ranking:
+
+- *Times.* The query is read for times: today, tonight, tomorrow, a weekday, this or next week,
+  the weekend, a month, a date like "Oct 30", optionally with morning, afternoon, evening or
+  night. A time reminder due within one matches, and a repeating one counts on every day it
+  repeats, so "Friday" finds a reminder set for Mon, Wed, Fri.
+- *Places.* A location reminder matches by the name you gave its place, or by what is near it.
+  When a location reminder is set, the app asks OpenStreetMap what is within its circle (up to
+  500 m from the pin): the nearest 40 named shops, schools, landmarks and the like, 8 streets,
+  and the neighbourhood. "Target" finds a reminder next to a Target; "pharmacy" or "drugstore"
+  finds one near a CVS, because each kind of place carries its other names. What a place is
+  counts only within 100 m of the pin, only when it accounts for the whole query ("gift for Mom"
+  doesn't find a reminder near a gift shop), and with other names for the same kind of place,
+  never related topics: a city has a bank and a cleaner near everything, so "money" or
+  "laundry" would otherwise find every location reminder. Streets and areas match by name only.
+
+The result then shows the reminder as its reason: "Reminder when you arrive at Grocery store,
+near Target", or "Reminder Nov 2, 2026 9:00 AM · Mon, Wed, Fri".
+
+**Merged** by [reciprocal rank fusion](https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf):
+each note scores 1/(60 + its position) in each ranking. Positions rather than scores, so a
+cosine similarity never has to be weighed against a word count, and a note both rankings found
+rises to the top. On a tie the word match goes first, then reminders, then meaning. A reminder
+found only by what is near it ("doctor" for a place next to a clinic) ranks last, below notes
+that are about the search. A query
+made only of numbers, codes or times skips the meaning ranking.
+
+**No vector database.** The query is compared with every stored vector. For a few thousand
+passages of 100 numbers that is a few hundred thousand multiplications, a fraction of the time
+the model takes to embed the query. An approximate index would add a dependency and complexity
+for no visible gain at the size of one person's notes.
+
+### Measured quality
+
+`SearchQualityTest` runs the real model over 30 everyday notes and 34 labelled queries: 24
+that share no word with their answer ("childcare" for a note about a babysitter), 6 exact
+strings ("QX7P2L", "617-555-0142"), and 4 with no answer. Results on an emulator:
+
+| Ranking | Right note first | Right note in first three | Mean reciprocal rank |
+|---|---|---|---|
+| By meaning, the model's vectors as they come | 20% | 57% | 0.43 |
+| By meaning, centered (below); numbers and codes skip it | 63% | 80% | 0.71 |
+| By words | 37% | 40% | 0.38 |
+| **Both merged (what the app does)** | **70%** | **90%** | **0.79** |
+
+Queries with no answer bring back 1.3 notes on average. A search takes about 6 ms.
+
+**Centering.** MediaPipe's version of the model gives every text a vector pointing mostly the
+same way: any two texts came out 0.7 to 0.9 similar, and "doctor" was closer to "Lisbon
+itinerary" than to "Cardiology follow-up". Subtracting the average vector of typical texts
+removes that shared part. Searches and note passages each get their own average, because a
+few words and a paragraph sit in different places. The averages come from a separate set of
+calibration texts (`androidTest/assets/search_calibration.txt`), not from the evaluation set,
+and `CenteringVectorsTest` checks the shipped ones still match. The similarity a passage needs
+to count as a match (0.25) was chosen on the evaluation set itself, so the numbers above are
+a little flattering; with 34 queries, one query is 3 points.
+
+**What it doesn't do.** The model understands English only. "Heart appointment" doesn't find
+the cardiology note, and a search with no good answer can still show a loosely related note or
+two.
+
+### Privacy and size
+
+Note text never leaves the phone. Two things do go over the network:
+
+- When a location reminder is set, its place's coordinates and radius are sent to
+  OpenStreetMap's public [Overpass](https://wiki.openstreetmap.org/wiki/Overpass_API) servers
+  to find what is nearby: once per place, and again only if the place moves. The servers are
+  free and need no key, but can be slow; a lookup that fails is tried again at the next start.
+  Place data is © OpenStreetMap contributors, credited on the search screen when it is shown.
+- MediaPipe sends Google anonymous usage statistics about
+the model (how often it runs, how long it takes), as its
+[privacy notice](https://developers.google.com/edge/mediapipe/solutions/tasks#mediapipe_tasks_privacy_notice)
+describes; the library offers no way to turn this off.
+
+The release APK is 31 MB, of which 17 MB is MediaPipe's native library (for 64-bit and 32-bit
+ARM) and 6 MB the model. Release builds leave out the x86 libraries, which only emulators use;
+with them it was 58 MB.
+
+If the model ever crashes the app (native code can't be caught), the next start notices that
+the first attempt never finished, and search falls back to words only on that device instead
+of crashing again (`CrashGuardedEmbedder`).
+
 ## Building
 
 Open the project in Android Studio and press Run, or from a terminal:
 
 ```
 gradlew assembleDebug              # build the debug APK
-gradlew testDebugUnitTest          # run the recurrence tests on your computer
-gradlew connectedDebugAndroidTest  # run the database tests on a connected device or emulator
+gradlew testDebugUnitTest          # run the recurrence and search ranking tests on your computer
+gradlew connectedDebugAndroidTest  # run the database, migration and search quality tests on a device
 ```
 
 Requires JDK 17 or newer (Android Studio's bundled JDK works). `local.properties` must

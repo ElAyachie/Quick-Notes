@@ -1,6 +1,7 @@
 package com.myapp.quicknotes.data;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -36,6 +37,87 @@ public class AppDatabaseTest {
     @After
     public void closeDatabase() {
         database.close();
+    }
+
+    @Test
+    public void deletingANoteDeletesItsSearchPassages() {
+        long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Vet", "Shots", Folder.DEFAULT_ID));
+        SearchDao search = database.searchDao();
+        search.insertChunks(Arrays.asList(
+                new NoteChunk(0, noteId, 0, 5, "model", "hash", new byte[]{1, 2, 3, 4}),
+                new NoteChunk(0, noteId, 6, 9, "model", "hash", new byte[]{5, 6, 7, 8})));
+        assertEquals(1, search.getIndexedNotes().size());
+
+        notes.deleteById(noteId);
+
+        assertEquals(0, search.getAllChunks().size());
+    }
+
+    @Test
+    public void replacingPassagesKeepsOnlyTheNewOnes() {
+        long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Vet", "Shots", Folder.DEFAULT_ID));
+        SearchDao search = database.searchDao();
+        search.insertChunks(Arrays.asList(
+                new NoteChunk(0, noteId, 0, 5, "old model", "old", new byte[]{1, 2, 3, 4})));
+
+        search.replaceChunksOfNote(noteId, Arrays.asList(
+                new NoteChunk(0, noteId, 0, 5, "new model", "new", new byte[]{5, 6, 7, 8})));
+
+        List<IndexedNote> indexed = search.getIndexedNotes();
+        assertEquals(1, search.getAllChunks().size());
+        assertEquals("new model", indexed.get(0).getModelId());
+        assertEquals("new", indexed.get(0).getSourceHash());
+    }
+
+    @Test
+    public void fullTextSearchFollowsNoteChangesAndCarriesTheFolderName() {
+        long folderId = folders.insert(new Folder("Health"));
+        long noteId = notes.insert(Note.blank(folderId).edited("Dentist", "Café on the corner", folderId));
+        SearchDao search = database.searchDao();
+
+        // Prefixes match, and case and accents don't matter.
+        assertEquals(1, search.findNotesMatching("DENT*").size());
+        assertEquals(1, search.findNotesMatching("cafe").size());
+
+        List<NoteWithFolder> found = search.getNotesWithFolder(Arrays.asList(noteId));
+        assertEquals("Health", found.get(0).getFolderName());
+
+        notes.deleteById(noteId);
+        assertEquals(0, search.findNotesMatching("dent*").size());
+    }
+
+    @Test
+    public void aNewLookupReplacesThePlacesFoundBefore() {
+        PlaceDao places = database.placeDao();
+        String key = PlaceLookup.keyOf(42.35, -71.07, 200);
+        places.saveLookup(new PlaceLookup(key, 1), Arrays.asList(
+                new NearbyPlace(0, key, "Old cafe", "café", 50)));
+
+        places.saveLookup(new PlaceLookup(key, 2), Arrays.asList(
+                new NearbyPlace(0, key, "Walgreens", "pharmacy", 80),
+                new NearbyPlace(0, key, "Back Bay", "neighbourhood", 0)));
+
+        List<NearbyPlace> found = places.getNearby(Arrays.asList(key));
+        assertEquals(2, found.size());
+        // Nearest first.
+        assertEquals("Back Bay", found.get(0).getName());
+    }
+
+    @Test
+    public void lookupsNoReminderUsesAreForgottenWithTheirPlaces() {
+        PlaceDao places = database.placeDao();
+        String kept = PlaceLookup.keyOf(42.35, -71.07, 200);
+        String unused = PlaceLookup.keyOf(40.71, -74.0, 500);
+        places.saveLookup(new PlaceLookup(kept, 1),
+                Arrays.asList(new NearbyPlace(0, kept, "Walgreens", "pharmacy", 80)));
+        places.saveLookup(new PlaceLookup(unused, 1),
+                Arrays.asList(new NearbyPlace(0, unused, "Deli", "fast food", 30)));
+
+        places.deleteLookupsExcept(Arrays.asList(kept));
+
+        assertTrue(places.isLookedUp(kept));
+        assertFalse(places.isLookedUp(unused));
+        assertEquals(0, places.getNearby(Arrays.asList(unused)).size());
     }
 
     @Test

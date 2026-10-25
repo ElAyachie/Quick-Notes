@@ -51,6 +51,12 @@
             app:argType="long" />
     </fragment>
 
+    <!-- Search across all folders, by words and by meaning. -->
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.myapp.quicknotes.ui.search.SearchFragment"
+        android:label="@string/search" />
+
     <fragment
         android:id="@+id/remindersFragment"
         android:name="com.myapp.quicknotes.ui.reminders.RemindersFragment"
