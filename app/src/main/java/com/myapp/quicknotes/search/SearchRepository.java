@@ -146,8 +146,15 @@ public class SearchRepository {
             // Words go first, so they win ties: a note containing the very word searched for is a
             // surer answer than the model's best guess. "4471" should find "Ticket #4471" first.
             // Reminders come next: a reminder at the very place or time asked about is as sure.
+            // A reminder matched only by what is near it ("doctor" for a place by a clinic) comes
+            // last: the search was more likely about a note than about the neighbourhood.
+            List<ReminderMatcher.Match> byName = new ArrayList<>();
+            List<ReminderMatcher.Match> byKind = new ArrayList<>();
+            for (ReminderMatcher.Match match : byPlace) {
+                (match.byKindOnly ? byKind : byName).add(match);
+            }
             this.combined = RankFusion.fuse(Arrays.asList(
-                    byWords, noteIds(byPlace), noteIds(byTime), meaningIds));
+                    byWords, noteIds(byName), noteIds(byTime), meaningIds, noteIds(byKind)));
         }
 
         // Why a note was found through one of its reminders, if it was.

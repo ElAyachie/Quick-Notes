@@ -39,15 +39,19 @@ public final class ReminderMatcher {
         // gave the place did.
         @Nullable
         public final String nearbyName;
+        // For a match by place: true when no name matched, only what a nearby place is
+        // ("pharmacy" for a Walgreens). Weaker evidence, ranked below the rest.
+        public final boolean byKindOnly;
         final int score;
         final int distance;
 
-        Match(Reminder reminder, @Nullable Long occurrence, @Nullable String nearbyName, int score,
-              int distance) {
+        Match(Reminder reminder, @Nullable Long occurrence, @Nullable String nearbyName,
+              boolean byKindOnly, int score, int distance) {
             this.noteId = reminder.getNoteId();
             this.reminder = reminder;
             this.occurrence = occurrence;
             this.nearbyName = nearbyName;
+            this.byKindOnly = byKindOnly;
             this.score = score;
             this.distance = distance;
         }
@@ -91,7 +95,7 @@ public final class ReminderMatcher {
                 }
             }
             if (earliest != null) {
-                matches.add(new Match(reminder, earliest, null, 0, 0));
+                matches.add(new Match(reminder, earliest, null, false, 0, 0));
             }
         }
         matches.sort((a, b) -> Long.compare(a.occurrence, b.occurrence));
@@ -156,7 +160,7 @@ public final class ReminderMatcher {
             }
             if (score > 0 && (byName || everyTerm)) {
                 matches.add(new Match(reminder, null, matched != null ? matched.getName() : null,
-                        score, matched != null ? matched.getDistanceMeters() : 0));
+                        !byName, score, matched != null ? matched.getDistanceMeters() : 0));
             }
         }
         matches.sort((a, b) -> a.score != b.score

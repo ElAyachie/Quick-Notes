@@ -1,6 +1,7 @@
 package com.myapp.quicknotes.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -111,6 +112,7 @@ public class ReminderMatcherTest {
 
         assertEquals(1, matches.size());
         assertNull(matches.get(0).nearbyName);
+        assertFalse(matches.get(0).byKindOnly);
     }
 
     @Test
@@ -125,6 +127,10 @@ public class ReminderMatcherTest {
 
         assertEquals("Walgreens", ReminderMatcher.byPlace(reminders, around,
                 KeywordScorer.terms("Walgreens")).get(0).nearbyName);
+        assertFalse(ReminderMatcher.byPlace(reminders, around,
+                KeywordScorer.terms("Walgreens")).get(0).byKindOnly);
+        assertTrue(ReminderMatcher.byPlace(reminders, around,
+                KeywordScorer.terms("pharmacy")).get(0).byKindOnly);
         // By kind, the nearest of that kind.
         assertEquals("Walgreens", ReminderMatcher.byPlace(reminders, around,
                 KeywordScorer.terms("pharmacy")).get(0).nearbyName);

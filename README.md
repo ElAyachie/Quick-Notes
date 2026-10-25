@@ -98,7 +98,9 @@ near Target", or "Reminder Nov 2, 2026 9:00 AM · Mon, Wed, Fri".
 **Merged** by [reciprocal rank fusion](https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf):
 each note scores 1/(60 + its position) in each ranking. Positions rather than scores, so a
 cosine similarity never has to be weighed against a word count, and a note both rankings found
-rises to the top. On a tie the word match goes first, then reminders, then meaning. A query
+rises to the top. On a tie the word match goes first, then reminders, then meaning. A reminder
+found only by what is near it ("doctor" for a place next to a clinic) ranks last, below notes
+that are about the search. A query
 made only of numbers, codes or times skips the meaning ranking.
 
 **No vector database.** The query is compared with every stored vector. For a few thousand
