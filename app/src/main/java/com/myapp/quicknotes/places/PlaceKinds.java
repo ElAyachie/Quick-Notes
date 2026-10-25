@@ -12,7 +12,9 @@ import java.util.Set;
 
 // What a place on OpenStreetMap is, in the words people search with. OpenStreetMap describes a
 // place with tags ("amenity=pharmacy", "shop=chemist"); this turns them into a kind ("pharmacy")
-// and gives each kind the other words that mean it ("drugstore", "prescription").
+// and gives each kind the other names for the same thing ("drugstore"). Only names for the same
+// kind of place, never related topics: a city has a bank and a cleaner near every place, so
+// "money" or "laundry" would find every location reminder.
 public final class PlaceKinds {
     // Tags worth recognising a place by. Anything else named is ignored: benches, bins, parking
     // entrances and the like name nothing anyone would search for.
@@ -24,87 +26,100 @@ public final class PlaceKinds {
             "residential", "living_street", "pedestrian"));
 
     static {
-        kind("amenity=pharmacy", "pharmacy", "drugstore", "chemist", "medicine", "prescription");
-        kind("shop=chemist", "pharmacy", "drugstore", "chemist", "medicine", "prescription");
-        kind("shop=supermarket", "supermarket", "grocery", "groceries", "food", "shopping");
-        kind("shop=grocery", "grocery store", "grocery", "groceries", "food", "shopping");
-        kind("shop=greengrocer", "grocery store", "grocery", "groceries", "vegetables", "fruit");
-        kind("shop=convenience", "convenience store", "store", "shop", "snacks");
-        kind("shop=bakery", "bakery", "bread", "pastry");
-        kind("shop=butcher", "butcher", "meat");
-        kind("shop=department_store", "department store", "store", "shopping");
-        kind("shop=mall", "mall", "shopping");
-        kind("shop=hardware", "hardware store", "tools", "diy");
-        kind("shop=doityourself", "hardware store", "tools", "diy");
-        kind("shop=clothes", "clothes shop", "clothing", "fashion");
-        kind("shop=shoes", "shoe shop", "shoes");
-        kind("shop=books", "bookshop", "books", "bookstore");
-        kind("shop=electronics", "electronics shop", "electronics");
-        kind("shop=mobile_phone", "phone shop", "phone");
-        kind("shop=hairdresser", "hairdresser", "haircut", "barber", "salon");
-        kind("shop=beauty", "beauty salon", "salon");
-        kind("shop=florist", "florist", "flowers");
-        kind("shop=pet", "pet shop", "pet", "pets");
-        kind("shop=alcohol", "liquor store", "wine", "beer");
-        kind("shop=dry_cleaning", "dry cleaner", "laundry");
-        kind("shop=laundry", "laundromat", "laundry");
-        kind("shop=car_repair", "garage", "car", "mechanic");
+        kind("amenity=pharmacy", "pharmacy", "drugstore", "chemist");
+        kind("shop=chemist", "pharmacy", "drugstore", "chemist");
+        kind("shop=supermarket", "supermarket", "grocery store", "groceries");
+        kind("shop=grocery", "grocery store", "groceries");
+        kind("shop=greengrocer", "greengrocer", "grocery store", "groceries");
+        kind("shop=convenience", "convenience store", "corner shop");
+        kind("shop=bakery", "bakery");
+        kind("shop=butcher", "butcher");
+        kind("shop=department_store", "department store");
+        kind("shop=mall", "mall", "shopping centre", "shopping center");
+        kind("shop=hardware", "hardware store");
+        kind("shop=doityourself", "hardware store", "diy store");
+        kind("shop=clothes", "clothes shop", "clothing store");
+        kind("shop=shoes", "shoe shop", "shoe store");
+        kind("shop=books", "bookshop", "bookstore");
+        kind("shop=electronics", "electronics shop", "electronics store");
+        kind("shop=mobile_phone", "phone shop", "phone store");
+        kind("shop=hairdresser", "hairdresser", "barber", "hair salon");
+        kind("shop=beauty", "beauty salon");
+        kind("shop=florist", "florist", "flower shop");
+        kind("shop=pet", "pet shop", "pet store");
+        kind("shop=alcohol", "liquor store", "off licence");
+        kind("shop=dry_cleaning", "dry cleaner", "dry cleaning", "cleaners");
+        kind("shop=laundry", "laundromat", "launderette");
+        kind("shop=car_repair", "garage", "mechanic", "car repair");
         kind("amenity=school", "school");
-        kind("amenity=kindergarten", "kindergarten", "preschool", "nursery", "daycare");
-        kind("amenity=childcare", "daycare", "childcare", "nursery");
-        kind("amenity=college", "college", "school");
-        kind("amenity=university", "university", "campus", "school");
-        kind("amenity=library", "library", "books");
-        kind("amenity=hospital", "hospital", "doctor", "medical");
-        kind("amenity=clinic", "clinic", "doctor", "medical");
-        kind("amenity=doctors", "doctor's office", "doctor", "medical");
-        kind("amenity=dentist", "dentist", "teeth", "dental");
-        kind("amenity=veterinary", "vet", "veterinarian", "pet", "animal");
-        kind("amenity=restaurant", "restaurant", "food", "dinner", "lunch", "eat");
-        kind("amenity=fast_food", "fast food", "food", "takeaway", "eat");
-        kind("amenity=cafe", "café", "cafe", "coffee");
-        kind("amenity=bar", "bar", "drinks");
-        kind("amenity=pub", "pub", "bar", "drinks");
-        kind("amenity=ice_cream", "ice cream shop", "ice cream", "dessert");
-        kind("amenity=bank", "bank", "money");
-        kind("amenity=atm", "cash machine", "atm", "cash", "money");
-        kind("amenity=post_office", "post office", "mail", "post", "parcel");
-        kind("amenity=fuel", "gas station", "gas", "petrol", "fuel");
-        kind("amenity=charging_station", "charging station", "charger", "ev");
+        kind("amenity=kindergarten", "kindergarten", "preschool", "nursery school");
+        kind("amenity=childcare", "daycare", "nursery");
+        kind("amenity=college", "college");
+        kind("amenity=university", "university", "campus");
+        kind("amenity=library", "library");
+        kind("amenity=hospital", "hospital");
+        kind("amenity=clinic", "clinic");
+        kind("amenity=doctors", "doctor's office", "doctor", "gp");
+        kind("amenity=dentist", "dentist");
+        kind("amenity=veterinary", "vet", "veterinarian");
+        kind("amenity=restaurant", "restaurant");
+        kind("amenity=fast_food", "fast food");
+        kind("amenity=cafe", "café", "cafe", "coffee shop");
+        kind("amenity=bar", "bar");
+        kind("amenity=pub", "pub");
+        kind("amenity=ice_cream", "ice cream shop");
+        kind("amenity=bank", "bank");
+        kind("amenity=atm", "cash machine", "atm");
+        kind("amenity=post_office", "post office");
+        kind("amenity=fuel", "gas station", "petrol station", "filling station");
+        kind("amenity=charging_station", "charging station");
         kind("amenity=place_of_worship", "place of worship", "church", "mosque", "synagogue",
                 "temple");
-        kind("amenity=cinema", "cinema", "movies", "movie theater");
-        kind("amenity=theatre", "theatre", "theater", "show");
+        kind("amenity=cinema", "cinema", "movie theater", "movie theatre");
+        kind("amenity=theatre", "theatre", "theater");
         kind("amenity=townhall", "town hall", "city hall");
-        kind("amenity=police", "police station", "police");
+        kind("amenity=police", "police station");
         kind("amenity=fire_station", "fire station");
         kind("amenity=community_centre", "community centre", "community center");
         kind("amenity=marketplace", "market", "farmers market");
-        kind("amenity=car_wash", "car wash", "car");
+        kind("amenity=car_wash", "car wash");
         kind("leisure=park", "park");
-        kind("leisure=playground", "playground", "park", "kids");
-        kind("leisure=fitness_centre", "gym", "fitness", "workout");
-        kind("leisure=sports_centre", "sports centre", "gym", "sports");
-        kind("leisure=swimming_pool", "swimming pool", "pool", "swimming");
-        kind("leisure=stadium", "stadium", "sports");
-        kind("leisure=pitch", "sports field", "field", "sports");
-        kind("leisure=garden", "garden", "park");
+        kind("leisure=playground", "playground");
+        kind("leisure=fitness_centre", "gym", "fitness centre", "fitness center");
+        kind("leisure=sports_centre", "sports centre", "sports center");
+        kind("leisure=swimming_pool", "swimming pool", "pool");
+        kind("leisure=stadium", "stadium");
+        kind("leisure=pitch", "sports field");
+        kind("leisure=garden", "garden");
         kind("tourism=museum", "museum");
         kind("tourism=hotel", "hotel");
-        kind("tourism=attraction", "landmark", "attraction", "sight");
-        kind("tourism=gallery", "gallery", "art");
-        kind("tourism=zoo", "zoo", "animals");
-        kind("historic=monument", "monument", "landmark");
-        kind("historic=memorial", "memorial", "landmark");
-        kind("railway=station", "train station", "train", "station");
-        kind("public_transport=station", "station", "transit");
-        kind("aeroway=aerodrome", "airport", "flight");
-        SYNONYMS.put("street", Arrays.asList("street", "road", "avenue"));
-        SYNONYMS.put("neighbourhood", Arrays.asList("neighbourhood", "neighborhood", "area"));
-        SYNONYMS.put("town", Arrays.asList("town", "city"));
+        kind("tourism=attraction", "landmark");
+        kind("tourism=gallery", "gallery", "art gallery");
+        kind("tourism=zoo", "zoo");
+        kind("historic=monument", "monument");
+        kind("historic=memorial", "memorial");
+        kind("railway=station", "train station", "station");
+        kind("public_transport=station", "station");
+        kind("aeroway=aerodrome", "airport");
     }
 
     private PlaceKinds() {
+    }
+
+    // Words in street names that say only that it is a street. "Street" would otherwise find
+    // every reminder with a Something Street nearby.
+    private static final Set<String> STREET_WORDS = new HashSet<>(Arrays.asList(
+            "street", "st", "avenue", "ave", "road", "rd", "boulevard", "blvd", "lane",
+            "ln", "drive", "dr", "way", "place", "pl", "square", "sq", "court", "ct",
+            "terrace", "highway", "parkway", "row", "alley"));
+
+    public static boolean isStreetWord(String word) {
+        return STREET_WORDS.contains(word);
+    }
+
+    // Streets, neighbourhoods and towns: what a place is beside or inside, rather than at.
+    public static boolean isArea(String kind) {
+        return kind.equals("street") || kind.equals("neighbourhood") || kind.equals("town");
     }
 
     private static void kind(String tag, String kind, String... synonyms) {
@@ -158,7 +173,12 @@ public final class PlaceKinds {
     }
 
     // Words that, searched for, should find a place of this kind; the kind's own words included.
+    // None for streets and areas, which are found by their names: "street" or "city" would match
+    // every place.
     public static List<String> wordsFor(String kind) {
+        if (isArea(kind)) {
+            return Collections.emptyList();
+        }
         List<String> synonyms = SYNONYMS.get(kind);
         return synonyms != null ? synonyms : Collections.emptyList();
     }

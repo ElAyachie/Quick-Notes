@@ -167,7 +167,11 @@ the reminder's circle. They also found the search screen's example too obscure.
   version 7. On the test emulator the three sample places were looked up in about 90 seconds,
   about 50 places each: Target and CVS by the grocery reminder, Copley station by the library.
 - A first check showed "gift for Mom" finding the grocery note because a gift shop was near
-  it; a kind now counts only when it accounts for the whole query.
+  it; a kind now counts only when it accounts for the whole query. Later checks while preparing
+  the portfolio screenshots found "doctor", "money" and "laundry" matching reminders through
+  a clinic, banks and a cleaner nearby. Now a kind-only match ranks below meaning, counts only
+  within 100 m of the pin, synonyms are names for the same kind of place rather than topics,
+  and generic words ("Street", the "Bank" in "Citizens Bank") don't count as names.
 - Results show the reminder: "Reminder when you arrive at Grocery store, near Target",
   "Reminder Nov 2, 2026 9:00 AM · Mon, Wed, Fri", with OpenStreetMap credited below.
 - Tapping a shop or landmark icon in the place picker chooses it and fills in its name, unless

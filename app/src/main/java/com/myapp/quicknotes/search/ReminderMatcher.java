@@ -24,6 +24,9 @@ public final class ReminderMatcher {
     // How many occurrences of a repeating reminder are looked through for one in a time range.
     // A daily reminder reaches a year ahead, which covers any range a search can name.
     private static final int MAX_OCCURRENCES = 400;
+    // What a nearby place is only counts this close to the pin, where it is plausibly the place
+    // the reminder is about; further out there is a bank or a café near everything.
+    static final int KIND_MATCH_MAX_METERS = 100;
 
     private ReminderMatcher() {
     }
@@ -142,8 +145,11 @@ public final class ReminderMatcher {
                 int best = 0;
                 NearbyPlace bestPlace = null;
                 for (NearbyPlace place : nearby) {
-                    int points = startsAny(KeywordScorer.words(place.getName()), term) ? 2
-                            : matchesKind(place.getKind(), term) ? 1 : 0;
+                    // A word of the name that only says what the place is ("Bank" in "Citizens
+                    // Bank") counts as what it is, not as its name.
+                    boolean kind = matchesKind(place.getKind(), term);
+                    int points = !kind && startsAny(nameWords(place), term) ? 2
+                            : kind && place.getDistanceMeters() <= KIND_MATCH_MAX_METERS ? 1 : 0;
                     // Places are kept nearest first, so the first with the most points is nearest.
                     if (points > best) {
                         best = points;
@@ -197,7 +203,19 @@ public final class ReminderMatcher {
         return null;
     }
 
+    // The words of a nearby place's name that can identify it: for a street, not "Street".
+    private static List<String> nameWords(NearbyPlace place) {
+        List<String> words = KeywordScorer.words(place.getName());
+        if (place.getKind().equals("street")) {
+            words.removeIf(PlaceKinds::isStreetWord);
+        }
+        return words;
+    }
+
     private static boolean matchesKind(String kind, String term) {
+        if (PlaceKinds.isArea(kind)) {
+            return false;
+        }
         if (startsAny(KeywordScorer.words(kind), term)) {
             return true;
         }

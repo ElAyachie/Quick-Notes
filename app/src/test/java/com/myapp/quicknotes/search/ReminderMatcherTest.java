@@ -162,6 +162,28 @@ public class ReminderMatcherTest {
     }
 
     @Test
+    public void whatAPlaceIsOnlyCountsCloseToThePin() {
+        Reminder reminder = Reminder.atPlace(1, 42.35, -71.07, 300, null, Repeat.NONE).withId(10);
+        Map<String, List<NearbyPlace>> around = nearby(reminder,
+                place(reminder, "Citizens Bank", "bank", 250),
+                place(reminder, "Boylston Street", "street", 20),
+                place(reminder, "Back Bay", "neighbourhood", 0));
+        List<Reminder> reminders = Collections.singletonList(reminder);
+
+        // Too far out to be the place the reminder is about...
+        assertEquals(0, ReminderMatcher.byPlace(reminders, around,
+                KeywordScorer.terms("bank")).size());
+        // ...but its name still counts.
+        assertEquals(1, ReminderMatcher.byPlace(reminders, around,
+                KeywordScorer.terms("citizens")).size());
+        // Streets and areas are found by name, not by "street" or "neighbourhood".
+        assertEquals(0, ReminderMatcher.byPlace(reminders, around,
+                KeywordScorer.terms("street")).size());
+        assertEquals(0, ReminderMatcher.byPlace(reminders, around,
+                KeywordScorer.terms("neighbourhood")).size());
+    }
+
+    @Test
     public void veryShortWordsDontMatchPlaces() {
         Reminder reminder = Reminder.atPlace(1, 42.35, -71.07, 200, null, Repeat.NONE).withId(10);
         Map<String, List<NearbyPlace>> around =

@@ -88,9 +88,11 @@ containing the query's words, ignoring case and accents and leaving out common w
   When a location reminder is set, the app asks OpenStreetMap what is within its circle (up to
   500 m from the pin): the nearest 40 named shops, schools, landmarks and the like, 8 streets,
   and the neighbourhood. "Target" finds a reminder next to a Target; "pharmacy" or "drugstore"
-  finds one near a CVS, because each kind of place carries the words people use for it. A kind
-  only counts when it accounts for the whole query, so "gift for Mom" doesn't find a reminder
-  near a gift shop.
+  finds one near a CVS, because each kind of place carries its other names. What a place is
+  counts only within 100 m of the pin, only when it accounts for the whole query ("gift for Mom"
+  doesn't find a reminder near a gift shop), and with other names for the same kind of place,
+  never related topics: a city has a bank and a cleaner near everything, so "money" or
+  "laundry" would otherwise find every location reminder. Streets and areas match by name only.
 
 The result then shows the reminder as its reason: "Reminder when you arrive at Grocery store,
 near Target", or "Reminder Nov 2, 2026 9:00 AM · Mon, Wed, Fri".
