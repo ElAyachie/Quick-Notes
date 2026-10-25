@@ -210,7 +210,10 @@ the reminder's circle. They also found the search screen's example too obscure.
 ## Open items
 
 - **Pull request #5** (`reminder-actions`) is open and waiting for the owner to merge it,
-  then the search pull request, retargeted to `master`.
+  then the search pull request (#6), retargeted to `master`.
+- **Portfolio:** ElAyachie/Portfolio_Project#49 updates the Quick Notes page for search (new
+  screenshots, tour steps, How it's built). Merge it only after #5 and #6 are merged and a release
+  with search (e.g. v3.1) is tagged, since the page's Download APK serves the latest release.
 - **Search by meaning not yet seen on a real ARM phone.** On the emulator's ARM translation
   MediaPipe crashed; the crash guard limits that to one crash per app version.
 - Search by meaning is English only; "heart appointment" doesn't find the cardiology note.
