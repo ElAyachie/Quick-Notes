@@ -12,8 +12,8 @@ search (#6), merged on 2026-10-24 and released as **3.1** (version code 56, data
 
 93 JVM tests (recurrence, preset times, search ranking, time phrases, reminder matching,
 OpenStreetMap parsing) and 33 device tests (database, migrations, search quality, reminder
-search) pass. Nothing has been tested on a physical phone yet; all
-verification was on emulators.
+search) pass. 3.1 was checked on the owner's phone after release; everything else was verified on
+emulators.
 
 ## What the app does today
 
@@ -184,6 +184,10 @@ Pull requests #5 (snooze, quick times, leaving a place) and #6 (search) merged i
 The portfolio's Quick Notes page was updated for search (Portfolio_Project#49) and merged after
 the release.
 
+The owner installed 3.1 from the site on their phone on 2026-10-24 and found everything working,
+search included: the MediaPipe crash seen on the emulator was its ARM translation, not the app.
+This was the app's first test on a physical phone.
+
 ## Decisions and their reasons
 
 | Decision | Reason |
@@ -214,10 +218,6 @@ the release.
 
 ## Open items
 
-- **3.1 is the first release with search, and it hasn't been run on a real phone.** The ARM
-  build crashed inside MediaPipe on the x86_64 emulator's ARM translation. If a phone does the
-  same, the app crashes once (at the first start, when it indexes notes) and then searches by
-  words only (`CrashGuardedEmbedder`). Try it on a phone; if it crashes, look at MediaPipe first.
 - **Portfolio:** ElAyachie/Portfolio_Project#49 shows search on the Quick Notes page; merged after
   the 3.1 release, since the page's Download APK serves the latest release.
 - **Search by meaning not yet seen on a real ARM phone.** On the emulator's ARM translation
