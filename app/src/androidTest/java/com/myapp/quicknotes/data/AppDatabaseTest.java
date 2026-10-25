@@ -121,7 +121,20 @@ public class AppDatabaseTest {
         assertEquals(2.2945, stored.getLongitude(), 0.0);
         assertEquals(350f, stored.getRadiusMeters(), 0f);
         assertEquals("Shop", stored.getPlaceName());
+        assertEquals(PlaceTrigger.ARRIVING, stored.getPlaceTrigger());
         assertEquals(Repeat.EVERY_ARRIVAL, stored.getRepeat());
+    }
+
+    @Test
+    public void leavingReminderStaysALeavingReminder() {
+        long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Badge", "", Folder.DEFAULT_ID));
+        long reminderId = reminders.insert(Reminder.atPlace(noteId, 48.8584, 2.2945, 350, "Work",
+                PlaceTrigger.LEAVING, Repeat.NONE));
+
+        Reminder stored = reminders.getById(reminderId);
+
+        assertNotNull(stored);
+        assertEquals(PlaceTrigger.LEAVING, stored.getPlaceTrigger());
     }
 
     @Test

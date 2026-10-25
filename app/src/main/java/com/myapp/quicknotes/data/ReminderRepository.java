@@ -42,8 +42,9 @@ public class ReminderRepository {
 
     public void addLocationReminder(long noteId, double latitude, double longitude,
                                     float radiusMeters, @Nullable String placeName,
-                                    Repeat repeat) {
-        add(Reminder.atPlace(noteId, latitude, longitude, radiusMeters, placeName, repeat));
+                                    PlaceTrigger placeTrigger, Repeat repeat) {
+        add(Reminder.atPlace(noteId, latitude, longitude, radiusMeters, placeName, placeTrigger,
+                repeat));
     }
 
     private void add(Reminder reminder) {
@@ -99,6 +100,18 @@ public class ReminderRepository {
         if (note != null) {
             notifier.show(reminderId, note);
         }
+    }
+
+    // Brings a note's reminder back at a later time, as a new one-off time reminder. Whatever
+    // set the first one off, and whether it repeats, is left as it is. Does nothing when the
+    // note has been deleted since.
+    @WorkerThread
+    public void snooze(long noteId, long triggerAt) {
+        if (noteDao.getById(noteId) == null) {
+            return;
+        }
+        Reminder snoozed = Reminder.atTime(noteId, triggerAt, Repeat.NONE);
+        scheduler.schedule(snoozed.withId(reminderDao.insert(snoozed)));
     }
 
     // Alarms and watched places don't survive a reboot or an app update, so every reminder that

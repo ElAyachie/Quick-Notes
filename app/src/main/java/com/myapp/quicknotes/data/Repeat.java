@@ -16,7 +16,8 @@ public enum Repeat {
     // For time reminders: on chosen days of the week, like an alarm clock. Which days is stored
     // with the reminder; see DaysOfWeek.
     DAYS_OF_WEEK(null),
-    // For location reminders: again on every later arrival at the place.
+    // For location reminders: again on every later arrival at the place, or every later time it
+    // is left.
     EVERY_ARRIVAL(null);
 
     private final ChronoUnit period;

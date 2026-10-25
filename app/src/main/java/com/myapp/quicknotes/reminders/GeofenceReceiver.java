@@ -13,7 +13,7 @@ import com.myapp.quicknotes.QuickNotesApp;
 
 import java.util.List;
 
-// Runs when the device arrives at the place of one or more location reminders.
+// Runs when the device arrives at, or leaves, the place of one or more location reminders.
 public class GeofenceReceiver extends BroadcastReceiver {
     private static final String TAG = "GeofenceReceiver";
 
@@ -35,15 +35,19 @@ public class GeofenceReceiver extends BroadcastReceiver {
                     + GeofenceStatusCodes.getStatusCodeString(event.getErrorCode()));
             return;
         }
-        List<Geofence> entered = event.getTriggeringGeofences();
-        if (event.getGeofenceTransition() != Geofence.GEOFENCE_TRANSITION_ENTER || entered == null) {
+        // Each place is watched only for the crossing its reminder waits for (see
+        // ReminderScheduler), so every geofence reported here is a reminder that has come due.
+        List<Geofence> crossed = event.getTriggeringGeofences();
+        int transition = event.getGeofenceTransition();
+        if (crossed == null || (transition != Geofence.GEOFENCE_TRANSITION_ENTER
+                && transition != Geofence.GEOFENCE_TRANSITION_EXIT)) {
             return;
         }
         AppContainer container = QuickNotesApp.container(context);
         PendingResult result = goAsync();
         container.executors().io().execute(() -> {
             try {
-                for (Geofence geofence : entered) {
+                for (Geofence geofence : crossed) {
                     container.reminderRepository().fire(Long.parseLong(geofence.getRequestId()));
                 }
             } finally {

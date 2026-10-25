@@ -30,6 +30,31 @@
             android:paddingTop="20dp"
             android:paddingBottom="12dp">
 
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/place_trigger_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <Button
+                    android:id="@+id/arriving_button"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/when_i_arrive" />
+
+                <Button
+                    android:id="@+id/leaving_button"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/when_i_leave" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
             <TextView
                 android:id="@+id/status_text"
                 android:layout_width="match_parent"
