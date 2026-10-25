@@ -6,13 +6,11 @@ work is finished.
 
 ## Where things stand (2026-10-24)
 
-| Branch | Contains | State |
-|---|---|---|
-| `master` | Everything up to GitHub releases (pull requests #1, #3, #4) | On GitHub |
-| `reminder-actions` | `master` plus snooze, quick times, leaving a place (database version 5) | Pull request #5, waiting to be merged. It replaces #2, which the history rewrite closed. |
-| `semantic-search` | `reminder-actions` plus search, including reminders and nearby places (database version 7) | Pull request #6 into `reminder-actions`; retarget it to `master` once #5 is merged. |
+`master` holds everything: snooze, quick times and leaving a place (pull request #5) and
+search (#6), merged on 2026-10-24 and released as **3.1** (version code 56, database version 7).
+`reminder-actions` and `semantic-search` are fully contained in `master` and can be deleted.
 
-92 JVM tests (recurrence, preset times, search ranking, time phrases, reminder matching,
+93 JVM tests (recurrence, preset times, search ranking, time phrases, reminder matching,
 OpenStreetMap parsing) and 33 device tests (database, migrations, search quality, reminder
 search) pass. Nothing has been tested on a physical phone yet; all
 verification was on emulators.
@@ -123,7 +121,7 @@ version 5, after which the older build can no longer open it.
   `releases/latest/download/QuickNotes.apk`.
 - `.gitignore` now ignores keystores (`*.jks`, `*.keystore`, `*.p12`) and other secret files.
 
-### 2026-10-24: search by meaning (branch `semantic-search`)
+### 2026-10-24: search by meaning (pull request #6)
 
 The owner asked for semantic search as a public portfolio piece showing retrieval and vector
 search: on the phone, no cloud calls, no cost, MediaPipe's text embedder. A chat over the notes
@@ -151,7 +149,7 @@ may come later and is not part of this.
 - MediaPipe sends Google usage statistics (not note text) with no switch to turn them off. The
   owner accepted this on condition it is disclosed; it is, in `README.md`.
 
-### 2026-10-24: search through reminders and what is near them (branch `semantic-search`)
+### 2026-10-24: search through reminders and what is near them (pull request #6)
 
 The owner asked for search to cover reminders too, with the reminder shown as the reason, and
 for places to be recognised without being named: a store, street, school or landmark within
@@ -178,6 +176,13 @@ the reminder's circle. They also found the search screen's example too obscure.
   the user typed one.
 - The search screen's example is now "gift for Mom" finding a "Birthday ideas" note, the
   owner's pick; checked on the emulator (second, after a note that says "gift" and "Mom").
+
+### 2026-10-24: release 3.1
+
+Pull requests #5 (snooze, quick times, leaving a place) and #6 (search) merged into `master`, and
+3.1 (version code 56) released through the release workflow with the tag `3.1`, the way 3.0 was.
+The portfolio's Quick Notes page was updated for search (Portfolio_Project#49) and merged after
+the release.
 
 ## Decisions and their reasons
 
@@ -209,11 +214,12 @@ the reminder's circle. They also found the search screen's example too obscure.
 
 ## Open items
 
-- **Pull request #5** (`reminder-actions`) is open and waiting for the owner to merge it,
-  then the search pull request (#6), retargeted to `master`.
-- **Portfolio:** ElAyachie/Portfolio_Project#49 updates the Quick Notes page for search (new
-  screenshots, tour steps, How it's built). Merge it only after #5 and #6 are merged and a release
-  with search (e.g. v3.1) is tagged, since the page's Download APK serves the latest release.
+- **3.1 is the first release with search, and it hasn't been run on a real phone.** The ARM
+  build crashed inside MediaPipe on the x86_64 emulator's ARM translation. If a phone does the
+  same, the app crashes once (at the first start, when it indexes notes) and then searches by
+  words only (`CrashGuardedEmbedder`). Try it on a phone; if it crashes, look at MediaPipe first.
+- **Portfolio:** ElAyachie/Portfolio_Project#49 shows search on the Quick Notes page; merged after
+  the 3.1 release, since the page's Download APK serves the latest release.
 - **Search by meaning not yet seen on a real ARM phone.** On the emulator's ARM translation
   MediaPipe crashed; the crash guard limits that to one crash per app version.
 - Search by meaning is English only; "heart appointment" doesn't find the cardiology note.
