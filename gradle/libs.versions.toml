@@ -4,6 +4,7 @@ activity = "1.13.0"
 appcompat = "1.8.0"
 constraintlayout = "2.2.2"
 fragment = "1.9.1"
+json = "20240303"
 junit = "4.13.2"
 lifecycle = "2.11.0"
 material = "1.14.0"
@@ -37,6 +38,7 @@ mediapipe-tasks-text = { group = "com.google.mediapipe", name = "tasks-text", ve
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
+json = { group = "org.json", name = "json", version.ref = "json" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "testExtJunit" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "testRunner" }

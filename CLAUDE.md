@@ -22,10 +22,11 @@ Everything is under `app/src/main/java/com/myapp/quicknotes`:
 
 | Package | Contents |
 |---|---|
-| (root) | `QuickNotesApp`, `AppContainer` (builds the database, repositories and reminder classes once), `AppExecutors` (one background thread for database work, one for search, results posted to the main thread) |
-| `data` | Room: `Folder`, `Note`, `Reminder` entities, the search tables `NoteChunk` and `NoteFts` with `SearchDao`, DAOs, one repository per table. `Repeat` and `DaysOfWeek` hold the recurrence arithmetic. Repositories are the only way the UI and receivers touch data. |
+| (root) | `QuickNotesApp`, `AppContainer` (builds the database, repositories and reminder classes once), `AppExecutors` (one background thread for database work, one for search, one for the network, results posted to the main thread) |
+| `data` | Room: `Folder`, `Note`, `Reminder` entities, the search tables `NoteChunk` and `NoteFts` with `SearchDao`, the nearby-place tables `PlaceLookup` and `NearbyPlace` with `PlaceDao`, DAOs, one repository per table. `Repeat` and `DaysOfWeek` hold the recurrence arithmetic. Repositories are the only way the UI and receivers touch data. |
 | `reminders` | `ReminderScheduler` (alarms and geofences), `ReminderAlarmReceiver`, `GeofenceReceiver`, `ReminderRestoreReceiver` (reboot, app update, exact-alarm permission change), `ReminderNotifier`, `ReminderActionReceiver` (the notification's Done and snooze buttons), `LocationAccess` |
-| `search` | `SearchRepository` (indexing and searching), `TextChunker`, `UniversalSentenceEncoder` (MediaPipe) behind `Embedder`, `CrashGuardedEmbedder`, `SemanticRanker`, `KeywordScorer`, `RankFusion`, `Vectors` |
+| `search` | `SearchRepository` (indexing and searching), `TextChunker`, `UniversalSentenceEncoder` (MediaPipe) behind `Embedder`, `CrashGuardedEmbedder`, `SemanticRanker`, `KeywordScorer`, `TimeQuery` (times in a query), `ReminderMatcher` (reminders by time and place), `RankFusion`, `Vectors` |
+| `places` | `NearbyPlacesRepository` (what is near a location reminder's place), `OverpassClient` and `OverpassParser` (OpenStreetMap), `PlaceKinds` (map tags to everyday words) |
 | `ui` | `MainActivity` plus `home`, `notes`, `editor`, `placepicker`, `reminders`, `search`, `settings`, and shared helpers in `common` |
 
 ## How reminders work
@@ -50,11 +51,13 @@ These are the parts that are easy to break without knowing them:
 - **Queries and passages are embedded differently** (`embedQuery`, `embedPassage`). The Universal Sentence Encoder needs a centering vector for each, in `assets/universal_sentence_encoder_centering.json`. They come from `androidTest/assets/search_calibration.txt`, never from the evaluation set; `CenteringVectorsTest` checks them and logs new ones when they go stale.
 - **Measure before changing ranking.** `SearchQualityTest` logs hit@1, hit@3 and MRR (tag `SearchQuality`) and fails below floors. `SearchRepository.MIN_SIMILARITY` was chosen from its sweep.
 - **The full-text index `notes_fts` is kept up to date by triggers** Room declares; a migration that rebuilds `notes` must recreate them (they are in `AppDatabase.FTS_TRIGGERS`).
+- **Search also matches waiting reminders** (`ReminderMatcher`): by the times a query names (`TimeQuery`) and by their places. A place matches by the name the user gave it, a nearby place's name, or a nearby place's kind; a kind only counts when it accounts for every word of the query (time words aside).
+- **Nearby places are stored by place, not by reminder** (`PlaceLookup.keyOf`: coordinates and radius), so a repeating reminder's next occurrence keeps them. They are looked up when a location reminder is added or moved (`ReminderRepository`) and, for any missed, at app start, which also drops lookups no waiting reminder uses. Lookups go to OpenStreetMap's Overpass servers on the network thread, one at a time; the main server can take a minute. OpenStreetMap's licence needs the credit shown on the search screen.
 - **MediaPipe runs native code.** A crash there can't be caught; `CrashGuardedEmbedder` turns search by meaning off on a device where the first attempt never finished. On the x86_64 test emulator the ARM release build crashes this way under ARM translation; the debug build (x86_64 libraries) works.
 
 ## Database changes
 
-The database is at **version 6**. Any schema change needs all of:
+The database is at **version 7**. Any schema change needs all of:
 
 1. a bumped `version` in `AppDatabase` and a `Migration` added to `create()`;
 2. the exported schema file in `app/schemas/` committed (Room writes it on build);
@@ -73,6 +76,7 @@ gradlew lintDebug
 
 - JDK 17 or newer. AGP 9.4.1, Gradle 9.8.0, compile/target SDK 36, min SDK 26.
 - Dependency versions live in `gradle/libs.versions.toml`. MediaPipe stays on 0.10.35: 1.x bundles generative-AI code (about 25 MB of native library per processor type instead of 10), and 0.10.26.1 has no x86_64 build for the emulator.
+- Backing up the emulator's database before device tests (which uninstall the app): run `PRAGMA wal_checkpoint(TRUNCATE)` through `run-as ... sqlite3` first, or recent changes stay in the `-wal` file and are lost.
 - Release builds include only ARM native libraries (`abiFilters` in `app/build.gradle`), so a release APK can't be checked on the x86_64 emulator except through its ARM translation, where MediaPipe crashes.
 - The map needs `MAP_API_KEY=...` in `local.properties` (not committed).
 - `connectedDebugAndroidTest` runs on **every** connected device and uninstalls the app afterwards. Set `ANDROID_SERIAL` to the device you mean.

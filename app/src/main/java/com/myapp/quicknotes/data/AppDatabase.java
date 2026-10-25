@@ -10,8 +10,9 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(
-        entities = {Folder.class, Note.class, Reminder.class, NoteChunk.class, NoteFts.class},
-        version = 6)
+        entities = {Folder.class, Note.class, Reminder.class, NoteChunk.class, NoteFts.class,
+                PlaceLookup.class, NearbyPlace.class},
+        version = 7)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String FILE_NAME = "quicknotes.db";
 
@@ -23,11 +24,13 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract SearchDao searchDao();
 
+    public abstract PlaceDao placeDao();
+
     public static AppDatabase create(Context context) {
         return Room.databaseBuilder(context, AppDatabase.class, FILE_NAME)
                 .addCallback(SEED_DEFAULT_FOLDER)
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-                        MIGRATION_5_6)
+                        MIGRATION_5_6, MIGRATION_6_7)
                 .build();
     }
 
@@ -128,6 +131,26 @@ public abstract class AppDatabase extends RoomDatabase {
                 db.execSQL(sql);
             }
             db.execSQL("INSERT INTO notes_fts(notes_fts) VALUES ('rebuild')");
+        }
+    };
+
+    // Version 7 keeps what is around each location reminder's place, looked up from
+    // OpenStreetMap, so search can find a reminder by a shop or street near it. Existing reminders
+    // are looked up when the app starts.
+    public static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `place_lookups` ("
+                    + "`place_key` TEXT NOT NULL, `looked_up_at` INTEGER NOT NULL, "
+                    + "PRIMARY KEY(`place_key`))");
+            db.execSQL("CREATE TABLE IF NOT EXISTS `nearby_places` ("
+                    + "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                    + "`place_key` TEXT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, "
+                    + "`distance_meters` INTEGER NOT NULL, "
+                    + "FOREIGN KEY(`place_key`) REFERENCES `place_lookups`(`place_key`) "
+                    + "ON UPDATE NO ACTION ON DELETE CASCADE )");
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_nearby_places_place_key` "
+                    + "ON `nearby_places` (`place_key`)");
         }
     };
 

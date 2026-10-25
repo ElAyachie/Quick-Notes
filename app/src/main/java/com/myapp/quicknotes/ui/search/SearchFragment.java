@@ -84,6 +84,7 @@ public class SearchFragment extends Fragment {
         viewModel.getResults().observe(getViewLifecycleOwner(), results -> {
             adapter.submitList(results);
             showEmptyState(results);
+            showOsmCredit(results);
             showStatus();
         });
         viewModel.isIndexing().observe(getViewLifecycleOwner(), indexing -> {
@@ -99,6 +100,19 @@ public class SearchFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    // Credit OpenStreetMap while a result shows a place recognised from its data.
+    private void showOsmCredit(List<SearchResult> results) {
+        boolean shown = false;
+        for (SearchResult result : results) {
+            if (result.getReminderMatch() != null
+                    && result.getReminderMatch().nearbyName != null) {
+                shown = true;
+                break;
+            }
+        }
+        binding.osmCredit.setVisibility(shown ? View.VISIBLE : View.GONE);
     }
 
     private void showEmptyState(List<SearchResult> results) {

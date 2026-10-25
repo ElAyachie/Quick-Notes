@@ -1,6 +1,7 @@
 package com.myapp.quicknotes.data;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -83,6 +84,40 @@ public class AppDatabaseTest {
 
         notes.deleteById(noteId);
         assertEquals(0, search.findNotesMatching("dent*").size());
+    }
+
+    @Test
+    public void aNewLookupReplacesThePlacesFoundBefore() {
+        PlaceDao places = database.placeDao();
+        String key = PlaceLookup.keyOf(42.35, -71.07, 200);
+        places.saveLookup(new PlaceLookup(key, 1), Arrays.asList(
+                new NearbyPlace(0, key, "Old cafe", "café", 50)));
+
+        places.saveLookup(new PlaceLookup(key, 2), Arrays.asList(
+                new NearbyPlace(0, key, "Walgreens", "pharmacy", 80),
+                new NearbyPlace(0, key, "Back Bay", "neighbourhood", 0)));
+
+        List<NearbyPlace> found = places.getNearby(Arrays.asList(key));
+        assertEquals(2, found.size());
+        // Nearest first.
+        assertEquals("Back Bay", found.get(0).getName());
+    }
+
+    @Test
+    public void lookupsNoReminderUsesAreForgottenWithTheirPlaces() {
+        PlaceDao places = database.placeDao();
+        String kept = PlaceLookup.keyOf(42.35, -71.07, 200);
+        String unused = PlaceLookup.keyOf(40.71, -74.0, 500);
+        places.saveLookup(new PlaceLookup(kept, 1),
+                Arrays.asList(new NearbyPlace(0, kept, "Walgreens", "pharmacy", 80)));
+        places.saveLookup(new PlaceLookup(unused, 1),
+                Arrays.asList(new NearbyPlace(0, unused, "Deli", "fast food", 30)));
+
+        places.deleteLookupsExcept(Arrays.asList(kept));
+
+        assertTrue(places.isLookedUp(kept));
+        assertFalse(places.isLookedUp(unused));
+        assertEquals(0, places.getNearby(Arrays.asList(unused)).size());
     }
 
     @Test

@@ -9,6 +9,8 @@ import com.myapp.quicknotes.data.AppDatabase;
 import com.myapp.quicknotes.data.FolderRepository;
 import com.myapp.quicknotes.data.NoteRepository;
 import com.myapp.quicknotes.data.ReminderRepository;
+import com.myapp.quicknotes.places.NearbyPlacesRepository;
+import com.myapp.quicknotes.places.OverpassClient;
 import com.myapp.quicknotes.reminders.ReminderNotifier;
 import com.myapp.quicknotes.reminders.ReminderScheduler;
 import com.myapp.quicknotes.search.CrashGuardedEmbedder;
@@ -24,6 +26,7 @@ public class AppContainer {
     private final NoteRepository noteRepository;
     private final ReminderRepository reminderRepository;
     private final SearchRepository searchRepository;
+    private final NearbyPlacesRepository nearbyPlacesRepository;
 
     AppContainer(Context appContext) {
         AppDatabase database = AppDatabase.create(appContext);
@@ -37,9 +40,11 @@ public class AppContainer {
                 executors);
         noteRepository = new NoteRepository(database.noteDao(), database.reminderDao(),
                 reminderScheduler, searchRepository, executors);
+        nearbyPlacesRepository = new NearbyPlacesRepository(
+                database.placeDao(), database.reminderDao(), new OverpassClient(), executors);
         reminderRepository = new ReminderRepository(
                 database.reminderDao(), database.noteDao(), reminderScheduler, reminderNotifier,
-                executors);
+                nearbyPlacesRepository, executors);
     }
 
     private static long appVersion(Context context) {
@@ -77,5 +82,9 @@ public class AppContainer {
 
     public SearchRepository searchRepository() {
         return searchRepository;
+    }
+
+    public NearbyPlacesRepository nearbyPlacesRepository() {
+        return nearbyPlacesRepository;
     }
 }

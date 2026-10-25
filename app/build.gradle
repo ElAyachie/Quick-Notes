@@ -100,6 +100,8 @@ dependencies {
     implementation libs.play.services.maps
 
     testImplementation libs.junit
+    // The real org.json, for parsing in JVM tests; Android's own is only a stub there.
+    testImplementation libs.json
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.test.runner
 }

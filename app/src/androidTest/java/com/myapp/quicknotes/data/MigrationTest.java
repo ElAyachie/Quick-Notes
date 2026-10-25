@@ -1,8 +1,10 @@
 package com.myapp.quicknotes.data;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,6 +24,8 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 
 @RunWith(AndroidJUnit4.class)
 public class MigrationTest {
@@ -174,13 +178,39 @@ public class MigrationTest {
         assertEquals(0, search.getAllChunks().size());
     }
 
+    @Test
+    public void version6RemindersKeepWorkingAndGetPlaceTables() throws Exception {
+        SQLiteDatabase v6 = createDatabaseAtVersion(6);
+        v6.execSQL("INSERT INTO folders (id, name) VALUES (1, 'Unclassified')");
+        v6.execSQL("INSERT INTO notes (id, folder_id, title, content, created_at, updated_at) "
+                + "VALUES (7, 1, 'Prescription', 'Pick it up', 100, 200)");
+        v6.execSQL("INSERT INTO reminders "
+                + "(id, note_id, type, latitude, longitude, radius_meters, repeat, repeat_days, "
+                + "place_trigger) "
+                + "VALUES (9, 7, 'LOCATION', 42.35, -71.07, 200, 'NONE', 0, 'ARRIVING')");
+        v6.close();
+
+        AppDatabase database = openMigrated();
+        Reminder reminder = database.reminderDao().getById(9);
+        assertNotNull(reminder);
+        PlaceDao places = database.placeDao();
+
+        // Nothing looked up yet; the app does that when it starts.
+        assertFalse(places.isLookedUp(reminder.placeKey()));
+        places.saveLookup(new PlaceLookup(reminder.placeKey(), 1000), Arrays.asList(
+                new NearbyPlace(0, reminder.placeKey(), "Walgreens", "pharmacy", 80)));
+        assertTrue(places.isLookedUp(reminder.placeKey()));
+        assertEquals(1, database.searchDao()
+                .getNearbyPlaces(Collections.singletonList(reminder.placeKey())).size());
+    }
+
     // Opening the database runs the migrations. Room then compares the resulting tables with the
     // current entities and throws if they differ.
     private AppDatabase openMigrated() {
         migrated = Room.databaseBuilder(context, AppDatabase.class, TEST_DB)
                 .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3,
                         AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5,
-                        AppDatabase.MIGRATION_5_6)
+                        AppDatabase.MIGRATION_5_6, AppDatabase.MIGRATION_6_7)
                 .build();
         return migrated;
     }

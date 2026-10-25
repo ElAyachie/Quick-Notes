@@ -10,31 +10,41 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.myapp.quicknotes.AppExecutors;
 import com.myapp.quicknotes.data.IndexedNote;
+import com.myapp.quicknotes.data.NearbyPlace;
 import com.myapp.quicknotes.data.Note;
 import com.myapp.quicknotes.data.NoteChunk;
 import com.myapp.quicknotes.data.NoteWithFolder;
+import com.myapp.quicknotes.data.Reminder;
+import com.myapp.quicknotes.data.ReminderType;
 import com.myapp.quicknotes.data.SearchDao;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.ZoneId;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-// Search over all notes, by meaning and by words at once.
+// Search over all notes, by meaning, by words and by their reminders at once.
 //
 // Indexing: when a note is saved, its text is split into passages (TextChunker) and each passage
 // is embedded and stored (note_chunks). The words are indexed by SQLite's full-text index, which
-// keeps itself up to date.
+// keeps itself up to date. Location reminders' surroundings are looked up separately
+// (places.NearbyPlacesRepository).
 //
 // Searching: the query is embedded and compared with every passage (SemanticRanker), the
-// full-text index is asked for notes containing its words (KeywordScorer), and the two rankings
-// are merged (RankFusion).
+// full-text index is asked for notes containing its words (KeywordScorer), waiting reminders are
+// matched by the times the query names (TimeQuery) and by their places (ReminderMatcher), and the
+// rankings are merged (RankFusion).
 //
 // Both run on the search thread, one task at a time, so a note's passages are never written by
 // two tasks at once and the passages kept in memory need no locking.
@@ -118,32 +128,77 @@ public class SearchRepository {
         public final List<String> terms;
         public final List<SemanticRanker.Match> byMeaning;
         public final List<Long> byWords;
+        public final List<ReminderMatcher.Match> byPlace;
+        public final List<ReminderMatcher.Match> byTime;
         public final List<Long> combined;
 
-        Ranking(List<String> terms, List<SemanticRanker.Match> byMeaning, List<Long> byWords) {
+        Ranking(List<String> terms, List<SemanticRanker.Match> byMeaning, List<Long> byWords,
+                List<ReminderMatcher.Match> byPlace, List<ReminderMatcher.Match> byTime) {
             this.terms = terms;
             this.byMeaning = byMeaning;
             this.byWords = byWords;
+            this.byPlace = byPlace;
+            this.byTime = byTime;
             List<Long> meaningIds = new ArrayList<>();
             for (SemanticRanker.Match match : byMeaning) {
                 meaningIds.add(match.noteId);
             }
             // Words go first, so they win ties: a note containing the very word searched for is a
             // surer answer than the model's best guess. "4471" should find "Ticket #4471" first.
-            this.combined = RankFusion.fuse(Arrays.asList(byWords, meaningIds));
+            // Reminders come next: a reminder at the very place or time asked about is as sure.
+            this.combined = RankFusion.fuse(Arrays.asList(
+                    byWords, noteIds(byPlace), noteIds(byTime), meaningIds));
+        }
+
+        // Why a note was found through one of its reminders, if it was.
+        @Nullable
+        public ReminderMatcher.Match reminderMatchFor(long noteId) {
+            for (List<ReminderMatcher.Match> matches : Arrays.asList(byPlace, byTime)) {
+                for (ReminderMatcher.Match match : matches) {
+                    if (match.noteId == noteId) {
+                        return match;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static List<Long> noteIds(List<ReminderMatcher.Match> matches) {
+            List<Long> ids = new ArrayList<>();
+            for (ReminderMatcher.Match match : matches) {
+                ids.add(match.noteId);
+            }
+            return ids;
         }
     }
 
     @WorkerThread
     public Ranking rank(String query) {
+        return rank(query, System.currentTimeMillis(), ZoneId.systemDefault());
+    }
+
+    @WorkerThread
+    Ranking rank(String query, long now, ZoneId zone) {
         List<String> terms = KeywordScorer.terms(query);
         if (terms.isEmpty()) {
-            return new Ranking(terms, new ArrayList<>(), new ArrayList<>());
+            return new Ranking(terms, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                    new ArrayList<>());
         }
+        TimeQuery.Parsed time = TimeQuery.parse(query, now, zone,
+                WeekFields.of(Locale.getDefault()).getFirstDayOfWeek());
+        List<Reminder> reminders = dao.getUpcomingReminders();
+        List<String> placeTerms = new ArrayList<>(terms);
+        placeTerms.removeAll(time.timeWords);
+        List<ReminderMatcher.Match> byPlace =
+                ReminderMatcher.byPlace(reminders, nearbyPlaces(reminders), placeTerms);
+        List<ReminderMatcher.Match> byTime =
+                ReminderMatcher.byTime(reminders, time.ranges, zone);
+
         List<SemanticRanker.Match> byMeaning = new ArrayList<>();
         // Numbers and codes ("4471", "QX7P2L") mean nothing to the model, which would still
-        // answer with whatever notes its vector happens to land near.
-        if (embedderWorks && !KeywordScorer.allContainDigits(terms)) {
+        // answer with whatever notes its vector happens to land near; nor do times ("tomorrow"),
+        // which are matched against reminders instead.
+        if (embedderWorks && !KeywordScorer.allContainDigits(terms) && !time.onlyTime) {
             float[] queryVector = embedOrGiveUp(() -> embedder.embedQuery(query.trim()));
             if (queryVector != null) {
                 byMeaning = SemanticRanker.rank(queryVector, loadPassages(), MIN_SIMILARITY);
@@ -151,7 +206,30 @@ public class SearchRepository {
         }
         List<Long> byWords = KeywordScorer.rank(
                 dao.findNotesMatching(KeywordScorer.matchQuery(terms)), terms);
-        return new Ranking(terms, byMeaning, byWords);
+        return new Ranking(terms, byMeaning, byWords, byPlace, byTime);
+    }
+
+    // The surroundings of the location reminders' places, by place key.
+    @WorkerThread
+    private Map<String, List<NearbyPlace>> nearbyPlaces(List<Reminder> reminders) {
+        Set<String> keys = new HashSet<>();
+        for (Reminder reminder : reminders) {
+            if (reminder.getType() == ReminderType.LOCATION) {
+                keys.add(reminder.placeKey());
+            }
+        }
+        Map<String, List<NearbyPlace>> byKey = new HashMap<>();
+        if (keys.isEmpty()) {
+            return byKey;
+        }
+        for (NearbyPlace place : dao.getNearbyPlaces(keys)) {
+            byKey.computeIfAbsent(place.getPlaceKey(), key -> new ArrayList<>()).add(place);
+        }
+        // Nearest first, which ReminderMatcher relies on.
+        for (List<NearbyPlace> places : byKey.values()) {
+            places.sort((a, b) -> Integer.compare(a.getDistanceMeters(), b.getDistanceMeters()));
+        }
+        return byKey;
     }
 
     @WorkerThread
@@ -175,7 +253,7 @@ public class SearchRepository {
             Note note = item.getNote();
             results.add(new SearchResult(note.getId(), note.getFolderId(), note.getTitle(),
                     item.getFolderName(), snippet(note, matches.get(id), ranking.terms),
-                    note.getUpdatedAt()));
+                    note.getUpdatedAt(), ranking.reminderMatchFor(id)));
         }
         return results;
     }

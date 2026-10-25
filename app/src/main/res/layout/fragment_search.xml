@@ -74,4 +74,16 @@
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
     </FrameLayout>
+
+    <!-- OpenStreetMap's licence asks for credit wherever its data is shown. -->
+    <TextView
+        android:id="@+id/osm_credit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="6dp"
+        android:text="@string/osm_credit"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone" />
 </LinearLayout>

@@ -22,6 +22,13 @@ public interface SearchDao {
     @Query("SELECT * FROM notes")
     List<Note> getAllNotes();
 
+    // Reminders still waiting to fire, for finding notes by their reminders' times and places.
+    @Query("SELECT * FROM reminders WHERE fired_at IS NULL")
+    List<Reminder> getUpcomingReminders();
+
+    @Query("SELECT * FROM nearby_places WHERE place_key IN (:placeKeys)")
+    List<NearbyPlace> getNearbyPlaces(Collection<String> placeKeys);
+
     @Query("SELECT * FROM note_chunks")
     List<NoteChunk> getAllChunks();
 

@@ -10,10 +10,11 @@ work is finished.
 |---|---|---|
 | `master` | Everything up to GitHub releases (pull requests #1, #3, #4) | On GitHub |
 | `reminder-actions` | `master` plus snooze, quick times, leaving a place (database version 5) | Pull request #5, waiting to be merged. It replaces #2, which the history rewrite closed. |
-| `semantic-search` | `reminder-actions` plus search (database version 6) | Pull request into `reminder-actions`; retarget it to `master` once #5 is merged. |
+| `semantic-search` | `reminder-actions` plus search, including reminders and nearby places (database version 7) | Pull request #6 into `reminder-actions`; retarget it to `master` once #5 is merged. |
 
-68 JVM tests (recurrence, preset times, search ranking) and 22 device tests (database,
-migrations, search quality) pass. Nothing has been tested on a physical phone yet; all
+92 JVM tests (recurrence, preset times, search ranking, time phrases, reminder matching,
+OpenStreetMap parsing) and 33 device tests (database, migrations, search quality, reminder
+search) pass. Nothing has been tested on a physical phone yet; all
 verification was on emulators.
 
 ## What the app does today
@@ -150,6 +151,30 @@ may come later and is not part of this.
 - MediaPipe sends Google usage statistics (not note text) with no switch to turn them off. The
   owner accepted this on condition it is disclosed; it is, in `README.md`.
 
+### 2026-10-24: search through reminders and what is near them (branch `semantic-search`)
+
+The owner asked for search to cover reminders too, with the reminder shown as the reason, and
+for places to be recognised without being named: a store, street, school or landmark within
+the reminder's circle. They also found the search screen's example too obscure.
+
+- Waiting reminders are two more rankings in the fusion. Times are read from the query
+  (`TimeQuery`: today, tomorrow, weekdays, weeks, the weekend, months, dates, parts of the day);
+  a repeating reminder counts on every day it repeats. Places match by the given name, a nearby
+  name, or a nearby kind with synonyms ("drugstore" for a pharmacy).
+- Nearby places come from OpenStreetMap's Overpass servers, the owner's choice over Google
+  Places (billing, a key in the public APK) and Android's geocoder (no shops). Only coordinates
+  and radius are sent. Stored in `place_lookups` and `nearby_places`, keyed by place. Database
+  version 7. On the test emulator the three sample places were looked up in about 90 seconds,
+  about 50 places each: Target and CVS by the grocery reminder, Copley station by the library.
+- A first check showed "gift for Mom" finding the grocery note because a gift shop was near
+  it; a kind now counts only when it accounts for the whole query.
+- Results show the reminder: "Reminder when you arrive at Grocery store, near Target",
+  "Reminder Nov 2, 2026 9:00 AM · Mon, Wed, Fri", with OpenStreetMap credited below.
+- Tapping a shop or landmark icon in the place picker chooses it and fills in its name, unless
+  the user typed one.
+- The search screen's example is now "gift for Mom" finding a "Birthday ideas" note, the
+  owner's pick; checked on the emulator (second, after a note that says "gift" and "Mom").
+
 ## Decisions and their reasons
 
 | Decision | Reason |
@@ -173,6 +198,9 @@ may come later and is not part of this.
 | Search built on `reminder-actions` | The owner wanted search as an add-on to everything built so far; this avoids two branches both claiming database version 5. |
 | Words and meaning merged by rank, not score | A cosine similarity and a word count aren't on the same scale; reciprocal rank fusion needs only positions. |
 | Every passage compared, no vector index | Thousands of 100-number vectors compare faster than the query embeds. |
+| Nearby places from OpenStreetMap | The owner's choice: free, no key, shops and schools by name. Google Places needs billing and a key in the APK; the geocoder knows streets but not shops. |
+| Nearby places kept by place, not reminder | A repeating reminder continues as new rows at the same place; two notes can share a place. |
+| Nearby places looked up within 500 m at most | A 2 km circle in a city holds thousands of places; the nearest say where the place is. |
 | Centering vectors from separate calibration texts | Computing them from the evaluation set would have made the measured quality meaningless. |
 
 ## Open items
@@ -185,6 +213,9 @@ may come later and is not part of this.
   EmbeddingGemma would do better at 184 MB.
 - The minimum similarity (0.25) was tuned on the evaluation set; a larger set would give
   firmer numbers.
+- Overpass's public servers can be slow or busy; a reminder set while they are down is found
+  by place only after a later app start. Place coverage depends on OpenStreetMap's mapping.
+- Times in searches are English only, like search by meaning.
 - R8 is off (`minifyEnabled false`); turning it on would shrink the APK but needs keep rules
   for MediaPipe.
 - The place picker's map crashed once on the test emulator, inside Google's legacy map

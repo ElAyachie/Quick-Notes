@@ -234,6 +234,16 @@ public class Reminder {
         return firedAt != null;
     }
 
+    // For a LOCATION reminder, the key its place's surroundings are stored under (PlaceLookup).
+    @NonNull
+    public String placeKey() {
+        if (type != ReminderType.LOCATION) {
+            throw new IllegalStateException("Only a location reminder has a place");
+        }
+        return PlaceLookup.keyOf(Objects.requireNonNull(latitude),
+                Objects.requireNonNull(longitude), Objects.requireNonNull(radiusMeters));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,10 +1,12 @@
 package com.myapp.quicknotes.search;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-// A note found by a search, with the passage that best explains why.
+// A note found by a search, with the passage that best explains why, and the reminder if it was
+// found through one.
 public class SearchResult {
     private final long noteId;
     private final long folderId;
@@ -15,15 +17,19 @@ public class SearchResult {
     @NonNull
     private final String snippet;
     private final long updatedAt;
+    @Nullable
+    private final ReminderMatcher.Match reminderMatch;
 
     public SearchResult(long noteId, long folderId, @NonNull String title,
-                        @NonNull String folderName, @NonNull String snippet, long updatedAt) {
+                        @NonNull String folderName, @NonNull String snippet, long updatedAt,
+                        @Nullable ReminderMatcher.Match reminderMatch) {
         this.noteId = noteId;
         this.folderId = folderId;
         this.title = title;
         this.folderName = folderName;
         this.snippet = snippet;
         this.updatedAt = updatedAt;
+        this.reminderMatch = reminderMatch;
     }
 
     public long getNoteId() {
@@ -53,6 +59,11 @@ public class SearchResult {
         return updatedAt;
     }
 
+    @Nullable
+    public ReminderMatcher.Match getReminderMatch() {
+        return reminderMatch;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -63,11 +74,13 @@ public class SearchResult {
                 && updatedAt == other.updatedAt
                 && title.equals(other.title)
                 && folderName.equals(other.folderName)
-                && snippet.equals(other.snippet);
+                && snippet.equals(other.snippet)
+                && Objects.equals(reminderMatch, other.reminderMatch);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(noteId, folderId, title, folderName, snippet, updatedAt);
+        return Objects.hash(noteId, folderId, title, folderName, snippet, updatedAt,
+                reminderMatch);
     }
 }

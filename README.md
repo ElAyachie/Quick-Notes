@@ -19,8 +19,12 @@ A note-taking app for Android whose notes can remind you of themselves.
 - **Snooze** — a reminder's notification has "Done", "In 10 min" and "In 1 hour" buttons,
   so it can be put off without opening the app.
 - **Search** — across all folders, by words and by meaning: "doctor" finds a note about a
-  cardiology appointment that never uses the word. It runs entirely on the phone. See
+  cardiology appointment that never uses the word. It also searches reminders: "tomorrow"
+  finds what is due tomorrow, and "Target" or "pharmacy" finds a note whose location reminder
+  is near one, even if you never named the place. Each result says why it was found. See
   [How search works](#how-search-works).
+- **Place picker shortcuts** — tapping a shop or landmark's icon on the map chooses it and
+  fills in its name.
 - **Reminders screen** — "Upcoming" lists the reminders still waiting; tap one to edit
   it, open its note or delete it. "History" lists the ones that have fired.
 - Reminders survive a reboot.
@@ -43,9 +47,10 @@ Java, XML layouts, a single activity. Everything lives under
 
 | Package | What's in it |
 |---|---|
-| `data` | The Room database: `Folder`, `Note` and `Reminder` tables, the search tables (`NoteChunk`, `NoteFts`), their DAOs, and one repository per table. Repositories are the only way the rest of the app touches data. |
+| `data` | The Room database: `Folder`, `Note` and `Reminder` tables, the search tables (`NoteChunk`, `NoteFts`), the nearby-place tables (`PlaceLookup`, `NearbyPlace`), their DAOs, and one repository per table. Repositories are the only way the rest of the app touches data. |
 | `reminders` | `ReminderScheduler` hands a reminder to the system: an alarm for a time, a geofence (Google Play services) for a place. `ReminderAlarmReceiver` and `GeofenceReceiver` run when one comes due, `ReminderNotifier` shows the notification, `ReminderActionReceiver` handles the notification's buttons, `ReminderRestoreReceiver` re-schedules everything after a reboot or app update. |
-| `search` | Search by meaning and by words: splitting notes into passages, the on-device embedding model, ranking and merging. See [How search works](#how-search-works). |
+| `search` | Search by meaning, by words and by reminders: splitting notes into passages, the on-device embedding model, reading times in a query, matching reminders, ranking and merging. See [How search works](#how-search-works). |
+| `places` | Looking up what is near a location reminder's place on OpenStreetMap. |
 | `ui` | `MainActivity` owns the toolbar; each screen is a fragment with a view model (`home`, `notes`, `editor`, `placepicker`, `reminders`, `search`, `settings`). Screens are wired together in `res/navigation/nav_graph.xml`. |
 | (root) | `QuickNotesApp` and `AppContainer` build the database, repositories and reminder classes once and share them. |
 
@@ -73,11 +78,28 @@ passage; a note scores as well as its best passage, and that passage is shown in
 containing the query's words, ignoring case and accents and leaving out common words like
 "the". This catches what a language model can't know: names, ticket numbers, codes.
 
+**By reminders.** Waiting reminders are a third and fourth ranking:
+
+- *Times.* The query is read for times: today, tonight, tomorrow, a weekday, this or next week,
+  the weekend, a month, a date like "Oct 30", optionally with morning, afternoon, evening or
+  night. A time reminder due within one matches, and a repeating one counts on every day it
+  repeats, so "Friday" finds a reminder set for Mon, Wed, Fri.
+- *Places.* A location reminder matches by the name you gave its place, or by what is near it.
+  When a location reminder is set, the app asks OpenStreetMap what is within its circle (up to
+  500 m from the pin): the nearest 40 named shops, schools, landmarks and the like, 8 streets,
+  and the neighbourhood. "Target" finds a reminder next to a Target; "pharmacy" or "drugstore"
+  finds one near a CVS, because each kind of place carries the words people use for it. A kind
+  only counts when it accounts for the whole query, so "gift for Mom" doesn't find a reminder
+  near a gift shop.
+
+The result then shows the reminder as its reason: "Reminder when you arrive at Grocery store,
+near Target", or "Reminder Nov 2, 2026 9:00 AM · Mon, Wed, Fri".
+
 **Merged** by [reciprocal rank fusion](https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf):
 each note scores 1/(60 + its position) in each ranking. Positions rather than scores, so a
 cosine similarity never has to be weighed against a word count, and a note both rankings found
-rises to the top. On a tie the word match goes first. A query made only of numbers or codes
-skips the meaning ranking.
+rises to the top. On a tie the word match goes first, then reminders, then meaning. A query
+made only of numbers, codes or times skips the meaning ranking.
 
 **No vector database.** The query is compared with every stored vector. For a few thousand
 passages of 100 numbers that is a few hundred thousand multiplications, a fraction of the time
@@ -115,7 +137,14 @@ two.
 
 ### Privacy and size
 
-Note text never leaves the phone. MediaPipe does send Google anonymous usage statistics about
+Note text never leaves the phone. Two things do go over the network:
+
+- When a location reminder is set, its place's coordinates and radius are sent to
+  OpenStreetMap's public [Overpass](https://wiki.openstreetmap.org/wiki/Overpass_API) servers
+  to find what is nearby: once per place, and again only if the place moves. The servers are
+  free and need no key, but can be slow; a lookup that fails is tried again at the next start.
+  Place data is © OpenStreetMap contributors, credited on the search screen when it is shown.
+- MediaPipe sends Google anonymous usage statistics about
 the model (how often it runs, how long it takes), as its
 [privacy notice](https://developers.google.com/edge/mediapipe/solutions/tasks#mediapipe_tasks_privacy_notice)
 describes; the library offers no way to turn this off.

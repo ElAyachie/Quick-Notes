@@ -19,6 +19,9 @@ public class QuickNotesApp extends Application {
         container.executors().io().execute(container.reminderRepository()::rescheduleAll);
         // Notes saved before search existed, or before an update changed the search model.
         container.searchRepository().indexAllNotes();
+        // Surroundings of location reminders not looked up yet: set while offline, or before
+        // this was added.
+        container.nearbyPlacesRepository().lookUpMissing();
     }
 
     public static AppContainer container(Context context) {

@@ -41,11 +41,19 @@
     <!-- Search -->
     <string name="search">Search</string>
     <string name="search_hint">Search notes</string>
-    <string name="search_prompt">Search by words or by meaning. \"Doctor\" also finds a note about a cardiology appointment.</string>
+    <string name="search_prompt">Search what you mean, not just the words: \"gift for Mom\" also finds your \"Birthday ideas\" note.</string>
     <string name="search_no_results">No matching notes.</string>
     <string name="search_indexing">Preparing your notes for search by meaning…</string>
     <string name="search_by_words_only">Search by meaning isn\'t available on this device. Notes are found by their words.</string>
     <string name="search_result_details">%1$s · %2$s</string>
+    <string name="search_reason_time">Reminder %1$s</string>
+    <string name="search_reason_arrive">Reminder when you arrive at %1$s</string>
+    <string name="search_reason_leave">Reminder when you leave %1$s</string>
+    <string name="search_reason_arrive_near">Reminder when you arrive near %1$s</string>
+    <string name="search_reason_leave_near">Reminder when you leave the area near %1$s</string>
+    <string name="search_reason_arrive_named_near">Reminder when you arrive at %1$s, near %2$s</string>
+    <string name="search_reason_leave_named_near">Reminder when you leave %1$s, near %2$s</string>
+    <string name="osm_credit">Nearby places © OpenStreetMap contributors</string>
 
     <!-- Reminders -->
     <string name="reminders">Reminders</string>

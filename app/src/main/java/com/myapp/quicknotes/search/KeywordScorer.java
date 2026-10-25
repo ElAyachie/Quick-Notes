@@ -131,7 +131,8 @@ public final class KeywordScorer {
         return null;
     }
 
-    private static List<String> words(String text) {
+    // The words of a text, lower case and without accents.
+    static List<String> words(String text) {
         String plain = ACCENTS.matcher(Normalizer.normalize(text, Normalizer.Form.NFD))
                 .replaceAll("").toLowerCase(Locale.ROOT);
         List<String> words = new ArrayList<>();

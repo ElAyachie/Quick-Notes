@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.myapp.quicknotes.R;
 import com.myapp.quicknotes.databinding.ItemSearchResultBinding;
+import com.myapp.quicknotes.search.ReminderMatcher;
 import com.myapp.quicknotes.search.SearchResult;
 import com.myapp.quicknotes.ui.common.Formats;
+import com.myapp.quicknotes.ui.common.ReminderText;
 
 import java.util.function.Consumer;
 
@@ -41,6 +43,14 @@ public class SearchResultAdapter extends ListAdapter<SearchResult, SearchResultA
         holder.binding.resultDetails.setText(holder.itemView.getContext().getString(
                 R.string.search_result_details, result.getFolderName(),
                 Formats.date(result.getUpdatedAt())));
+        ReminderMatcher.Match match = result.getReminderMatch();
+        holder.binding.reminderReason.setVisibility(match != null ? View.VISIBLE : View.GONE);
+        if (match != null) {
+            holder.binding.reminderReasonIcon.setImageResource(
+                    match.isByTime() ? R.drawable.ic_schedule : R.drawable.ic_place);
+            holder.binding.reminderReasonText.setText(
+                    ReminderText.searchReason(holder.itemView.getContext(), match));
+        }
         holder.itemView.setOnClickListener(view -> onClick.accept(result));
     }
 
