@@ -196,7 +196,8 @@ as "walgreens" and seeing the nearest matches, and for a list of saved places to
 - A search box floats over the map (Material `SearchBar`, opening a full-screen `SearchView`).
   Suggestions appear as the user types (after a 300 ms pause, from two letters), each with its
   address and distance from the user. Choosing one moves the pin, fills in the name (unless the
-  user typed one) and zooms so the circle fits between the search box and the panel.
+  user typed one) and zooms in to zoom 17, close enough to see the building. A first version
+  zoomed out to fit the whole circle; the owner found that too far away.
 - The owner chose Google Places (API New) over OpenStreetMap this time, despite the earlier
   OpenStreetMap choice for nearby places, because results should match Google's. The Maps key
   is reused. On 2026-10-27 **Places API (New) was not yet enabled** in the key's project
@@ -211,9 +212,7 @@ as "walgreens" and seeing the nearest matches, and for a list of saved places to
   places of past location reminders, one per spot, leaving out those within 30 m of a saved one.
   Both appear as chips under the search box and at the top of the search list.
 - Checked on the test emulator in light and dark theme: search, choosing a result, saving,
-  chips, recents, Back closing the search (a first build left the screen instead). On the
-  emulator's legacy map renderer, fitting bounds ignored the map's padding; the zoom is now
-  worked out from the free space, and the renderer seems to round it down to a whole step.
+  chips, recents, Back closing the search (a first build left the screen instead).
 - Published for the owner to try on their phone as the pre-release `3.2-beta` (version code 57),
   built by the release workflow from the branch. 3.1 stays the latest release and the site's
   download. A final 3.2 needs version code 58, or the beta won't update to it.

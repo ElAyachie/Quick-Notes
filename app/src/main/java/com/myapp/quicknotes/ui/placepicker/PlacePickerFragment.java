@@ -61,6 +61,9 @@ import java.util.function.Consumer;
 // field saves the place for next time.
 public class PlacePickerFragment extends Fragment {
     private static final float STREET_ZOOM = 15;
+    // Close enough to see the building and the streets beside it, as a map app shows a place
+    // it found. A large circle then runs off the screen; the slider shows its size.
+    private static final float CHOSEN_PLACE_ZOOM = 17;
     private static final double METERS_PER_DEGREE_OF_LATITUDE = 111_320;
     private static final int CIRCLE_MARGIN_DP = 32;
     // Zoomed out further than this, the map shows too much to say where to search.
@@ -318,7 +321,7 @@ public class PlacePickerFragment extends Fragment {
             fillInName(place.getName());
             showPlace();
             if (map != null) {
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomToFit(location)));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, CHOSEN_PLACE_ZOOM));
             }
         });
     }
@@ -509,22 +512,6 @@ public class PlacePickerFragment extends Fragment {
         if (!visible.contains(circleBounds.southwest) || !visible.contains(circleBounds.northeast)) {
             map.animateCamera(CameraUpdateFactory.newLatLngBounds(circleBounds, circleMargin()));
         }
-    }
-
-    // The zoom at which the circle fills the map between the search box and the panel. Worked out
-    // here because some versions of the map leave its padding out when fitting bounds.
-    private float zoomToFit(LatLng place) {
-        View mapView = getChildFragmentManager().findFragmentById(R.id.map).requireView();
-        float density = getResources().getDisplayMetrics().density;
-        int width = mapView.getWidth() - 2 * circleMargin();
-        int height = mapView.getHeight() - binding.mapTopControls.getBottom()
-                - getResources().getDimensionPixelSize(R.dimen.map_overlap) - 2 * circleMargin();
-        double spaceDp = Math.max(Math.min(width, height), 1) / density;
-        double diameter = 2 * viewModel.getRadiusMeters();
-        // At zoom 0 the world's 40,075 km fill 256 dp; each step halves the metres per dp.
-        double metersPerDpAtZoom0 = 156_543.034 * Math.cos(Math.toRadians(place.latitude));
-        float zoom = (float) (Math.log(metersPerDpAtZoom0 * spaceDp / diameter) / Math.log(2));
-        return Math.min(zoom, map.getMaxZoomLevel());
     }
 
     // The square around the circle drawn at this place.
