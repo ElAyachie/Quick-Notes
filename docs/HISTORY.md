@@ -226,7 +226,9 @@ model (note text leaves the phone, a server to hold the key); the owner chose ru
 interface so a model can replace them.
 
 - A microphone in the toolbar (every screen but the place picker, settings and its own) opens
-  Quick add and starts Android's speech recognizer; the keyboard works too. A card shows the
+  Quick add; the microphone in its text box starts Android's speech recognizer, and the
+  keyboard works too. (A first version started listening as soon as the screen opened; the
+  owner found that too abrupt.) A card shows the
   note, when or where, and Set reminder / Change place / Change time; nothing is saved first.
 - `RuleCommandReader` and `SpokenTime` (package `command`) read openings, exact times,
   repeats, arriving and leaving phrases, "every time", and notes. 16 tests over about 60

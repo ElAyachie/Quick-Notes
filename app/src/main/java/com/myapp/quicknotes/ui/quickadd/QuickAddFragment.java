@@ -49,9 +49,9 @@ import java.util.ArrayList;
 // screen shows what it understood (the note, and when or where it will be reminded of), and
 // nothing is saved until they confirm. A place is found the way the place picker's search finds
 // it; when it can't be, or the user wants another, the place picker opens for the new note.
-// Opened from the microphone in the toolbar, it starts listening straight away.
+// Opened from the microphone in the toolbar. It listens only when the microphone in the text box
+// is tapped; the owner found listening as soon as the screen opened too abrupt.
 public class QuickAddFragment extends Fragment {
-    private static final String ARG_START_VOICE = "startVoice";
     // A place search prefers this much around the user.
     private static final double NEARBY_METERS = 20_000;
 
@@ -124,13 +124,6 @@ public class QuickAddFragment extends Fragment {
         });
         viewModel.getState().observe(getViewLifecycleOwner(), this::show);
         findUser();
-        if (savedInstanceState == null) {
-            if (requireArguments().getBoolean(ARG_START_VOICE, true)) {
-                listen();
-            } else {
-                showKeyboard();
-            }
-        }
     }
 
     @Override

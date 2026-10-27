@@ -65,7 +65,7 @@ These are the parts that are easy to break without knowing them:
 
 ## How quick add works
 
-- **The toolbar's microphone opens `QuickAddFragment`**, which starts Android's speech recognizer (`RecognizerIntent`, no audio permission); typing works the same. The request is read on the phone by `RuleCommandReader`, English only, and shown on a card; nothing is saved until the user confirms.
+- **The toolbar's microphone opens `QuickAddFragment`**; its text box's microphone starts Android's speech recognizer (`RecognizerIntent`, no audio permission), and typing works the same. Don't start listening when the screen opens: the owner found it too abrupt. The request is read on the phone by `RuleCommandReader`, English only, and shown on a card; nothing is saved until the user confirms.
 - **Reading order matters:** the opening ("set me a location reminder", "remind me", "note to self"), then times (`SpokenTime`, which removes the words it used), then a place ("when I get to", "when I leave", "for X" after "location reminder", or "at X" only when X has a capital letter, so "look at the report" stays words). A place said with an arriving or leaving phrase wins over a time. What is left is the note.
 - **Add a sentence to `RuleCommandReaderTest` for every phrasing fixed or added.** It runs with a fixed "now" (Tuesday 27 October 2026, 2 pm, New York).
 - **A place is found** by a saved place's name, then a recent reminder's place, then place search nearest the user. Home, work, office and school are never searched for; unsaved, they send the user to the map.
