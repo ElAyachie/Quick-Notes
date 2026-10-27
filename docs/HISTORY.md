@@ -214,6 +214,9 @@ as "walgreens" and seeing the nearest matches, and for a list of saved places to
   chips, recents, Back closing the search (a first build left the screen instead). On the
   emulator's legacy map renderer, fitting bounds ignored the map's padding; the zoom is now
   worked out from the free space, and the renderer seems to round it down to a whole step.
+- Published for the owner to try on their phone as the pre-release `3.2-beta` (version code 57),
+  built by the release workflow from the branch. 3.1 stays the latest release and the site's
+  download. A final 3.2 needs version code 58, or the beta won't update to it.
 
 ## Decisions and their reasons
 
