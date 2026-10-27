@@ -10,7 +10,8 @@ name: Release APK
 #   ANDROID_KEYSTORE_BASE64    the release keystore, base64-encoded
 #   ANDROID_KEYSTORE_PASSWORD  its password (also used as the key's password)
 #   ANDROID_KEY_ALIAS          optional; defaults to "release"
-#   MAP_API_KEY                optional; Maps SDK key for the place picker. It ends up inside the
+#   MAP_API_KEY                optional; Maps SDK key for the place picker, which also needs
+#                              Places API (New) enabled for place search. It ends up inside the
 #                              public APK, so restrict it to this app's package and signing
 #                              certificate in the Google Cloud console.
 on:

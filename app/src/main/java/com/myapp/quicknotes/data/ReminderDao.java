@@ -42,6 +42,13 @@ public interface ReminderDao {
             + "WHERE notes.folder_id = :folderId ORDER BY reminders.id")
     List<Reminder> getForFolder(long folderId);
 
+    // Named places where location reminders were set, fired or not, one row per place, the most
+    // recently used first. Unnamed ones are left out: a bare pin means nothing in a list.
+    @Query("SELECT place_name AS name, latitude, longitude, MAX(id) AS last_reminder_id "
+            + "FROM reminders WHERE type = 'LOCATION' AND TRIM(IFNULL(place_name, '')) != '' "
+            + "GROUP BY latitude, longitude ORDER BY last_reminder_id DESC LIMIT :limit")
+    List<RecentPlace> getRecentPlaces(int limit);
+
     @Insert
     long insert(Reminder reminder);
 

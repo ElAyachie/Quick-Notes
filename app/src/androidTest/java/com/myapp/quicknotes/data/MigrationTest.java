@@ -204,13 +204,34 @@ public class MigrationTest {
                 .getNearbyPlaces(Collections.singletonList(reminder.placeKey())).size());
     }
 
+    @Test
+    public void version7RemindersKeepWorkingAndGetSavedPlaces() throws Exception {
+        SQLiteDatabase v7 = createDatabaseAtVersion(7);
+        v7.execSQL("INSERT INTO folders (id, name) VALUES (1, 'Unclassified')");
+        v7.execSQL("INSERT INTO notes (id, folder_id, title, content, created_at, updated_at) "
+                + "VALUES (7, 1, 'Groceries', 'Milk', 100, 200)");
+        v7.execSQL("INSERT INTO reminders "
+                + "(id, note_id, type, latitude, longitude, radius_meters, place_name, repeat, "
+                + "repeat_days, place_trigger) "
+                + "VALUES (9, 7, 'LOCATION', 42.35, -71.07, 200, 'Market', 'NONE', 0, 'ARRIVING')");
+        v7.close();
+
+        AppDatabase database = openMigrated();
+
+        assertNotNull(database.reminderDao().getById(9));
+        // The reminder's place is offered as a recent one.
+        assertEquals("Market", database.reminderDao().getRecentPlaces(5).get(0).getName());
+        assertTrue(database.savedPlaceDao().insert(new SavedPlace("Home", 42.35, -71.08)) > 0);
+    }
+
     // Opening the database runs the migrations. Room then compares the resulting tables with the
     // current entities and throws if they differ.
     private AppDatabase openMigrated() {
         migrated = Room.databaseBuilder(context, AppDatabase.class, TEST_DB)
                 .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3,
                         AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5,
-                        AppDatabase.MIGRATION_5_6, AppDatabase.MIGRATION_6_7)
+                        AppDatabase.MIGRATION_5_6, AppDatabase.MIGRATION_6_7,
+                        AppDatabase.MIGRATION_7_8)
                 .build();
         return migrated;
     }

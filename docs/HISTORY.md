@@ -188,6 +188,33 @@ The owner installed 3.1 from the site on their phone on 2026-10-24 and found eve
 search included: the MediaPipe crash seen on the emulator was its ARM translation, not the app.
 This was the app's first test on a physical phone.
 
+### 2026-10-27: place search and saved places (branch `place-search`)
+
+The owner asked for the place picker to work like Google Maps, typing an address or a name such
+as "walgreens" and seeing the nearest matches, and for a list of saved places to tap.
+
+- A search box floats over the map (Material `SearchBar`, opening a full-screen `SearchView`).
+  Suggestions appear as the user types (after a 300 ms pause, from two letters), each with its
+  address and distance from the user. Choosing one moves the pin, fills in the name (unless the
+  user typed one) and zooms so the circle fits between the search box and the panel.
+- The owner chose Google Places (API New) over OpenStreetMap this time, despite the earlier
+  OpenStreetMap choice for nearby places, because results should match Google's. The Maps key
+  is reused. On 2026-10-27 **Places API (New) was not yet enabled** in the key's project
+  (41690723671), so Google answered 403 and everything was checked through the fallback:
+  OpenStreetMap's Photon (free, no key). The Google path is covered by parser tests against
+  Google's documented format only, not yet by a live request.
+- Photon's own order mixed CVS stores 33 and 43 km away among ones 4 km away, so its results
+  (20 asked for, 8 shown) are sorted nearest first. "cvs" from Copley Square then started at
+  468 m. Google's order is kept.
+- Saved places: a table `saved_places` (database version 8) with name and position, saved by
+  the bookmark in the name field, renamed or removed by a long press. Recent places are the named
+  places of past location reminders, one per spot, leaving out those within 30 m of a saved one.
+  Both appear as chips under the search box and at the top of the search list.
+- Checked on the test emulator in light and dark theme: search, choosing a result, saving,
+  chips, recents, Back closing the search (a first build left the screen instead). On the
+  emulator's legacy map renderer, fitting bounds ignored the map's padding; the zoom is now
+  worked out from the free space, and the renderer seems to round it down to a whole step.
+
 ## Decisions and their reasons
 
 | Decision | Reason |
@@ -215,6 +242,9 @@ This was the app's first test on a physical phone.
 | Nearby places kept by place, not reminder | A repeating reminder continues as new rows at the same place; two notes can share a place. |
 | Nearby places looked up within 500 m at most | A 2 km circle in a city holds thousands of places; the nearest say where the place is. |
 | Centering vectors from separate calibration texts | Computing them from the evaluation set would have made the measured quality meaningless. |
+| Google Places for the picker's search | The owner's choice: results like Google Maps'. Photon (OpenStreetMap) stands in when Google fails, so search works without the API. |
+| Photon results sorted by distance, Google's not | Photon weighs fame about as much as nearness; Google's order already prefers the area and also weighs how well the text matches. |
+| Saved places keep no radius | How close counts belongs to each reminder; a saved place is only a spot and a name. |
 
 ## Open items
 
@@ -240,7 +270,9 @@ This was the app's first test on a physical phone.
   Console before an update with location reminders is approved.
 - **Not tested on a real phone.** On a device, a geofence notification can lag a few
   minutes behind arriving.
-- No address search on the map; unnamed places show as coordinates.
+- **Places API (New) to enable** for the Maps key's project, and to add to the key's API
+  restrictions if it has any. Until then place search uses OpenStreetMap.
+- Unnamed places still show as coordinates.
 - No "clear history"; entries are removed one at a time. Deleting a note removes its
   history entries.
 - If location permission is revoked later, location reminders stop firing with no

@@ -40,6 +40,29 @@ public class AppDatabaseTest {
     }
 
     @Test
+    public void recentPlacesAreNamedPlacesOncePerSpotNewestFirst() {
+        long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Errands", "", Folder.DEFAULT_ID));
+        reminders.insert(Reminder.atPlace(noteId, 42.35, -71.08, 200, "Gym", Repeat.NONE));
+        // A repeating reminder continues as new rows at the same spot.
+        reminders.insert(Reminder.atPlace(noteId, 42.36, -71.06, 200, "Pharmacy", Repeat.NONE));
+        reminders.insert(Reminder.atPlace(noteId, 42.36, -71.06, 200, "Pharmacy", Repeat.NONE));
+        // A pin without a name, and a time reminder, aren't places to offer.
+        reminders.insert(Reminder.atPlace(noteId, 42.37, -71.05, 200, null, Repeat.NONE));
+        reminders.insert(Reminder.atPlace(noteId, 42.38, -71.04, 200, "  ", Repeat.NONE));
+        reminders.insert(Reminder.atTime(noteId, 1000, Repeat.NONE));
+        reminders.insert(Reminder.atPlace(noteId, 42.39, -71.03, 200, "Library", Repeat.NONE));
+
+        List<RecentPlace> recent = reminders.getRecentPlaces(5);
+
+        assertEquals(3, recent.size());
+        assertEquals("Library", recent.get(0).getName());
+        assertEquals("Pharmacy", recent.get(1).getName());
+        assertEquals(42.36, recent.get(1).getLatitude(), 1e-9);
+        assertEquals("Gym", recent.get(2).getName());
+        assertEquals(2, reminders.getRecentPlaces(2).size());
+    }
+
+    @Test
     public void deletingANoteDeletesItsSearchPassages() {
         long noteId = notes.insert(Note.blank(Folder.DEFAULT_ID).edited("Vet", "Shots", Folder.DEFAULT_ID));
         SearchDao search = database.searchDao();

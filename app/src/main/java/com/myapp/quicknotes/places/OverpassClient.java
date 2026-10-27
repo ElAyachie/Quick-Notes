@@ -9,12 +9,7 @@ import com.myapp.quicknotes.data.NearbyPlace;
 
 import org.json.JSONException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -29,8 +24,6 @@ public class OverpassClient {
             "https://overpass-api.de/api/interpreter",
             "https://overpass.private.coffee/api/interpreter",
     };
-    private static final String USER_AGENT =
-            "QuickNotes (+https://github.com/ElAyachie/Quick-Notes)";
     private static final int CONNECT_TIMEOUT_MS = 15_000;
     private static final int READ_TIMEOUT_MS = 75_000;
 
@@ -53,34 +46,9 @@ public class OverpassClient {
     }
 
     private static String post(String server, String query) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(server).openConnection();
-        try {
-            connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
-            connection.setReadTimeout(READ_TIMEOUT_MS);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("User-Agent", USER_AGENT);
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setDoOutput(true);
-            byte[] body = ("data=" + URLEncoder.encode(query, "UTF-8"))
-                    .getBytes(StandardCharsets.UTF_8);
-            try (OutputStream out = connection.getOutputStream()) {
-                out.write(body);
-            }
-            int status = connection.getResponseCode();
-            if (status != HttpURLConnection.HTTP_OK) {
-                throw new IOException("HTTP " + status);
-            }
-            try (InputStream in = connection.getInputStream()) {
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                byte[] buffer = new byte[16_384];
-                int read;
-                while ((read = in.read(buffer)) != -1) {
-                    bytes.write(buffer, 0, read);
-                }
-                return bytes.toString(StandardCharsets.UTF_8.name());
-            }
-        } finally {
-            connection.disconnect();
-        }
+        byte[] body = ("data=" + URLEncoder.encode(query, "UTF-8"))
+                .getBytes(StandardCharsets.UTF_8);
+        return Http.post(server, Http.noHeaders(), "application/x-www-form-urlencoded", body,
+                CONNECT_TIMEOUT_MS, READ_TIMEOUT_MS);
     }
 }

@@ -9,8 +9,12 @@ import com.myapp.quicknotes.data.AppDatabase;
 import com.myapp.quicknotes.data.FolderRepository;
 import com.myapp.quicknotes.data.NoteRepository;
 import com.myapp.quicknotes.data.ReminderRepository;
+import com.myapp.quicknotes.data.SavedPlaceRepository;
+import com.myapp.quicknotes.places.GooglePlacesClient;
 import com.myapp.quicknotes.places.NearbyPlacesRepository;
 import com.myapp.quicknotes.places.OverpassClient;
+import com.myapp.quicknotes.places.PhotonClient;
+import com.myapp.quicknotes.places.PlaceSearchRepository;
 import com.myapp.quicknotes.reminders.ReminderNotifier;
 import com.myapp.quicknotes.reminders.ReminderScheduler;
 import com.myapp.quicknotes.search.CrashGuardedEmbedder;
@@ -27,6 +31,8 @@ public class AppContainer {
     private final ReminderRepository reminderRepository;
     private final SearchRepository searchRepository;
     private final NearbyPlacesRepository nearbyPlacesRepository;
+    private final SavedPlaceRepository savedPlaceRepository;
+    private final PlaceSearchRepository placeSearchRepository;
 
     AppContainer(Context appContext) {
         AppDatabase database = AppDatabase.create(appContext);
@@ -45,6 +51,9 @@ public class AppContainer {
         reminderRepository = new ReminderRepository(
                 database.reminderDao(), database.noteDao(), reminderScheduler, reminderNotifier,
                 nearbyPlacesRepository, executors);
+        savedPlaceRepository = new SavedPlaceRepository(database.savedPlaceDao(), executors);
+        placeSearchRepository = new PlaceSearchRepository(
+                new GooglePlacesClient(appContext), new PhotonClient(), executors);
     }
 
     private static long appVersion(Context context) {
@@ -86,5 +95,13 @@ public class AppContainer {
 
     public NearbyPlacesRepository nearbyPlacesRepository() {
         return nearbyPlacesRepository;
+    }
+
+    public SavedPlaceRepository savedPlaceRepository() {
+        return savedPlaceRepository;
+    }
+
+    public PlaceSearchRepository placeSearchRepository() {
+        return placeSearchRepository;
     }
 }

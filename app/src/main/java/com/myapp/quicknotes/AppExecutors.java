@@ -8,11 +8,13 @@ import java.util.concurrent.Executors;
 
 // Where work runs: database access on one background thread, results back on the main thread.
 // Search has a thread of its own, so embedding a long note never holds up saving another, and so
-// do requests over the network, which can take a minute.
+// do requests over the network, which can take a minute. Searching for a place has a network
+// thread of its own, so the user's typing never waits behind a slow lookup.
 public class AppExecutors {
     private final Executor io = Executors.newSingleThreadExecutor();
     private final Executor search = Executors.newSingleThreadExecutor();
     private final Executor network = Executors.newSingleThreadExecutor();
+    private final Executor placeSearch = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public Executor io() {
@@ -25,6 +27,10 @@ public class AppExecutors {
 
     public Executor network() {
         return network;
+    }
+
+    public Executor placeSearch() {
+        return placeSearch;
     }
 
     public void runOnMain(Runnable task) {

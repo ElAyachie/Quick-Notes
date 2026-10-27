@@ -40,6 +40,13 @@ public class ReminderRepository {
         return reminderDao.observeHistory();
     }
 
+    public void loadRecentPlaces(int limit, Consumer<List<RecentPlace>> onLoaded) {
+        executors.io().execute(() -> {
+            List<RecentPlace> places = reminderDao.getRecentPlaces(limit);
+            executors.runOnMain(() -> onLoaded.accept(places));
+        });
+    }
+
     public void addTimeReminder(long noteId, long triggerAt, Repeat repeat, int repeatDays) {
         add(Reminder.atTime(noteId, triggerAt, repeat, repeatDays));
     }
