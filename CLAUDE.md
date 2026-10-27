@@ -27,7 +27,8 @@ Everything is under `app/src/main/java/com/myapp/quicknotes`:
 | `reminders` | `ReminderScheduler` (alarms and geofences), `ReminderAlarmReceiver`, `GeofenceReceiver`, `ReminderRestoreReceiver` (reboot, app update, exact-alarm permission change), `ReminderNotifier`, `ReminderActionReceiver` (the notification's Done and snooze buttons), `LocationAccess` |
 | `search` | `SearchRepository` (indexing and searching), `TextChunker`, `UniversalSentenceEncoder` (MediaPipe) behind `Embedder`, `CrashGuardedEmbedder`, `SemanticRanker`, `KeywordScorer`, `TimeQuery` (times in a query), `ReminderMatcher` (reminders by time and place), `RankFusion`, `Vectors` |
 | `places` | `NearbyPlacesRepository` (what is near a location reminder's place), `OverpassClient` and `OverpassParser` (OpenStreetMap), `PlaceKinds` (map tags to everyday words); `PlaceSearchRepository` (the picker's search box) with `GooglePlacesClient`/`GooglePlacesParser` and `PhotonClient`/`PhotonParser`, `PlaceSuggestion`, `SearchArea`, `Http` |
-| `ui` | `MainActivity` plus `home`, `notes`, `editor`, `placepicker`, `reminders`, `search`, `settings`, and shared helpers in `common` |
+| `command` | `CommandReader` (interface) and `RuleCommandReader`: a spoken or typed request to a `Command` (note text, and a time or a place); `SpokenTime` reads exact times ("tomorrow at 9am", "in 20 minutes", "every Monday at 7pm") |
+| `ui` | `MainActivity` plus `home`, `notes`, `editor`, `placepicker`, `quickadd`, `reminders`, `search`, `settings`, and shared helpers in `common` |
 
 ## How reminders work
 
@@ -61,6 +62,14 @@ These are the parts that are easy to break without knowing them:
 - **Google bills by session.** The suggestions and the details request share a session token (`PlaceSearchRepository.session`); keep them together, or each keystroke is billed.
 - **The results must credit their source** ("Google Maps", or Photon and OpenStreetMap), shown under the list.
 - **Saved places** (`saved_places`) are only copied into a reminder when it is set, so renaming or removing one leaves reminders alone. Recent places are read from `reminders` (named location reminders, one per spot) once when the picker opens.
+
+## How quick add works
+
+- **The toolbar's microphone opens `QuickAddFragment`**, which starts Android's speech recognizer (`RecognizerIntent`, no audio permission); typing works the same. The request is read on the phone by `RuleCommandReader`, English only, and shown on a card; nothing is saved until the user confirms.
+- **Reading order matters:** the opening ("set me a location reminder", "remind me", "note to self"), then times (`SpokenTime`, which removes the words it used), then a place ("when I get to", "when I leave", "for X" after "location reminder", or "at X" only when X has a capital letter, so "look at the report" stays words). A place said with an arriving or leaving phrase wins over a time. What is left is the note.
+- **Add a sentence to `RuleCommandReaderTest` for every phrasing fixed or added.** It runs with a fixed "now" (Tuesday 27 October 2026, 2 pm, New York).
+- **A place is found** by a saved place's name, then a recent reminder's place, then place search nearest the user. Home, work, office and school are never searched for; unsaved, they send the user to the map.
+- **A different reader** (a language model) can replace `RuleCommandReader` behind `CommandReader`; the owner chose on-phone rules over an online model to keep note text on the phone (2026-10-27).
 
 ## Database changes
 

@@ -14,6 +14,9 @@ public interface SavedPlaceDao {
     @Query("SELECT * FROM saved_places ORDER BY id")
     LiveData<List<SavedPlace>> observeAll();
 
+    @Query("SELECT * FROM saved_places ORDER BY id")
+    List<SavedPlace> getAll();
+
     @Insert
     long insert(SavedPlace place);
 

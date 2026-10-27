@@ -59,13 +59,17 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Search is offered where notes are listed; elsewhere its icon would crowd the
-            // screen's own actions.
+            // screen's own actions. Quick add is offered everywhere but while a place or a
+            // setting is being chosen, and on its own screen.
             @Override
             public void onPrepareMenu(@NonNull Menu menu) {
                 NavDestination current = navController.getCurrentDestination();
                 int screen = current != null ? current.getId() : 0;
                 menu.findItem(R.id.searchFragment).setVisible(
                         screen == R.id.homeFragment || screen == R.id.notesFragment);
+                menu.findItem(R.id.quickAddFragment).setVisible(
+                        screen != R.id.quickAddFragment && screen != R.id.placePickerFragment
+                                && screen != R.id.settingsFragment);
             }
 
             @Override

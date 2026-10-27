@@ -66,4 +66,15 @@
         android:id="@+id/settingsFragment"
         android:name="com.myapp.quicknotes.ui.settings.SettingsFragment"
         android:label="@string/settings" />
+
+    <!-- Opened from the toolbar's microphone, it starts listening at once. -->
+    <fragment
+        android:id="@+id/quickAddFragment"
+        android:name="com.myapp.quicknotes.ui.quickadd.QuickAddFragment"
+        android:label="@string/quick_add">
+        <argument
+            android:name="startVoice"
+            android:defaultValue="true"
+            app:argType="boolean" />
+    </fragment>
 </navigation>
