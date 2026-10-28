@@ -242,6 +242,14 @@ interface so a model can replace them.
   request with "please". The speech dialog opened with the app's prompt; the emulator has no
   microphone, so speech itself is untested.
 
+### 2026-10-27: release 3.2
+
+Pull requests #8 (place search and saved places) and #9 (quick add) merged into `master`, and
+3.2 (version code 58) released through the release workflow with the tag `3.2`, the way 3.1 was.
+The `3.2-beta` pre-release (version code 57) stays on the Releases page; phones with it update
+to 3.2. Places API (New) was still not enabled, so 3.2's place search uses OpenStreetMap until
+it is; no new build is needed then.
+
 ## Decisions and their reasons
 
 | Decision | Reason |

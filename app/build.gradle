@@ -23,8 +23,8 @@ android {
         applicationId "com.myapp.QuickNotes1"
         minSdk 26
         targetSdk 36
-        versionCode 57
-        versionName "3.2-beta"
+        versionCode 58
+        versionName "3.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // The Google Maps key for the place picker. Without it the map shows no tiles.
