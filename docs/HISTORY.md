@@ -217,6 +217,39 @@ as "walgreens" and seeing the nearest matches, and for a list of saved places to
   built by the release workflow from the branch. 3.1 stays the latest release and the site's
   download. A final 3.2 needs version code 58, or the beta won't update to it.
 
+### 2026-10-27: quick add by voice or typing (branch `voice-commands`)
+
+The owner asked for natural language anywhere in the app: say or type "Set me a location
+reminder for walgreens to grab medicine and milk" and have it set. Offered rules on the phone,
+an on-phone model (Gemini Nano on few phones, or a download of 500 MB or more) or an online
+model (note text leaves the phone, a server to hold the key); the owner chose rules, behind an
+interface so a model can replace them.
+
+- A microphone in the toolbar (every screen but the place picker, settings and its own) opens
+  Quick add; the microphone in its text box starts Android's speech recognizer, and the
+  keyboard works too. (A first version started listening as soon as the screen opened; the
+  owner found that too abrupt.) A card shows the
+  note, when or where, and Set reminder / Change place / Change time; nothing is saved first.
+- `RuleCommandReader` and `SpokenTime` (package `command`) read openings, exact times,
+  repeats, arriving and leaving phrases, "every time", and notes. 16 tests over about 60
+  sentences.
+- Places resolve by saved name, then recent reminders, then place search nearest the user.
+  "Home" unsaved sends the user to the map with a hint to save it.
+- Checked on the test emulator in light and dark theme: the owner's sentence (set and stored at
+  the saved Walgreens, 200 m, arriving), "buy stamps when I am near the post office" (found 401 m
+  away by search), "every Monday at 7pm" (Nov 2, repeating Mondays), unsaved home (Pick on map,
+  which saves the note and opens the picker; Back returns to the screen before), a polite
+  request with "please". The speech dialog opened with the app's prompt; the emulator has no
+  microphone, so speech itself is untested.
+
+### 2026-10-27: release 3.2
+
+Pull requests #8 (place search and saved places) and #9 (quick add) merged into `master`, and
+3.2 (version code 58) released through the release workflow with the tag `3.2`, the way 3.1 was.
+The `3.2-beta` pre-release (version code 57) stays on the Releases page; phones with it update
+to 3.2. Places API (New) was still not enabled, so 3.2's place search uses OpenStreetMap until
+it is; no new build is needed then.
+
 ## Decisions and their reasons
 
 | Decision | Reason |
@@ -247,6 +280,8 @@ as "walgreens" and seeing the nearest matches, and for a list of saved places to
 | Google Places for the picker's search | The owner's choice: results like Google Maps'. Photon (OpenStreetMap) stands in when Google fails, so search works without the API. |
 | Photon results sorted by distance, Google's not | Photon weighs fame about as much as nearness; Google's order already prefers the area and also weighs how well the text matches. |
 | Saved places keep no radius | How close counts belongs to each reminder; a saved place is only a spot and a name. |
+| Quick add reads requests with rules on the phone | The owner's choice: free, offline, private, no download. Common phrasings only; the confirmation card makes a misreading cheap. `CommandReader` allows a model later. |
+| Quick add asks before saving | A misheard word should cost a tap, not a wrong reminder. |
 
 ## Open items
 

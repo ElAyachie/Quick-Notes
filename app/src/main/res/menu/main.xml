@@ -3,6 +3,15 @@
      current screen on the back stack instead of returning to the start screen first. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- Shown wherever there is room for it (MainActivity). -->
+    <item
+        android:id="@id/quickAddFragment"
+        android:icon="@drawable/ic_mic"
+        android:menuCategory="secondary"
+        android:orderInCategory="0"
+        android:title="@string/quick_add"
+        app:iconTint="@color/on_app_bar"
+        app:showAsAction="ifRoom" />
     <!-- Shown on the folder and note lists only (MainActivity). -->
     <item
         android:id="@id/searchFragment"

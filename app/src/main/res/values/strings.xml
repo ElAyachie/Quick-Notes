@@ -158,4 +158,30 @@
         <item>light</item>
         <item>dark</item>
     </string-array>
+    <!-- Quick add: a note and its reminder from one spoken or typed sentence -->
+    <string name="quick_add">Quick add</string>
+    <string name="quick_add_hint">Say or type what to remember</string>
+    <string name="speak">Speak</string>
+    <string name="quick_add_listening">What should I remind you of?</string>
+    <string name="voice_unavailable">Voice input isn\'t available on this device. You can type instead.</string>
+    <string name="quick_add_examples">For example: \u201cRemind me to buy milk when I get to Walgreens\u201d, \u201cRemind me tomorrow at 9am to call the dentist\u201d, \u201cEvery Monday at 7pm take out the trash\u201d.</string>
+    <string name="quick_add_read">Continue</string>
+    <string name="quick_add_note_only">A note, with no reminder</string>
+    <string name="quick_add_save_note">Save note</string>
+    <string name="quick_add_add_time">Add a time</string>
+    <string name="quick_add_no_time">No time was said.</string>
+    <string name="quick_add_pick_time">Pick a time</string>
+    <string name="quick_add_change_time">Change time</string>
+    <string name="quick_add_repeats">Repeats: %1$s</string>
+    <string name="quick_add_when_arriving">When you arrive at %1$s</string>
+    <string name="quick_add_when_leaving">When you leave %1$s</string>
+    <string name="quick_add_every_time">Every time</string>
+    <string name="quick_add_finding">Finding \u201c%1$s\u201d\u2026</string>
+    <string name="quick_add_place_not_found">Couldn\'t find \u201c%1$s\u201d nearby.</string>
+    <string name="quick_add_place_not_saved">\u201c%1$s\u201d isn\'t a saved place yet.</string>
+    <string name="quick_add_personal_place_hint">Pick it on the map, and save it with the bookmark so it\'s found next time.</string>
+    <string name="quick_add_no_place">No place was said.</string>
+    <string name="quick_add_pick_on_map">Pick on map</string>
+    <string name="quick_add_change_place">Change place</string>
+    <string name="quick_add_untitled">Reminder</string>
 </resources>

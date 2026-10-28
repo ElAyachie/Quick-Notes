@@ -30,6 +30,12 @@ A note-taking app for Android whose notes can remind you of themselves.
   Work). Saved places, and the named places of recent reminders, sit as chips under the search
   box and at the top of the search list, so a common place is one tap. Long press one to
   rename or remove it.
+- **Quick add, by voice or typing** — the microphone in the toolbar takes a whole request:
+  "Set me a location reminder for Walgreens to grab medicine and milk", "Remind me tomorrow at
+  9am to call the dentist", "Every Monday at 7pm take out the trash". The app shows what it
+  understood (the note, and when or where), finds the place nearest you, and saves nothing until
+  you confirm. It reads common English phrasings on the phone; anything it can't place or time
+  can be picked on the map or the clock.
 - **Place picker shortcuts** — tapping a shop or landmark's icon on the map chooses it and
   fills in its name.
 - **Reminders screen** — "Upcoming" lists the reminders still waiting; tap one to edit
@@ -58,7 +64,8 @@ Java, XML layouts, a single activity. Everything lives under
 | `reminders` | `ReminderScheduler` hands a reminder to the system: an alarm for a time, a geofence (Google Play services) for a place. `ReminderAlarmReceiver` and `GeofenceReceiver` run when one comes due, `ReminderNotifier` shows the notification, `ReminderActionReceiver` handles the notification's buttons, `ReminderRestoreReceiver` re-schedules everything after a reboot or app update. |
 | `search` | Search by meaning, by words and by reminders: splitting notes into passages, the on-device embedding model, reading times in a query, matching reminders, ranking and merging. See [How search works](#how-search-works). |
 | `places` | Looking up what is near a location reminder's place on OpenStreetMap, and searching for a place by name or address for the place picker (`PlaceSearchRepository`: Google Places, with OpenStreetMap's Photon when Google fails). |
-| `ui` | `MainActivity` owns the toolbar; each screen is a fragment with a view model (`home`, `notes`, `editor`, `placepicker`, `reminders`, `search`, `settings`). Screens are wired together in `res/navigation/nav_graph.xml`. |
+| `command` | Reading a spoken or typed request into a note and reminder: `RuleCommandReader` (patterns, English) behind the `CommandReader` interface, with `SpokenTime` for times. |
+| `ui` | `MainActivity` owns the toolbar; each screen is a fragment with a view model (`home`, `notes`, `editor`, `placepicker`, `quickadd`, `reminders`, `search`, `settings`). Screens are wired together in `res/navigation/nav_graph.xml`. |
 | (root) | `QuickNotesApp` and `AppContainer` build the database, repositories and reminder classes once and share them. |
 
 A reminder stores the id of its note, not a copy of the text, so the notification always
@@ -159,6 +166,10 @@ Note text never leaves the phone. Two things do go over the network:
   the phone's position (for distances), to Google's Places API, or to komoot's
   [Photon](https://photon.komoot.io) server when Google can't answer. Each list of results
   credits where it came from.
+- Quick add's microphone uses the phone's speech recognizer (on most phones Google's), which may
+  send the recording to its maker to turn it into text, as the keyboard's microphone does. The
+  text is then read on the phone. Typing sends nothing; a place named in it is searched for as
+  above.
 - MediaPipe sends Google anonymous usage statistics about
 the model (how often it runs, how long it takes), as its
 [privacy notice](https://developers.google.com/edge/mediapipe/solutions/tasks#mediapipe_tasks_privacy_notice)

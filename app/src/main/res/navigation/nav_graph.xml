@@ -66,4 +66,10 @@
         android:id="@+id/settingsFragment"
         android:name="com.myapp.quicknotes.ui.settings.SettingsFragment"
         android:label="@string/settings" />
+
+    <!-- Opened from the toolbar's microphone. -->
+    <fragment
+        android:id="@+id/quickAddFragment"
+        android:name="com.myapp.quicknotes.ui.quickadd.QuickAddFragment"
+        android:label="@string/quick_add" />
 </navigation>
