@@ -22,11 +22,11 @@ Everything is under `app/src/main/java/com/myapp/quicknotes`:
 
 | Package | Contents |
 |---|---|
-| (root) | `QuickNotesApp`, `AppContainer` (builds the database, repositories and reminder classes once), `AppExecutors` (one background thread for database work, one for search, one for the network, results posted to the main thread) |
-| `data` | Room: `Folder`, `Note`, `Reminder` entities, the search tables `NoteChunk` and `NoteFts` with `SearchDao`, the nearby-place tables `PlaceLookup` and `NearbyPlace` with `PlaceDao`, DAOs, one repository per table. `Repeat` and `DaysOfWeek` hold the recurrence arithmetic. Repositories are the only way the UI and receivers touch data. |
+| (root) | `QuickNotesApp`, `AppContainer` (builds the database, repositories and reminder classes once), `AppExecutors` (one background thread for database work, one for search, one for the network, one for place search, results posted to the main thread) |
+| `data` | Room: `Folder`, `Note`, `Reminder` entities, the search tables `NoteChunk` and `NoteFts` with `SearchDao`, the nearby-place tables `PlaceLookup` and `NearbyPlace` with `PlaceDao`, `SavedPlace` (places the user named), DAOs, one repository per table. `Repeat` and `DaysOfWeek` hold the recurrence arithmetic. Repositories are the only way the UI and receivers touch data. |
 | `reminders` | `ReminderScheduler` (alarms and geofences), `ReminderAlarmReceiver`, `GeofenceReceiver`, `ReminderRestoreReceiver` (reboot, app update, exact-alarm permission change), `ReminderNotifier`, `ReminderActionReceiver` (the notification's Done and snooze buttons), `LocationAccess` |
 | `search` | `SearchRepository` (indexing and searching), `TextChunker`, `UniversalSentenceEncoder` (MediaPipe) behind `Embedder`, `CrashGuardedEmbedder`, `SemanticRanker`, `KeywordScorer`, `TimeQuery` (times in a query), `ReminderMatcher` (reminders by time and place), `RankFusion`, `Vectors` |
-| `places` | `NearbyPlacesRepository` (what is near a location reminder's place), `OverpassClient` and `OverpassParser` (OpenStreetMap), `PlaceKinds` (map tags to everyday words) |
+| `places` | `NearbyPlacesRepository` (what is near a location reminder's place), `OverpassClient` and `OverpassParser` (OpenStreetMap), `PlaceKinds` (map tags to everyday words); `PlaceSearchRepository` (the picker's search box) with `GooglePlacesClient`/`GooglePlacesParser` and `PhotonClient`/`PhotonParser`, `PlaceSuggestion`, `SearchArea`, `Http` |
 | `ui` | `MainActivity` plus `home`, `notes`, `editor`, `placepicker`, `reminders`, `search`, `settings`, and shared helpers in `common` |
 
 ## How reminders work
@@ -55,9 +55,16 @@ These are the parts that are easy to break without knowing them:
 - **Nearby places are stored by place, not by reminder** (`PlaceLookup.keyOf`: coordinates and radius), so a repeating reminder's next occurrence keeps them. They are looked up when a location reminder is added or moved (`ReminderRepository`) and, for any missed, at app start, which also drops lookups no waiting reminder uses. Lookups go to OpenStreetMap's Overpass servers on the network thread, one at a time; the main server can take a minute. OpenStreetMap's licence needs the credit shown on the search screen.
 - **MediaPipe runs native code.** A crash there can't be caught; `CrashGuardedEmbedder` turns search by meaning off on a device where the first attempt never finished. On the x86_64 test emulator the ARM release build crashes this way under ARM translation; the debug build (x86_64 libraries) works, and the 3.1 release works on a real phone.
 
+## How place search works
+
+- **The picker's search box asks Google's Places API (New)** (autocomplete, then the chosen place's `location` only, which keeps it in the cheapest tier) with `MAP_API_KEY`, sending the app's package and certificate SHA-1 so an Android-restricted key works. A refused key or disabled API (400/403) switches Google off until the app restarts; then, or on any other failure, it asks OpenStreetMap's Photon, whose results are sorted nearest first because its own order isn't.
+- **Google bills by session.** The suggestions and the details request share a session token (`PlaceSearchRepository.session`); keep them together, or each keystroke is billed.
+- **The results must credit their source** ("Google Maps", or Photon and OpenStreetMap), shown under the list.
+- **Saved places** (`saved_places`) are only copied into a reminder when it is set, so renaming or removing one leaves reminders alone. Recent places are read from `reminders` (named location reminders, one per spot) once when the picker opens.
+
 ## Database changes
 
-The database is at **version 7**. Any schema change needs all of:
+The database is at **version 8**. Any schema change needs all of:
 
 1. a bumped `version` in `AppDatabase` and a `Migration` added to `create()`;
 2. the exported schema file in `app/schemas/` committed (Room writes it on build);

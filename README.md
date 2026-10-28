@@ -23,6 +23,13 @@ A note-taking app for Android whose notes can remind you of themselves.
   finds what is due tomorrow, and "Target" or "pharmacy" finds a note whose location reminder
   is near one, even if you never named the place. Each result says why it was found. See
   [How search works](#how-search-works).
+- **Place search** — the place picker has a search box like a map app's: type an address or a
+  name such as "Walgreens" and it suggests matching places, nearest first, with how far away
+  each is. Results come from Google Places, or from OpenStreetMap when Google can't be reached.
+- **Saved places** — the bookmark in the place name field saves a place under a name (Home,
+  Work). Saved places, and the named places of recent reminders, sit as chips under the search
+  box and at the top of the search list, so a common place is one tap. Long press one to
+  rename or remove it.
 - **Place picker shortcuts** — tapping a shop or landmark's icon on the map chooses it and
   fills in its name.
 - **Reminders screen** — "Upcoming" lists the reminders still waiting; tap one to edit
@@ -47,10 +54,10 @@ Java, XML layouts, a single activity. Everything lives under
 
 | Package | What's in it |
 |---|---|
-| `data` | The Room database: `Folder`, `Note` and `Reminder` tables, the search tables (`NoteChunk`, `NoteFts`), the nearby-place tables (`PlaceLookup`, `NearbyPlace`), their DAOs, and one repository per table. Repositories are the only way the rest of the app touches data. |
+| `data` | The Room database: `Folder`, `Note` and `Reminder` tables, the search tables (`NoteChunk`, `NoteFts`), the nearby-place tables (`PlaceLookup`, `NearbyPlace`), the user's `SavedPlace`s, their DAOs, and one repository per table. Repositories are the only way the rest of the app touches data. |
 | `reminders` | `ReminderScheduler` hands a reminder to the system: an alarm for a time, a geofence (Google Play services) for a place. `ReminderAlarmReceiver` and `GeofenceReceiver` run when one comes due, `ReminderNotifier` shows the notification, `ReminderActionReceiver` handles the notification's buttons, `ReminderRestoreReceiver` re-schedules everything after a reboot or app update. |
 | `search` | Search by meaning, by words and by reminders: splitting notes into passages, the on-device embedding model, reading times in a query, matching reminders, ranking and merging. See [How search works](#how-search-works). |
-| `places` | Looking up what is near a location reminder's place on OpenStreetMap. |
+| `places` | Looking up what is near a location reminder's place on OpenStreetMap, and searching for a place by name or address for the place picker (`PlaceSearchRepository`: Google Places, with OpenStreetMap's Photon when Google fails). |
 | `ui` | `MainActivity` owns the toolbar; each screen is a fragment with a view model (`home`, `notes`, `editor`, `placepicker`, `reminders`, `search`, `settings`). Screens are wired together in `res/navigation/nav_graph.xml`. |
 | (root) | `QuickNotesApp` and `AppContainer` build the database, repositories and reminder classes once and share them. |
 
@@ -148,6 +155,10 @@ Note text never leaves the phone. Two things do go over the network:
   to find what is nearby: once per place, and again only if the place moves. The servers are
   free and need no key, but can be slow; a lookup that fails is tried again at the next start.
   Place data is © OpenStreetMap contributors, credited on the search screen when it is shown.
+- What is typed into the place picker's search box is sent, with the area the map shows and
+  the phone's position (for distances), to Google's Places API, or to komoot's
+  [Photon](https://photon.komoot.io) server when Google can't answer. Each list of results
+  credits where it came from.
 - MediaPipe sends Google anonymous usage statistics about
 the model (how often it runs, how long it takes), as its
 [privacy notice](https://developers.google.com/edge/mediapipe/solutions/tasks#mediapipe_tasks_privacy_notice)
@@ -175,7 +186,11 @@ Requires JDK 17 or newer (Android Studio's bundled JDK works). `local.properties
 point `sdk.dir` at your Android SDK; Android Studio writes it for you.
 
 The place picker uses Google Maps. Put a Maps SDK for Android key in `local.properties`
-as `MAP_API_KEY=...`; without it the app still runs but the map shows no tiles.
+as `MAP_API_KEY=...`; without it the app still runs but the map shows no tiles. Place search
+uses the same key with **Places API (New)** enabled in its Google Cloud project; without that
+it searches OpenStreetMap instead. Google bills place search per session (the suggestions
+while typing and the chosen place's location count as one); its monthly free allowance
+covers personal use.
 
 ## Releases
 
@@ -195,8 +210,10 @@ The workflow needs these repository secrets (Settings > Secrets and variables > 
 
 The Maps key ends up inside the public APK, which is normal for Android, so restrict it in the
 Google Cloud console: under **Application restrictions** choose Android apps and add
-`com.myapp.QuickNotes1` with the release certificate's SHA-1, and under **API restrictions**
-allow only Maps SDK for Android.
+`com.myapp.QuickNotes1` with the release certificate's SHA-1 (and the debug certificate's, to
+use it from debug builds), and under **API restrictions** allow only Maps SDK for Android and
+Places API (New). The app sends its package and certificate with each place search, so a key
+restricted this way works for search too.
 
 To build a signed release on your own computer, set `ANDROID_KEYSTORE_PATH` and
 `ANDROID_KEYSTORE_PASSWORD` and run `gradlew assembleRelease`. Without them the release build

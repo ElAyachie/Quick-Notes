@@ -1,106 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- The search view covers the whole screen while it is open, over the map and its panel. -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <!-- The panel's rounded top overlaps the map; map_overlap is also the map's bottom padding,
-         so nothing on the map hides behind the panel. -->
-    <com.google.android.material.card.MaterialCardView
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- Floats over the top of the map, like a map app's search box, with the saved and
+                 recent places as chips beneath it. -->
+            <LinearLayout
+                android:id="@+id/map_top_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.search.SearchBar
+                    android:id="@+id/search_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/search_places_hint"
+                    app:navigationIcon="@drawable/ic_search" />
+
+                <HorizontalScrollView
+                    android:id="@+id/place_chips_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="12dp"
+                    android:scrollbars="none"
+                    android:visibility="gone">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/place_chips"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:singleLine="true" />
+                </HorizontalScrollView>
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- The panel's rounded top overlaps the map; map_overlap is also the map's bottom padding,
+             so nothing on the map hides behind the panel. -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/map_overlap_negative"
+            app:cardBackgroundColor="?android:attr/colorBackground"
+            app:cardElevation="8dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.QuickNotes.BottomPanel">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="12dp">
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/place_trigger_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
+
+                    <Button
+                        android:id="@+id/arriving_button"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/when_i_arrive" />
+
+                    <Button
+                        android:id="@+id/leaving_button"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/when_i_leave" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                <TextView
+                    android:id="@+id/status_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/radius_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/reminder_distance"
+                    android:stepSize="50"
+                    android:valueFrom="100"
+                    android:valueTo="2000"
+                    app:tickVisible="false" />
+
+                <!-- The bookmark at the end saves the chosen place, or renames or removes it when
+                     it is saved already. -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/place_name_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/place_name_optional"
+                    app:endIconContentDescription="@string/save_this_place"
+                    app:endIconDrawable="@drawable/ic_bookmark_border"
+                    app:endIconMode="custom"
+                    app:startIconDrawable="@drawable/ic_place">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/place_name_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/repeat_switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/remind_every_arrival"
+                    android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                <Button
+                    android:id="@+id/set_reminder_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:enabled="false"
+                    android:minHeight="52dp"
+                    android:text="@string/set_reminder" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/search_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/map_overlap_negative"
-        app:cardBackgroundColor="?android:attr/colorBackground"
-        app:cardElevation="8dp"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.QuickNotes.BottomPanel">
+        android:layout_height="match_parent"
+        android:hint="@string/search_places_hint">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="12dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/place_trigger_toggle"
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/search_progress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:selectionRequired="true"
-                app:singleSelection="true">
-
-                <Button
-                    android:id="@+id/arriving_button"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/when_i_arrive" />
-
-                <Button
-                    android:id="@+id/leaving_button"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/when_i_leave" />
-            </com.google.android.material.button.MaterialButtonToggleGroup>
+                android:indeterminate="true"
+                android:visibility="invisible" />
 
             <TextView
-                android:id="@+id/status_text"
+                android:id="@+id/search_message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
+                android:padding="16dp"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone" />
 
-            <com.google.android.material.slider.Slider
-                android:id="@+id/radius_slider"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/suggestion_list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+            <!-- Who the results came from, as Google and OpenStreetMap require. -->
+            <TextView
+                android:id="@+id/search_credit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/reminder_distance"
-                android:stepSize="50"
-                android:valueFrom="100"
-                android:valueTo="2000"
-                app:tickVisible="false" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/place_name_optional"
-                app:startIconDrawable="@drawable/ic_place">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/place_name_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapWords"
-                    android:maxLines="1" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/repeat_switch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/remind_every_arrival"
-                android:textAppearance="?attr/textAppearanceBodyLarge" />
-
-            <Button
-                android:id="@+id/set_reminder_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:enabled="false"
-                android:minHeight="52dp"
-                android:text="@string/set_reminder" />
+                android:gravity="end"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-</LinearLayout>
+    </com.google.android.material.search.SearchView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

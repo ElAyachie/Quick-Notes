@@ -107,6 +107,23 @@
     <string name="remind_beyond">Remind me when I go more than %1$s from this place.</string>
     <string name="reminder_distance">How close to the place</string>
     <string name="place_name_optional">Place name (optional)</string>
+    <string name="search_places_hint">Search for a place or address</string>
+    <string name="search_places_empty">Type the name of a shop, landmark or street, or an address.</string>
+    <string name="no_places_found">No places found.</string>
+    <string name="place_search_failed">Couldn\'t search for places. Check your connection and try again.</string>
+    <string name="place_locate_failed">Couldn\'t find where that place is. Try again.</string>
+    <!-- Google requires this credit wherever its places are listed without its map. -->
+    <string name="google_maps_credit">Google Maps</string>
+    <string name="photon_credit">Search by Photon · © OpenStreetMap contributors</string>
+    <string name="save_this_place">Save this place</string>
+    <string name="saved_place_options">Saved place: rename or remove</string>
+    <string name="save_place_title">Save place</string>
+    <string name="rename_place_title">Rename place</string>
+    <string name="saved_place_name">Name, such as Home or Work</string>
+    <string name="place_saved">Saved as %1$s</string>
+    <string name="place_removed">Removed %1$s from saved places</string>
+    <string name="rename">Rename</string>
+    <string name="remove">Remove</string>
     <string name="set_reminder">Set reminder</string>
     <string name="save_changes">Save changes</string>
     <string name="remind_every_arrival">Remind me every time I arrive</string>

@@ -11,8 +11,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(
         entities = {Folder.class, Note.class, Reminder.class, NoteChunk.class, NoteFts.class,
-                PlaceLookup.class, NearbyPlace.class},
-        version = 7)
+                PlaceLookup.class, NearbyPlace.class, SavedPlace.class},
+        version = 8)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String FILE_NAME = "quicknotes.db";
 
@@ -26,11 +26,13 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract PlaceDao placeDao();
 
+    public abstract SavedPlaceDao savedPlaceDao();
+
     public static AppDatabase create(Context context) {
         return Room.databaseBuilder(context, AppDatabase.class, FILE_NAME)
                 .addCallback(SEED_DEFAULT_FOLDER)
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-                        MIGRATION_5_6, MIGRATION_6_7)
+                        MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                 .build();
     }
 
@@ -151,6 +153,16 @@ public abstract class AppDatabase extends RoomDatabase {
                     + "ON UPDATE NO ACTION ON DELETE CASCADE )");
             db.execSQL("CREATE INDEX IF NOT EXISTS `index_nearby_places_place_key` "
                     + "ON `nearby_places` (`place_key`)");
+        }
+    };
+
+    // Version 8 lets the user save places by name for location reminders. None are saved yet.
+    public static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `saved_places` ("
+                    + "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, "
+                    + "`latitude` REAL NOT NULL, `longitude` REAL NOT NULL)");
         }
     };
 
