@@ -58,7 +58,7 @@ These are the parts that are easy to break without knowing them:
 
 ## How place search works
 
-- **The picker's search box asks Google's Places API (New)** (autocomplete, then the chosen place's `location` only, which keeps it in the cheapest tier) with `MAP_API_KEY`, sending the app's package and certificate SHA-1 so an Android-restricted key works. A refused key or disabled API (400/403) switches Google off until the app restarts; then, or on any other failure, it asks OpenStreetMap's Photon, whose results are sorted nearest first because its own order isn't.
+- **The picker's search box asks Google's Places API (New)** (autocomplete, then the chosen place's `location` only, which keeps it in the cheapest tier) with `MAP_API_KEY`, sending the app's package and certificate SHA-1 so an Android-restricted key works. A refused key or disabled API (400/403) switches Google off until the app restarts; then, or on any other failure, it asks OpenStreetMap's Photon. Both sources' results are sorted nearest first, because neither's own order is (Google put a Walgreens 359 m away below ones 3 km away).
 - **Google bills by session.** The suggestions and the details request share a session token (`PlaceSearchRepository.session`); keep them together, or each keystroke is billed.
 - **The results must credit their source** ("Google Maps", or Photon and OpenStreetMap), shown under the list.
 - **Saved places** (`saved_places`) are only copied into a reminder when it is set, so renaming or removing one leaves reminders alone. Recent places are read from `reminders` (named location reminders, one per spot) once when the picker opens.

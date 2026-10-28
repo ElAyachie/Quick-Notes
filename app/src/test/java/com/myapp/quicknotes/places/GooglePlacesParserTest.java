@@ -52,6 +52,33 @@ public class GooglePlacesParserTest {
     }
 
     @Test
+    public void nearestComeFirst() throws Exception {
+        // Google's order for "walgreens" from Copley Square, 2026-10-27, nearest last.
+        String json = "{\"suggestions\": ["
+                + prediction("a", "School Street", 1820) + ","
+                + prediction("b", "River Street", 3185) + ","
+                + prediction("c", "Tremont Street", 2806) + ","
+                + "{\"placePrediction\": {\"placeId\": \"d\", \"text\": {\"text\": \"Walgreens\"}}},"
+                + prediction("e", "Boylston Street", 359) + "]}";
+
+        List<PlaceSuggestion> places = GooglePlacesParser.parseAutocomplete(json);
+
+        assertEquals("e", places.get(0).getGooglePlaceId());
+        assertEquals("a", places.get(1).getGooglePlaceId());
+        assertEquals("c", places.get(2).getGooglePlaceId());
+        assertEquals("b", places.get(3).getGooglePlaceId());
+        // Without a distance it goes last.
+        assertEquals("d", places.get(4).getGooglePlaceId());
+    }
+
+    private static String prediction(String id, String street, int meters) {
+        return "{\"placePrediction\": {\"placeId\": \"" + id + "\","
+                + " \"structuredFormat\": {\"mainText\": {\"text\": \"Walgreens\"},"
+                + " \"secondaryText\": {\"text\": \"" + street + "\"}},"
+                + " \"distanceMeters\": " + meters + "}}";
+    }
+
+    @Test
     public void anAnswerWithNoSuggestionsIsEmpty() throws Exception {
         assertTrue(GooglePlacesParser.parseAutocomplete("{}").isEmpty());
     }

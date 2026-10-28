@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 // Writes requests to Google's Places API (New) and reads its answers. Kept apart from the network
@@ -41,7 +42,8 @@ final class GooglePlacesParser {
         return body.toString();
     }
 
-    // The suggested places, in Google's order.
+    // The suggested places, nearest first. Google's own order put the Walgreens 359 m away below
+    // ones 3 km away. Places with no distance (the user's position unknown) keep Google's order.
     static List<PlaceSuggestion> parseAutocomplete(String json) throws JSONException {
         List<PlaceSuggestion> suggestions = new ArrayList<>();
         JSONArray items = new JSONObject(json).optJSONArray("suggestions");
@@ -64,6 +66,9 @@ final class GooglePlacesParser {
                     ? prediction.getInt("distanceMeters") : null;
             suggestions.add(PlaceSuggestion.foundByGoogle(placeId, name, address, distance));
         }
+        // A stable sort, so equal distances and unknown ones (last) keep Google's order.
+        suggestions.sort(Comparator.comparing(PlaceSuggestion::getDistanceMeters,
+                Comparator.nullsLast(Comparator.naturalOrder())));
         return suggestions;
     }
 

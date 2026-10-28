@@ -250,6 +250,22 @@ The `3.2-beta` pre-release (version code 57) stays on the Releases page; phones 
 to 3.2. Places API (New) was still not enabled, so 3.2's place search uses OpenStreetMap until
 it is; no new build is needed then.
 
+### 2026-10-28: Google place search working (3.2.1)
+
+The Maps key's project (41690723671) turned out to belong to a Google account the owner no
+longer uses, so Places API (New) couldn't be enabled there. The owner made a new key under their
+current account with Places API (New) and the Maps SDK enabled; it replaced the old one in
+`local.properties`. Google search was then checked on the test emulator: "walgreens" from Copley
+Square credited Google Maps, and the place-details request returned the store's location.
+
+- Google's own order put the nearest Walgreens (359 m) last, behind ones 3 km away, so Google's
+  suggestions are now sorted nearest first too, unknown distances last.
+- The key is built into the APK, so this needs a release (3.2.1, version code 59) and the
+  `MAP_API_KEY` repository secret set to the new key. The new key had no restrictions when it was
+  added; the owner was given the package name and both certificate fingerprints to restrict it.
+- With both emulators and a build running, both emulators closed by themselves during the check
+  (probably memory). Run one emulator at a time while building.
+
 ## Decisions and their reasons
 
 | Decision | Reason |
@@ -278,7 +294,7 @@ it is; no new build is needed then.
 | Nearby places looked up within 500 m at most | A 2 km circle in a city holds thousands of places; the nearest say where the place is. |
 | Centering vectors from separate calibration texts | Computing them from the evaluation set would have made the measured quality meaningless. |
 | Google Places for the picker's search | The owner's choice: results like Google Maps'. Photon (OpenStreetMap) stands in when Google fails, so search works without the API. |
-| Photon results sorted by distance, Google's not | Photon weighs fame about as much as nearness; Google's order already prefers the area and also weighs how well the text matches. |
+| Search results sorted by distance, Google's included | The owner asked for the nearest options. Photon weighs fame about as much as nearness, and Google put a Walgreens 359 m away last. |
 | Saved places keep no radius | How close counts belongs to each reminder; a saved place is only a spot and a name. |
 | Quick add reads requests with rules on the phone | The owner's choice: free, offline, private, no download. Common phrasings only; the confirmation card makes a misreading cheap. `CommandReader` allows a model later. |
 | Quick add asks before saving | A misheard word should cost a tap, not a wrong reminder. |
